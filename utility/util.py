@@ -25,7 +25,7 @@ from cogs.utils.settings import Settings
 log = logging.getLogger("red.admin")
 
 class Utility:
-    """Util commands."""
+    """Utility commands."""
 
     def __init__(self, bot):
         self.bot = bot
