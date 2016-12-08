@@ -15,6 +15,7 @@ import logging
 import asyncio
 import threading
 import datetime
+import time
 import glob
 import os
 import aiohttp
@@ -490,7 +491,7 @@ class Owner:
         now = datetime.datetime.now()
         uptime = (now - self.bot.uptime).seconds
         uptime = datetime.timedelta(seconds=uptime)
-        await self.bot.say(" **	Successfully Shutdown at**  ***{}*** ".format(uptime))
+        await self.bot.say(" ** Successfully Shutdown at**  ***{}*** ".format(uptime))
         await self.bot.logout()
 
     @commands.group(name="command", pass_context=True)
@@ -770,12 +771,18 @@ class Owner:
     @commands.command()
     async def uptime(self):
         """Shows DMX's uptime"""
-        now = datetime.datetime.now()
-        uptime = (now - self.bot.uptime).seconds
-        uptime = datetime.timedelta(seconds=uptime)
+        try:
+            uptime = abs(self.bot.uptime - int(time.perf_counter()))
+        except TypeError:
+            uptime = time.time() - time.mktime(self.bot.uptime.timetuple())
+        up = datetime.timedelta(seconds=uptime)
+        days = up.days
+        hours = int(up.seconds/3600)
+        minutes = int(up.seconds % 3600/60)
+        seconds = up.seconds
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)        
-        em = discord.Embed(description='***Ayee*** Been up for ==> ***__{}__***'.format(uptime), colour=discord.Colour(value=colour))
+        em = discord.Embed(description='***Ayee*** Been up for ==> ***{} Days {} Hours {} Minutes and {} **TOTAL** Seconds*** '.format(str(days), str(hours), str(minutes), str(seconds)), colour=discord.Colour(value=colour))
         await self.bot.say(embed=em)
     @commands.command()
     async def version(self):
