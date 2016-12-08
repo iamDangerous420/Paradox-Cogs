@@ -512,7 +512,7 @@ class General:
         data = discord.Embed(description=game, colour=user.colour)
         data.add_field(name="Status", value= "{} Is Chilaxing in {} status".format(user.name, user.status))
         data.add_field(name="Joined Discord on", value=created_on)
-        data.add_field(name="Nickname", value=user.nick) if user.nick else name
+        data.add_field(name="Nickname", value=user.nick)
         data.add_field(name="Joined this server on", value=joined_on)
         data.add_field(name="Roles", value=roles, inline=False)
         data.set_footer(text="Userinfo | User ID ⇒  " + user.id)
@@ -633,7 +633,7 @@ class General:
         if not self.getPollByChannel(message):
             check = " ".join(text).lower()
             if "@everyone" in check or "@here" in check:
-                await self.bot.say("Nice try.")
+                await self.bot.reply("Well At least you tried but i have counter messures against that ¯\_(ツ)_/¯")
                 return
             p = NewPoll(message, self)
             if p.valid:
@@ -642,7 +642,7 @@ class General:
             else:
                 await self.bot.say("poll question;option1;option2 (...)")
         else:
-            await self.bot.say("A poll is already ongoing in this channel.")
+            await self.bot.say("A poll is already ongoing.")
 
     async def endpoll(self, message):
         if self.getPollByChannel(message):
@@ -650,9 +650,9 @@ class General:
             if p.author == message.author.id: # or isMemberAdmin(message)
                 await self.getPollByChannel(message).endPoll()
             else:
-                await self.bot.say("Only admins and the author can stop the poll.")
+                await self.bot.say("**Only Admins & Dangerous** can stop the poll.")
         else:
-            await self.bot.say("There's no poll ongoing in this channel.")
+            await self.bot.say("No Ongoing poll.")
 
     def getPollByChannel(self, message):
         for poll in self.poll_sessions:
@@ -695,10 +695,10 @@ class NewPoll():
             i += 1
 
     async def start(self):
-        msg = "**POLL STARTED!**\n\n{}\n\n".format(self.question)
+        msg = ":mailbox_with_mail: **POLL STARTED!**:mailbox_with_mail: \n\n**{}**\n\n".format(self.question)
         for id, data in self.answers.items():
             msg += "{}. *{}*\n".format(id, data["ANSWER"])
-        msg += "\nType the number to vote!"
+        msg += "\nType the freaken #To answer !"
         await self.client.send_message(self.channel, msg)
         await asyncio.sleep(settings["POLL_DURATION"])
         if self.valid:
