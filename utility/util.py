@@ -54,9 +54,15 @@ class Utility:
         server = ctx.message.server
         await self.bot.say(':regional_indicator_s: :regional_indicator_e: :regional_indicator_v: :regional_indicator_e: :regional_indicator_r: :id: of **{}** ==> ***__{}__***'.format(server.name, server.id))
     @commands.command(pass_context=True)
-    async def cid(self, ctx,):
+    async def cid(self, ctx,  channel: discord.Channel=None):
         """get your channel id"""
         channel = ctx.message.channel
+        author = ctx.message.channel
+        server = ctx.message.server
+
+        if not channel:
+            channel = author
+
         await self.bot.say(':regional_indicator_c: :regional_indicator_h: :regional_indicator_a: :regional_indicator_n: :regional_indicator_n: :regional_indicator_n: :regional_indicator_e: :regional_indicator_l: :id: of **{}** ==> ***__{}__***'.format(channel.name, channel.id))
     @commands.command(pass_context=True)
     async def rid(self, ctx, rolename):
