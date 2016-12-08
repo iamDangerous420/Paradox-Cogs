@@ -1,0 +1,9 @@
+
+{
+    "AUTHOR" : "Dangerous",
+    "SHORT" : "HomeEdited Owner cog",
+    "DESCRIPTION" : "SelfEdited Owner Cog",
+    "DISABLED" : false,
+    "NAME" : "Owner",
+    "INSTALL_MSG" : "Thanks for installing my Owner cog It doesn't work with red's owner.py !"
+}
