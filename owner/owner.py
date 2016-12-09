@@ -50,12 +50,99 @@ class Owner:
     def __init__(self, bot):
         self.bot = bot
         self.setowner_lock = False
+        self._announce_msg = None
+        self._settings = dataIO.load_json('data/admin/settings.json')
         self.file_path = "data/red/disabled_commands.json"
         self.disabled_commands = dataIO.load_json(self.file_path)
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
 
+    async def _confirm_invite(self, server, owner, ctx):
+        answers = ("yes", "y")
+        invite = await self.bot.create_invite(server)
+        if ctx.message.channel.is_private:
+            await self.bot.say(invite)
+        else:
+            await self.bot.say("Are you sure you want to post an invite to {} "
+                               "here? (yes/no)".format(server.name))
+            msg = await self.bot.wait_for_message(author=owner, timeout=15)
+            if msg is None:
+                await self.bot.say("I guess not.")
+            elif msg.content.lower().strip() in answers:
+                await self.bot.say(invite)
+            else:
+                await self.bot.say("Alright then.")
+
+    def _save_settings(self):
+        dataIO.save_json('data/admin/settings.json', self._settings)
+
+    def _set_serverlock(self, lock=True):
+        self._settings["SERVER_LOCK"] = lock
+        self._save_settings()
+
     def __unload(self):
         self.session.close()
+
+    def _is_server_locked(self):
+        return self._settings.get("SERVER_LOCK", False)
+
+    @commands.command(pass_context=True)
+    @checks.is_owner()
+    async def a(self, ctx, *, msg):
+        """Announces a message to all servers that a bot is in."""
+        if self._announce_msg is not None:
+            await self.bot.say("Already announcing, wait until complete to"
+                               " issue a new announcement.")
+        else:
+            self._announce_msg = msg
+
+    @commands.command(pass_context=True)
+    @checks.is_owner()
+    async def serverlock(self, ctx):
+        """Toggles locking the current server list, will not join others"""
+        if self._is_server_locked():
+            self._set_serverlock(False)
+            await self.bot.say("Server list unlocked")
+        else:
+            self._set_serverlock()
+            await self.bot.say("Server list locked.")
+
+    @commands.command(pass_context=True)
+    @checks.is_owner()
+    async def partycrash(self, ctx, idnum=None):
+        """Lists servers and generates invites for them"""
+        owner = ctx.message.author
+        if idnum:
+            server = discord.utils.get(self.bot.servers, id=idnum)
+            if server:
+                await self._confirm_invite(server, owner, ctx)
+            else:
+                await self.bot.say("I'm not in that server")
+        else:
+            msg = ""
+            servers = sorted(self.bot.servers, key=lambda s: s.name)
+            for i, server in enumerate(servers, 1):
+                msg += "{}: {}\n".format(i, server.name)
+            msg += "\nTo post an invite for a server just type its number."
+            for page in pagify(msg, delims=["\n"]):
+                await self.bot.say(box(page))
+                await asyncio.sleep(1.5)  # Just in case for rate limits
+            msg = await self.bot.wait_for_message(author=owner, timeout=15)
+            if msg is not None:
+                try:
+                    msg = int(msg.content.strip())
+                    server = servers[msg - 1]
+                except ValueError:
+                    await self.bot.say("You must enter a number.")
+                except IndexError:
+                    await self.bot.say("Index out of range.")
+                else:
+                    try:
+                        await self._confirm_invite(server, owner, ctx)
+                    except discord.Forbidden:
+                        await self.bot.say("I'm not allowed to make an invite"
+                                           " for {}".format(server.name))
+            else:
+                await self.bot.say("Response timed out.")
 
     @commands.command()
     @checks.is_owner()
@@ -484,6 +571,50 @@ class Owner:
             await self.bot.say("Token set. Restart me.")
             log.debug("Token changed.")
 
+    @checks.is_owner()
+    @commands.command(pass_context=True, no_pm=True)
+    async def sendcog(self, ctx, filepath: str):
+        fp = "cogs/{0}.py".format(filepath)
+        if os.path.exists(fp):
+            await self.bot.send_file(ctx.message.channel, fp)
+        else:
+            await self.bot.say("Cog not found!")
+
+    @checks.is_owner()
+    @commands.command(pass_context=True, no_pm=True)
+    async def listcogs(self, ctx):
+        """Shows the status of cogs.
+        + means the cog is loaded
+        - means the cog is unloaded
+        ? means the cog couldn't be found(it was probably removed manually)"""
+
+        all_cogs = dataIO.load_json("data/red/cogs.json")
+        loaded, unloaded, other = ("",)*3
+        cogs = self.bot.cogs['Owner']._list_cogs()
+
+        for x in all_cogs:
+            if all_cogs.get(x):
+                if x in cogs:
+                    loaded += "+\t{0}\n".format(x.split('.')[1])
+                else:
+                    other += "?\t{0}\n".format(x.split('.')[1])
+            elif x in cogs:
+                unloaded += "-\t{0}\n".format(x.split('.')[1])
+        await self.bot.say("```diff\n{0}{1}{2}```".format(loaded, unloaded, other))
+
+    @checks.is_owner()
+    @commands.command(pass_context=True, no_pm=True)
+    async def perms(self, ctx, user: discord.Member):
+        perms = iter(ctx.message.channel.permissions_for(user))
+        perms_we_have = "```diff\n"
+        perms_we_dont = ""
+        for x in perms:
+            if "True" in str(x):
+                perms_we_have += "+\t{0}\n".format(str(x).split('\'')[1])
+            else:
+                perms_we_dont += ("-\t{0}\n".format(str(x).split('\'')[1]))
+        await self.bot.say("{0}{1}```".format(perms_we_have, perms_we_dont))
+
     @commands.command(alias="die")
     @checks.is_owner()
     async def shutdown(self):
@@ -688,8 +819,10 @@ class Owner:
                            " the link below and select the server you wish for"
                            " me to join.\n\n"
                            "https://discordapp.com/oauth2/authorize?&"
-                           "client_id=217256996309565441&scope=bot&"
-                           "permissions=66186303%3E")
+                           "client_id=256391331935551489&scope=bot&"
+                           "permissions=66186303%3E\n\n"                
+                           "Join My support server here.\n\n"
+                           "https://discord.gg/Tgg4kaF")
     @commands.command(pass_context=True)
     async def contact(self, ctx, *, message : str):
         """Sends message to the owner"""
@@ -739,28 +872,49 @@ class Owner:
     async def info(self):
         """Shows info about Dmx"""  
         author_repo = "https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=66186303%3E"
-        red_repo = author_repo + "Dangerous's-Discord"
-        server_url = "https://discord.gg/jBUA9kP"
+        red_repo = "https://github.com/iamDangerous420/Dmx-Cogs"
+        server_url = "https://discord.gg/Tgg4kaF"
         discordpy_repo = "https://github.com/Rapptz/discord.py"
         python_url = "https://www.python.org/"
         since = datetime.datetime(2016, 1, 2, 0, 0)
         days_since = (datetime.datetime.now() - since).days
+        python_url = "https://www.python.org/"
+        dpy_version = "[{}]({})".format(discord.__version__, discordpy_repo)
+        py_version = "[{}.{}.{}]({})".format(*os.sys.version_info[:3],
+                                             python_url)
+
         name = self.bot.user.name
+
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
 
+        owner_set = self.bot.settings.owner != "id_here"
+        owner = self.bot.settings.owner if owner_set else None
+        if owner:
+            owner = discord.utils.get(self.bot.get_all_members(), id=owner)
+            if not owner:
+                try:
+                    owner = await self.bot.get_user_info(self.bot.settings.owner)
+                except:
+                    owner = None
+        if not owner:
+            owner = "Unknown"
+
         about = (
-            "This is an instance of [Danger Mx- An pupblic bot that you can't invite YET]({}) "
-            "created by [Dangerous]({})  on 22 Aug 2016 at 12:21 With teddy's Help.\n\n"
+            "This is a heavily edited instance of Red By TwentySix : [Danger Mx- A fun Moderative utility bot for all your needs]({}) "
+            "edited by [{}]({})  on 22 Aug 2016 at 12:21 With teddy's Help.\n\n"
             "Danger Mx Is Just a Fun Moderative Utility bot Any command invoked is automatically fun with Danger Mx "
             "fun content for everyone to enjoy. [Join us today]({}) "
             "and help us improve!\n\n"
             "Written in [Python]({}), powered by [discord.py]({})"
-            "".format(red_repo, author_repo, server_url, python_url,
+            "".format(author_repo, owner, red_repo, server_url, python_url,
                       discordpy_repo))
 
-        embed = discord.Embed(colour=discord.Colour.red())
+        embed = discord.Embed(colour=discord.Colour.purple())
+        embed.add_field(name="Owner", value=str(owner))
+        embed.add_field(name="Python", value=py_version)
+        embed.add_field(name="discord.py", value=dpy_version)
         embed.add_field(name="About Danger Mx", value=about)
-        embed.set_footer(text="Hosted on Dange's shitty computer".format(name), icon_url=avatar)
+        embed.set_footer(text="Hosted on Bursting's Server (Thanks Bursting :D)".format(name), icon_url=avatar)
 
         try:
             await self.bot.say(embed=embed)
@@ -779,10 +933,9 @@ class Owner:
         days = up.days
         hours = int(up.seconds/3600)
         minutes = int(up.seconds % 3600/60)
-        seconds = up.seconds
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
-        colour = int(colour, 16)        
-        em = discord.Embed(description='***Ayee*** Been up for ==> ***{} Days {} Hours {} Minutes and {} **TOTAL** Seconds*** '.format(str(days), str(hours), str(minutes), str(seconds)), colour=discord.Colour(value=colour))
+        colour = int(colour, 16)
+        em = discord.Embed(description='***Ayee*** Been up for ==> ***{} Days {} Hours And {} Minutes *** '.format(str(days), str(hours), str(minutes)), colour=discord.Colour(value=colour))
         await self.bot.say(embed=em)
     @commands.command()
     async def version(self):
@@ -794,6 +947,48 @@ class Owner:
         except discord.HTTPException:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
+
+    @commands.command(pass_context=True)
+    @checks.is_owner()
+    async def sudo(self, ctx, user: discord.Member, *, command):
+        """Runs the [command] as if [user] had run it. DON'T ADD A PREFIX
+        """
+        new_msg = deepcopy(ctx.message)
+        new_msg.author = user
+        new_msg.content = self.bot.settings.get_prefixes(new_msg.server)[0] \
+            + command
+        await self.bot.process_commands(new_msg)
+
+    async def announcer(self, msg):
+        server_ids = map(lambda s: s.id, self.bot.servers)
+        for server_id in server_ids:
+            if self != self.bot.get_cog('Admin'):
+                break
+            server = self.bot.get_server(server_id)
+            if server is None:
+                continue
+            chan = server.default_channel
+            log.debug("Looking to announce to {} on {}".format(chan.name,
+                                                               server.name))
+            me = server.me
+            if chan.permissions_for(me).send_messages:
+                log.debug("I can send messages to {} on {}, sending".format(
+                    server.name, chan.name))
+                await self.bot.send_message(chan, msg)
+            await asyncio.sleep(1)
+
+    async def announce_manager(self):
+        while self == self.bot.get_cog('Admin'):
+            if self._announce_msg is not None:
+                log.debug("Found new announce message, announcing")
+                await self.announcer(self._announce_msg)
+                self._announce_msg = None
+            await asyncio.sleep(1)
+
+    async def server_locker(self, server):
+        if self._is_server_locked():
+            await self.bot.leave_server(server)
+
 
     def _load_cog(self, cogname):
         if not self._does_cogfile_exist(cogname):
@@ -875,8 +1070,18 @@ def check_files():
         print("Creating empty disabled_commands.json...")
         dataIO.save_json("data/red/disabled_commands.json", [])
 
+    if not os.path.exists('data/admin/settings.json'):
+        try:
+            os.mkdir('data/admin')
+        except FileExistsError:
+            pass
+        else:
+            dataIO.save_json('data/admin/settings.json', {})
+
 
 def setup(bot):
     check_files()
     n = Owner(bot)
     bot.add_cog(n)
+    bot.add_listener(n.server_locker, "on_server_join")
+    bot.loop.create_task(n.announce_manager())
