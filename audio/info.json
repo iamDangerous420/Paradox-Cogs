@@ -1,0 +1,10 @@
+
+
+{
+    "AUTHOR" : "Dangerous",
+    "SHORT" : "HomeditedAudiocog",
+    "DESCRIPTION" : "Selfedited audio Cog",
+    "DISABLED" : false,
+    "NAME" : "audio",
+    "INSTALL_MSG" : "Thanks for installing my self edited audio cog this cannot coexist with the normal audio.py in red !"
+}
