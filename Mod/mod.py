@@ -5,12 +5,16 @@ from .utils import checks
 from cogs.utils.chat_formatting import box, pagify
 from __main__ import settings, send_cmd_help
 from copy import deepcopy
+from cogs.utils.dataIO import fileIO
 from collections import deque, defaultdict
 from cogs.utils.chat_formatting import escape_mass_mentions, box
 import os
 import re
 import logging
 import asyncio
+import json
+import aiohttp
+import urllib.parse as up
 
 default_settings = {
     "ban_mention_spam" : False,
@@ -58,6 +62,15 @@ class Mod:
         self._tmp_banned_cache = []
         perms_cache = dataIO.load_json("data/mod/perms_cache.json")
         self._perms_cache = defaultdict(dict, perms_cache)
+        self.base_api_url = "https://discordapp.com/api/oauth2/authorize?"
+        self.enabled = fileIO('data/autoapprove/enabled.json', 'load')
+        self.session = aiohttp.ClientSession()
+
+    def __unload(self):
+        self.session.close()
+
+    def save_enabled(self):
+        fileIO('data/autoapprove/enabled.json', 'save', self.enabled)
 
     def _get_selfrole_names(self, server):
         if server.id not in self._settable_roles:
@@ -84,6 +97,85 @@ class Mod:
         self._settable_roles[server.id] = rolelist
         self._settings["ROLES"] = self._settable_roles
         self._save_settings()
+    @commands.group(no_pm=True, pass_context=True)
+    @checks.serverowner_or_permissions(manage_server=True)
+    async def autoapprove(self, ctx):
+        server = ctx.message.server
+        channel = ctx.message.channel
+        me = server.me
+        if not channel.permissions_for(me).manage_messages:
+            await self.bot.say("I don't have manage_messages permissions."
+                               " I do not recommend submitting your "
+                               "authorization key until I do.")
+            return
+        if not channel.permissions_for(me).manage_server:
+            await self.bot.say("I do not have manage_server. This cog is "
+                               "useless until I do.")
+            return
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+            return
+
+    @autoapprove.command(no_pm=True, pass_context=True, name="toggle")
+    @checks.serverowner_or_permissions(manage_server=True)
+    async def _autoapprove_toggle(self, ctx):
+        server = ctx.message.server
+        if server.id not in self.enabled:
+            await self.bot.say('AutoApprove not set up for this server.')
+        else:
+            self.enabled[server.id]["ENABLED"] = \
+                not self.enabled[server.id]["ENABLED"]
+            self.save_enabled()
+            if self.enabled[server.id]["ENABLED"]:
+                await self.bot.say("AutoApprove enabled.")
+            else:
+                await self.bot.say("AutoApprove disabled.")
+
+    @autoapprove.command(no_pm=True, pass_context=True, name="setup")
+    @checks.serverowner_or_permissions(manage_server=True)
+    async def _autoapprove_setup(self, ctx, authorization_key):
+        """You will need to submit the user Authorization header key
+            (can be found using dev tools in Chrome) of some user that will
+            always have manage_server on this server."""
+        server = ctx.message.server
+        if server.id not in self.enabled:
+            self.enabled[server.id] = {"ENABLED": False}
+        self.enabled[server.id]['KEY'] = authorization_key
+        self.save_enabled()
+        await self.bot.delete_message(ctx.message)
+        await self.bot.say('Key saved. Deleted message for security.'
+                           ' Use `autoapprove toggle` to enable.')
+
+    @commands.command(no_pm=True, pass_context=True)
+    async def addbot(self, ctx, oauth_url):
+        """Requires your OAUTH2 URL to automatically approve your bot to
+            join"""
+        server = ctx.message.server
+        if server.id not in self.enabled:
+            await self.bot.say('AutoApprove not set up for this server.'
+                               ' Let the server owner know if you think it'
+                               ' should be.')
+            return
+        elif not self.enabled[server.id]['ENABLED']:
+            await self.bot.say('AutoApprove not enabled for this server.'
+                               ' Let the server owner know if you think it'
+                               ' should be.')
+            return
+
+        key = self.enabled[server.id]['KEY']
+        parsed = up.urlparse(oauth_url)
+        queryattrs = up.parse_qs(parsed.query)
+        queryattrs['client_id'] = int(queryattrs['client_id'][0])
+        queryattrs['scope'] = queryattrs['scope'][0]
+        queryattrs.pop('permissions', None)
+        full_url = self.base_api_url + up.urlencode(queryattrs)
+        status = await self.get_bot_api_response(full_url, key, server.id)
+        if status < 400:
+            await self.bot.say("Succeeded!")
+        else:
+            await self.bot.say("Failed, error code {}. ".format(status))
+
+
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
     async def addrole(self, ctx, rolename, user: discord.Member=None):
@@ -1321,6 +1413,15 @@ class Mod:
         else:
             raise CaseMessageNotFound()
 
+    async def get_bot_api_response(self, url, key, serverid):
+        data = {"guild_id": serverid, "permissions": 0, "authorize": True}
+        data = json.dumps(data).encode('utf-8')
+        headers = {'authorization': key, 'content-type': 'application/json'}
+        async with self.session.post(url, data=data, headers=headers) as r:
+            status = r.status
+        return status
+
+
     async def check_filter(self, message):
         server = message.server
         if server.id in self.filter.keys():
@@ -1471,6 +1572,9 @@ def check_folders():
             print("Creating " + folder + " folder...")
             os.makedirs(folder)
 
+    if not os.path.exists("data/autoapprove"):
+        print("Creating data/autoapprove folder...")
+        os.makedirs("data/autoapprove")
 
 def check_files():
     ignore_list = {"SERVERS": [], "CHANNELS": []}
@@ -1500,6 +1604,12 @@ def check_files():
         else:
             dataIO.save_json('data/admin/settings.json', {})
 
+    enabled = {}
+
+    f = "data/autoapprove/enabled.json"
+    if not fileIO(f, "check"):
+        print("Creating default autoapprove's enabled.json...")
+        fileIO(f, "save", enabled)
 
 
 
