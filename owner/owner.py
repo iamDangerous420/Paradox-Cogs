@@ -819,7 +819,7 @@ class Owner:
                            " the link below and select the server you wish for"
                            " me to join.\n\n"
                            "https://discordapp.com/oauth2/authorize?&"
-                           "client_id=256391331935551489&scope=bot&"
+                           "client_id=217256996309565441&scope=bot&"
                            "permissions=66186303%3E\n\n"                
                            "Join My support server here.\n\n"
                            "https://discord.gg/Tgg4kaF")
