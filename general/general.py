@@ -763,7 +763,7 @@ class General:
             description=created_at,
             colour=discord.Colour(value=colour))
         data.add_field(name="Region", value=str(server.region))
-        data.add_field(name="Users", value="{} Online Users \n{} Dnd Users \n{} Idle Users \n{} Total Users".format(online, dnd, idle, total_users))
+        data.add_field(name="Users", value="{}({} Online Users)".format(total_users, online))
         data.add_field(name="Text Channels", value=text_channels)
         data.add_field(name="Voice Channels", value=voice_channels)
         data.add_field(name="Roles", value=len(server.roles))
