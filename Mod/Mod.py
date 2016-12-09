@@ -1287,7 +1287,7 @@ class Mod:
 
     @commands.command()
     async def names(self, user : discord.Member):
-        """Show previous names/nicknames of a user"""
+        """Show previous names/nicknames of a user!"""
         server = user.server
         names = self.past_names[user.id] if user.id in self.past_names else None
         try:
