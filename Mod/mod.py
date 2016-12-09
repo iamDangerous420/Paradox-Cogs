@@ -698,6 +698,9 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
+        reply = await self.bot.say("I've **Succesfully** pruned **{}** Messages containing `{}`".format(number, text))
+        await asyncio.sleep(2)
+        await self.bot.delete_message(reply)
 
     @cleanup.command(pass_context=True, no_pm=True)
     async def user(self, ctx, user: discord.Member, number: int):
@@ -747,7 +750,9 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
-
+        reply = await self.bot.say("I've **Succesfully** pruned **{}** of `{}` Messages".format(number, user.name))
+        await asyncio.sleep(3)
+        await self.bot.delete_message(reply)
     @cleanup.command(pass_context=True, no_pm=True)
     async def after(self, ctx, message_id : int):
         """Deletes all messages after specified message
@@ -821,6 +826,9 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
+        reply = await self.bot.say('***:thumbsup: :ok_hand: Ayeee  {} messages deleted :thumbsup: :ok_hand: ***'.format(number))
+        await asyncio.sleep(2)
+        await self.bot.delete_message(reply)
 
     @cleanup.command(pass_context=True, no_pm=True, name='bot')
     async def cleanup_bot(self, ctx, number: int):
