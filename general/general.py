@@ -26,6 +26,12 @@ class General:
         self.bot = bot
         self.data = dataIO.load_json(JSON)
         self.stopwatches = {}
+        self.settings = 'data/youtube/settings.json'
+        self.youtube_regex = (
+          r'(https?://)?(www\.)?'
+          '(youtube|youtu|youtube-nocookie)\.(com|be)/'
+          '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+
         self.settings_file = 'data/weather/weather.json'
         self.ball = ["As I see it, yes", "It is certain", "It is decidedly so", "Most likely", "Outlook good",
                      "Signs point to yes", "Without a doubt", "Yes", "Yes – definitely", "You may rely on it", "Reply hazy, try again",
@@ -80,6 +86,161 @@ class General:
                 if parse['status'] == 'OK':
                     return datetime.datetime.fromtimestamp(int(parse['timestamp'])-7200).strftime('%Y-%m-%d %H:%M')
         return
+
+    async def listener(self, message):
+        if not message.channel.is_private:
+            if message.author.id != self.bot.user.id:
+                server_id = message.server.id
+                data = dataIO.load_json(self.settings)
+                if server_id not in data:
+                    enable_delete = False
+                    enable_meta = False
+                    enable_url = False
+                else:
+                    enable_delete = data[server_id]['ENABLE_DELETE']
+                    enable_meta = data[server_id]['ENABLE_META']
+                    enable_url = data[server_id]['ENABLE_URL']
+                if enable_meta:
+                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', message.content)
+                    if url:
+                        is_youtube_link = re.match(self.youtube_regex, url[0])
+                        if is_youtube_link:
+                            yt_url = "http://www.youtube.com/oembed?url={0}&format=json".format(url[0])
+                            metadata = await self.get_json(yt_url)
+                            if enable_url:
+                                msg = '**Title:** _{}_\n**Uploader:** _{}_\n_YouTube url by {}_\n\n{}'.format(metadata['title'], metadata['author_name'], message.author.name, url[0])
+                                if enable_delete:
+                                    try:
+                                        await self.bot.delete_message(message)
+                                    except:
+                                        pass
+                            else:
+                                if enable_url:
+                                    x = '\n_YouTube url by {}_'.format(message.author.name)
+                                else:
+                                    x = ''
+                                msg = '**Title:** _{}_\n**Uploader:** _{}_{}'.format(metadata['title'], metadata['author_name'], x)
+                            await self.bot.send_message(message.channel, msg)
+
+    async def get_song_metadata(self, song_url):
+        """
+        Returns JSON object containing metadata about the song.
+        """
+
+        is_youtube_link = re.match(self.youtube_regex, song_url)
+
+        if is_youtube_link:
+            url = "http://www.youtube.com/oembed?url={0}&format=json".format(song_url)
+            result = await self.get_json(url)
+        else:
+            result = {"title": "A song "}
+        return result
+
+    async def get_json(self, url):
+        """
+        Returns the JSON from an URL.
+        Expects the url to be valid and return a JSON object.
+        """
+        async with aiohttp.get(url) as r:
+            result = await r.json()
+        return result
+
+    @commands.command(pass_context=True, name='youtube', no_pm=True)
+    async def _youtube(self, context, *, query: str):
+        """Search on Youtube"""
+        try:
+            url = 'https://www.youtube.com/results?'
+            payload = {'search_query': " ".join(query), 'hl': 'en'}
+            headers = {'user-agent': 'Red-cog/1.0'}
+            conn = aiohttp.TCPConnector(verify_ssl=False)
+            session = aiohttp.ClientSession(connector=conn)
+            async with session.get(url, params=payload, headers=headers) as r:
+                result = await r.text()
+            session.close()
+            yt_find = re.findall(r'href=\"\/watch\?v=(.{11})', result)
+            url = 'https://www.youtube.com/watch?v={}'.format(yt_find[0])
+            metadata = await self.get_song_metadata(url)
+            em = discord.Embed(title=metadata['author_name'], color=discord.Color.red(), url=metadata['author_url'])
+            em.set_author(name=metadata['title'], url=url)
+            em.set_image(url=metadata['thumbnail_url'])
+            # em.video.url = url
+            # em.video.width = 480
+            # em.video.height = 270
+            await self.bot.say(embed=em)
+        except Exception as e:
+            message = 'Something went terribly wrong! [{}]'.format(e)
+            await self.bot.say(message)
+
+    @commands.group(pass_context=True, name='youtubetoggle', aliases=['ytoggle'])
+    @checks.mod_or_permissions(administrator=True)
+    async def _youtubetoggle(self, context):
+        """
+        Toggle metadata and preview features
+        """
+        data = dataIO.load_json(self.settings)
+        server_id = context.message.server.id
+        if server_id not in data:
+            data[server_id] = {}
+            data[server_id]['ENABLE_URL'] = False
+            data[server_id]['ENABLE_DELETE'] = False
+            data[server_id]['ENABLE_META'] = False
+            dataIO.save_json(self.settings, data)
+        if context.invoked_subcommand is None:
+            await send_cmd_help(context)
+
+    @_youtubetoggle.command(pass_context=True, name='url')
+    async def _url(self, context):
+        """
+        Toggle showing url
+        """
+        data = dataIO.load_json(self.settings)
+        server_id = context.message.server.id
+        if data[server_id]['ENABLE_URL'] is False:
+            data[server_id]['ENABLE_URL'] = True
+            message = 'URL now enabled'
+        elif data[server_id]['ENABLE_URL'] is True:
+            data[server_id]['ENABLE_URL'] = False
+            message = 'URL now disabled'
+        else:
+            pass
+        dataIO.save_json(self.settings, data)
+        await self.bot.say(message)
+
+    @_youtubetoggle.command(pass_context=True, name='meta')
+    async def _meta(self, context):
+        """
+        Toggle showing metadata
+        """
+        data = dataIO.load_json(self.settings)
+        server_id = context.message.server.id
+        if data[server_id]['ENABLE_META'] is False:
+            data[server_id]['ENABLE_META'] = True
+            message = 'Metadata now enabled'
+        elif data[server_id]['ENABLE_META'] is True:
+            data[server_id]['ENABLE_META'] = False
+            message = 'Metadata now disabled'
+        else:
+            pass
+        dataIO.save_json(self.settings, data)
+        await self.bot.say('`{}`'.format(message))
+
+    @_youtubetoggle.command(pass_context=True, name='delete')
+    async def _delete(self, context):
+        """
+        Toggle deleting message
+        """
+        data = dataIO.load_json(self.settings)
+        server_id = context.message.server.id
+        if data[server_id]['ENABLE_DELETE'] is False:
+            data[server_id]['ENABLE_DELETE'] = True
+            message = 'Delete now enabled'
+        elif data[server_id]['ENABLE_DELETE'] is True:
+            data[server_id]['ENABLE_DELETE'] = False
+            message = 'Delete now disabled'
+        else:
+            pass
+        dataIO.save_json(self.settings, data)
+        await self.bot.say('`{}`'.format(message))
 
     @commands.command(pass_context=True, name='weather', aliases=['we'])
     async def _weather(self, context, *arguments: str):
@@ -253,11 +414,17 @@ class General:
     async def ping(self,ctx):
         """Get the ping time fam"""
         channel = ctx.message.channel
+        user = ctx.message.author
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         t1 = time.perf_counter()
         await self.bot.send_typing(channel)
         t2 = time.perf_counter()
-        await self.bot.say("**Hey man!!** the bloody ping is ==> ***{}ms*** Das a mad ting rite!?!".format(round((t2-t1)*1000)))
+        if user.nick is None:
+            user.nick=user.name
+        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.nick, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
 
+        await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
     async def test(self, message):
@@ -299,6 +466,41 @@ class General:
             await self.bot.say(msg + "(╯°□°）╯︵ " + name[::-1])
         else:
             await self.bot.say("*flips a coin and... " + randchoice(["HEADS!*", "TAILS!*"]))
+
+    @commands.command(pass_context=True, name='wikipedia', aliases=['wiki'])
+    async def _wikipedia(self, context, *, query: str):
+        """
+        Get information from Wikipedia
+        """
+        try:
+            url = 'https://en.wikipedia.org/w/api.php?'
+            payload = {}
+            payload['action'] = 'query'
+            payload['format'] = 'json'
+            payload['prop'] = 'extracts'
+            payload['titles'] = ''.join(query).replace(' ', '_')
+            payload['exsentences'] = '5'
+            payload['redirects'] = '1'
+            payload['explaintext'] = '1'
+            headers = {'user-agent': 'Red-cog/1.0'}
+            conn = aiohttp.TCPConnector(verify_ssl=False)
+            session = aiohttp.ClientSession(connector=conn)
+            async with session.get(url, params=payload, headers=headers) as r:
+                result = await r.json()
+            session.close()
+            if '-1' not in result['query']['pages']:
+                for page in result['query']['pages']:
+                    title = result['query']['pages'][page]['title']
+                    description = result['query']['pages'][page]['extract'].replace('\n', '\n\n')
+                em = discord.Embed(title='Wikipedia: {}'.format(title), description='\a\n{}...\n\a'.format(description[:-3]), color=discord.Color.blue(), url='https://en.wikipedia.org/wiki/{}'.format(title.replace(' ', '_')))
+                em.set_footer(text='Information provided by Wikimedia', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Wikimedia-logo.png/600px-Wikimedia-logo.png')
+                await self.bot.say(embed=em)
+            else:
+                message = 'I\'m sorry, I can\'t find {}'.format(''.join(query))
+                await self.bot.say('```{}```'.format(message))
+        except Exception as e:
+            message = 'Something went terribly wrong! [{}]'.format(e)
+            await self.bot.say('```{}```'.format(message))
 
     @commands.command(name = "google", pass_context=True, no_pm=True)
     @commands.cooldown(5, 60, commands.BucketType.user)
@@ -480,7 +682,7 @@ class General:
         """Shows users's informations"""
         author = ctx.message.author
         server = ctx.message.server
-
+    
         if not user:
             user = author
 
@@ -496,7 +698,7 @@ class General:
         joined_on = "{}\n({} days ago)".format(user_joined, since_joined)
 
         if user.game is None:
-            pass
+            game = "Playing ⇒ Bruh He aint playing shit"
         elif user.game.url is None:
             game = "Playing ⇒ {}".format(user.game)
         else:
@@ -516,6 +718,9 @@ class General:
         data.add_field(name="Joined this server on", value=joined_on)
         data.add_field(name="Roles", value=roles, inline=False)
         data.set_footer(text="Userinfo | User ID ⇒  " + user.id)
+
+        if user.nick is None:
+            user.nick = "No Nick :|"
 
         if user.avatar_url:
             name = str(user)
@@ -537,8 +742,11 @@ class General:
         """Shows server's informations"""
         server = ctx.message.server
         online = len([m.status for m in server.members
-                      if m.status == discord.Status.online or
-                      m.status == discord.Status.idle])
+                      if m.status == discord.Status.online])
+        idle = len([m.status for m in server.members
+                      if m.status == m.status == discord.Status.idle])
+        dnd = len([m.status for m in server.members
+                      if m.status == discord.Status.dnd])
         total_users = len(server.members)
         text_channels = len([x for x in server.channels
                              if x.type == discord.ChannelType.text])
@@ -555,7 +763,7 @@ class General:
             description=created_at,
             colour=discord.Colour(value=colour))
         data.add_field(name="Region", value=str(server.region))
-        data.add_field(name="Users", value="{} Online/{} Total Users    ".format(online, total_users))
+        data.add_field(name="Users", value="{} Online Users \n{} Dnd Users \n{} Idle Users \n{} Total Users".format(online, dnd, idle, total_users))
         data.add_field(name="Text Channels", value=text_channels)
         data.add_field(name="Voice Channels", value=voice_channels)
         data.add_field(name="Roles", value=len(server.roles))
@@ -740,6 +948,13 @@ def check_file():
         print("Creating default weather.json...")
         dataIO.save_json(f, weather)
 
+    data = {}
+    f = "data/youtube/settings.json"
+    if not dataIO.is_valid_json(f):
+        print("Creating default settings.json...")
+        dataIO.save_json(f, data)
+
+
 
 
 def check_folder():
@@ -755,6 +970,9 @@ def check_folder():
     if not os.path.exists("data/weather"):
         print("Creating data/weather folder...")
         os.makedirs("data/weather")
+    if not os.path.exists("data/youtube"):
+        print("Creating data/youtube folder...")
+        os.makedirs("data/youtube")
 
 def setup(bot):
     check_folder()
