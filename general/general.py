@@ -420,9 +420,7 @@ class General:
         t1 = time.perf_counter()
         await self.bot.send_typing(channel)
         t2 = time.perf_counter()
-        if user.nick is None:
-            user.nick=user.name
-        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.nick, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
+        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.name, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
 
         await self.bot.say(embed=em)
     @commands.command(pass_context=True)
