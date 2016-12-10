@@ -1,0 +1,9 @@
+
+{
+    "AUTHOR" : "Dangerous",
+    "SHORT" : "Home Fused reaction cog",
+    "DESCRIPTION" : "Self fused reaction Cog",
+    "DISABLED" : false,
+    "NAME" : "reaction",
+    "INSTALL_MSG" : "Thanks for installing my self fused reaction  cog !"
+}
