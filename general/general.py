@@ -326,6 +326,12 @@ class General:
         await self.bot.say(msg)
 
 
+    @commands.command()
+    async def lenny(self):
+        """This does stuff( ͡° ͜ʖ ͡°)!"""
+
+        await self.bot.say("( ͡° ͜ʖ ͡°)")
+
     @commands.command(pass_context=True, no_pm=True, name='seen')
     async def _seen(self, context, username: discord.Member):
         '''seen <@username>'''
@@ -420,7 +426,9 @@ class General:
         t1 = time.perf_counter()
         await self.bot.send_typing(channel)
         t2 = time.perf_counter()
-        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.name, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
+        if user.nick is None:
+            user.nick=user.name
+        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.nick, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
 
         await self.bot.say(embed=em)
     @commands.command(pass_context=True)
