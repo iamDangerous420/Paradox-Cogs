@@ -61,7 +61,7 @@ class Utility:
             await asyncio.sleep(1)
             await self.bot.edit_message(awaiter, " :raised_hand: Woah way too many people in **{0}** Role, **{1}** Members found\n".format(rolename,  len([m for m in server.members if therole in m.roles])))
         else:
-            await self.bot.say("`` :thinking: Couldn't Find that role (╯°□°）╯︵ ┻━┻``")
+            await self.bot.say(" :thinking:`` Couldn't Find that role (╯°□°）╯︵ ┻━┻``")
 
     @commands.command(pass_context=True)
     async def uid(self, ctx, user : discord.Member = None):
