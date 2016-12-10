@@ -890,7 +890,6 @@ class General:
                 for page in msg:
                     em = discord.Embed(description=page, colour=discord.Colour(value=colour))
                     em.set_footer(text="Your Urban", icon_url='https://cdn3.iconfinder.com/data/icons/education-and-school/512/building_house_architecture_estate_flat_icon-512.png')
-                    em.set_author(icon_url='https://cdn.discordapp.com/attachments/256904218571571200/257237893255266314/yrban_pow.jpg')
                     await self.bot.say(embed=em)
                 
             else:
