@@ -46,6 +46,10 @@ class Utility:
     async def inrole(self, ctx, *, rolename):
         """Check members in the role totally didn't copy dex's eye emoji"""
         server = ctx.message.server
+        check = " ".join(rolename).lower()
+        if "@everyone" in check or "@here" in check:
+            await self.bot.reply("Well At least you tried but i have counter messures against that ¯\_(ツ)_/¯")
+            return
         therole = discord.utils.find(lambda r: r.name.lower() == rolename.lower(), ctx.message.server.roles)
         if therole is not None and len([m for m in server.members if therole in m.roles]) < 50:
             lolies = await self.bot.say(" :raised_hand: Wait up Getting Names :bookmark: ")
@@ -61,7 +65,7 @@ class Utility:
             await asyncio.sleep(1)
             await self.bot.edit_message(awaiter, " :raised_hand: Woah way too many people in **{0}** Role, **{1}** Members found\n".format(rolename,  len([m for m in server.members if therole in m.roles])))
         else:
-            await self.bot.say(" :thinking:`` Couldn't Find that role (╯°□°）╯︵ ┻━┻``")
+            await self.bot.say("`` Couldn't Find that role (╯°□°）╯︵ ┻━┻``")
 
     @commands.command(pass_context=True)
     async def uid(self, ctx, user : discord.Member = None):
