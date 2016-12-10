@@ -346,41 +346,6 @@ class General:
             message = 'I haven\'t seen {} yet.'.format(author.display_name)
             await self.bot.say('{}'.format(message))
 
-    @commands.group(pass_context=True, no_pm=True, invoke_without_command=True)
-    async def uinfo(self, ctx, *, member : discord.Member = None):
-        """Shows info about a member.
-
-        This cannot be used in private messages. If you don't specify
-        a member then the info returned will be yours.
-        """
-        channel = ctx.message.channel
-        if member is None:
-            member = ctx.message.author
-
-        roles = [role.name.replace('@', '@\u200b') for role in member.roles]
-        shared = sum(1 for m in self.bot.get_all_members() if m.id == member.id)
-        voice = member.voice_channel
-        if voice is not None:
-            other_people = len(voice.voice_members) - 1
-            voice_fmt = '{} with {} others' if other_people else '{} by themselves'
-            voice = voice_fmt.format(voice.name, other_people)
-        else:
-            voice = 'Not connected.'
-
-        entries = [
-            ('Name', member.name),
-            ('Tag', member.discriminator),
-            ('ID', member.id),
-            ('Joined', member.joined_at),
-            ('Created', member.created_at),
-            ('Roles', ', '.join(roles)),
-            ('Servers', '{} shared'.format(shared)),
-            ('Voice', voice),
-            ('Avatar', member.avatar_url),
-        ]
-
-        await formats.indented_entry_to_code(self.bot, entries)
-
     @commands.command(pass_context=True)
     async def emoji(self, ctx, name: str):
         """Send a large custom emoji. 
