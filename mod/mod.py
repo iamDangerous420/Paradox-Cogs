@@ -41,7 +41,7 @@ class NoModLogChannel(ModError):
     pass
 
 
-class Mod:
+class Moderation:
     """Moderation tools."""
 
     def __init__(self, bot):
@@ -1637,6 +1637,6 @@ def setup(bot):
         handler.setFormatter(
             logging.Formatter('%(asctime)s %(message)s', datefmt="[%d/%m/%Y %H:%M]"))
         logger.addHandler(handler)
-    n = Mod(bot)
+    n = Moderation(bot)
     bot.add_listener(n.check_names, "on_member_update")
     bot.add_cog(n)
