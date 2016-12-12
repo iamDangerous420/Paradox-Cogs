@@ -208,8 +208,8 @@ class Mod:
         if rolename is None:
             await self.bot.say("How am i supposed to **create a role** with no ***role name*** :thinking: :face_palm:")
             return
-        server = context.message.server
-        name = ' '.join(role_name)
+        server = ctx.message.server
+        name = ''.join(rolename)
         await self.bot.create_role(server, name= '{}'.format(name))
         message = "I've **Succesfully** created the role `{}` :thumbsup:".format(name)
         await self.bot.say(message)
