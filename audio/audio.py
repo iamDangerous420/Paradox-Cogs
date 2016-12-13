@@ -1813,6 +1813,9 @@ class Audio:
                                   .replace("**Views:** None\n", "")
                                   .replace("**Uploader:** None\n", "")
                                   .replace("**Duration:** None\n", ""))
+        else:
+            await self.bot.say("Darude - Sandstorm.")
+
 
     @commands.command(pass_context=True, no_pm=True)
     async def stop(self, ctx):
