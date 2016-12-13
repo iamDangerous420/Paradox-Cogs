@@ -409,26 +409,24 @@ class General:
         p = "8" + "="*random.randint(0, 50) + "D"
         await self.bot.say("Size: " + p)
 
-    @commands.command(pass_context=True, name='quote')
-    async def _q(self, context, message_id: int):
-        """
-        Quote someone with the message id. To get the message id you need to enable developer mode.
-        """
-        channel = context.message.channel
-        try:
-            message = await self.bot.get_message(channel, str(message_id))
-            content = '\a\n'+message.clean_content
-            author = message.author
-            timestamp = message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-            avatar = author.avatar_url if author.avatar else author.default_avatar_url
-            em = discord.Embed(description=content, color=discord.Color.blue())
-            em.set_author(name='Quote from: {} on {}'.format(author.name, timestamp), icon_url=avatar)
-            await self.bot.say(embed=em)
-        except discord.NotFound:
-            em = discord.Embed(description='I\'m sorry, that message doesn\'t exist', color=discord.Color.red())
-            await self.bot.say(embed=em)
-        except Exception as error:
-            await self.bot.say(error)
+    @commands.command(pass_context=True)
+    async def quote(self, ctx, message_id = None):
+        """Quotes a Message. If not specified, I will pick one for you"""
+        if message_id is None:
+            async for m in self.bot.logs_from(ctx.message.channel, limit=500):
+                msg = m
+        else:
+            msg = await self.bot.get_message(ctx.message.channel, id = str(message_id))
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16) 
+        owner = msg.author.name+"#"+msg.author.discriminator
+        a = discord.Embed()
+        a.description = msg.content
+        avatar = msg.author.default_avatar_url if not msg.author.avatar else msg.author.avatar_url
+        a.set_author(name=owner, icon_url=avatar)
+        a.timestamp = msg.timestamp
+        a.colour = colour
+        await self.bot.send_message(msg.channel, embed = a)
 
     @commands.command()
     async def choose(self, *choices):
