@@ -794,7 +794,7 @@ class General:
             status == ":VPAway: Idle"
 
         data = discord.Embed(description=game, colour=user.colour)
-        data.add_field(name="Status", value= " {}".format(user.status))
+        data.add_field(name="Status", value= " {} Is Currently {}".format(user.name, user.status))
         data.add_field(name="Joined Discord on", value=created_on)
         data.add_field(name="Nickname", value=user.nick)
         data.add_field(name="Joined this server on", value=joined_on)
