@@ -331,7 +331,7 @@ class General:
 
         await self.bot.say("( ͡° ͜ʖ ͡°)")
     @commands.command()
-    async def Bangers(self):
+    async def Bangers(self, ctx):
         """Dangerous's playlist"""
         user = ctx.message.author
 
