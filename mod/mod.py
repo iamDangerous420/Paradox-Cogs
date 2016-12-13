@@ -32,7 +32,6 @@ class ModError(Exception):
 class UnauthorizedCaseEdit(ModError):
     pass
 
-
 class CaseMessageNotFound(ModError):
     pass
 
@@ -212,6 +211,22 @@ class Mod:
         name = ''.join(rolename)
         await self.bot.create_role(server, name= '{}'.format(name))
         message = "I've **Succesfully** created the role `{}` :thumbsup:".format(name)
+        await self.bot.say(message)
+
+    @commands.command(pass_context=True)
+    async def deleterole(self, ctx, rolename):
+        """Deletes an existing role. Bot must be above the role "Role hierachy" mate"""
+        channel = ctx.message.channel
+        server = ctx.message.server
+
+        role = self._role_from_string(server, rolename)
+
+        if role is None:
+            await self.bot.say('That role cannot be found.')
+            return
+
+        await self.bot.delete_role(server,role)
+        message = "I've **Succesfully** deleted the role `{}` :thumbsup:".format(rolename)
         await self.bot.say(message)
 
     @commands.group(pass_context=True, no_pm=True)
