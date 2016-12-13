@@ -333,6 +333,7 @@ class General:
     @commands.command()
     async def Bangers(self):
         """Dangerous's playlist"""
+        user = ctx.message.author
 
         await self.bot.say(" {} Heres the playlist enjoy the tunes :musical_note: https://www.youtube.com/playlist?list=PL42LCVbTlLSywDEpoLDWdDdjZDVgNsD5A :musical_note: ".format(user.name))
 
