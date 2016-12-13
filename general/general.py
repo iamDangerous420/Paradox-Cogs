@@ -331,11 +331,10 @@ class General:
 
         await self.bot.say("( ͡° ͜ʖ ͡°)")
     @commands.command()
-    async def Bangers(self, ctx):
+    async def Bangers(self):
         """Dangerous's playlist"""
-        user = ctx.message.author
 
-        await self.bot.say(" {} Heres the playlist enjoy the tunes :musical_note: https://www.youtube.com/playlist?list=PL42LCVbTlLSywDEpoLDWdDdjZDVgNsD5A :musical_note: ".format(user.name))
+        await self.bot.reply("Heres the playlist enjoy the tunes :musical_note: https://www.youtube.com/playlist?list=PL42LCVbTlLSywDEpoLDWdDdjZDVgNsD5A :musical_note: ")
 
     @commands.command(pass_context=True, no_pm=True, name='seen')
     async def _seen(self, context, username: discord.Member):
