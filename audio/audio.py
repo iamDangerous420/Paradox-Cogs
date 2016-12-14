@@ -6,6 +6,7 @@ from random import shuffle, choice
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from __main__ import send_cmd_help, settings
+from json import JSONDecodeError
 import re
 import logging
 import collections
@@ -274,12 +275,6 @@ class Audio:
         if server.id not in self.queue:
             self._setup_queue()
         self.queue[server.id]["QUEUE"].appendleft(url)
-
-    def shuffle(self):
-        shuffle(self.entries)
-
-    def clear(self):
-        self.entries.clear()
 
     def _cache_desired_files(self):
         filelist = []
@@ -766,7 +761,6 @@ class Audio:
         # That ^ creates the audio_player property
 
         voice_client.audio_player.start()
-        await self.bot.say(":musical_note: Playing => {} :P ".format(song.title))
         log.debug("starting player on sid {}".format(server.id))
 
         return song
@@ -847,7 +841,6 @@ class Audio:
             status = list(self.bot.servers)[0].me.status
             await self.bot.change_presence(game=self._old_game,
                                            status=status)
-            await self.bot.say("I've returned to {} status".format(old_game))
             log.debug('Bot status returned to ' + str(self._old_game))
             self._old_game = False
 
@@ -998,7 +991,7 @@ class Audio:
         self.settings["MAX_CACHE"] = size
         await self.bot.say("Max cache size set to {} MB.".format(size))
         self.save_settings()
-    
+
     @audioset.command(name="emptydisconnect", pass_context=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def audioset_emptydisconnect(self, ctx):
@@ -1067,7 +1060,7 @@ class Audio:
             msg = "Volume is currently set to %d%%" % vol
         elif percent >= 0 and percent <= 200:
             self.set_server_setting(server, "VOLUME", percent)
-            msg = "Volume changed to %d." % percent
+            msg = "Volume is now set to %d." % percent
             if percent > 100:
                 msg += ("\nWarning: volume levels above 100 may result in"
                         " clipping")
@@ -1165,7 +1158,7 @@ class Audio:
 
     @commands.command(hidden=True, pass_context=True, no_pm=True)
     @checks.is_owner()
-    async def summon(self, ctx):
+    async def joinvoice(self, ctx):
         """Joins your voice channel"""
         author = ctx.message.author
         server = ctx.message.server
@@ -1175,17 +1168,6 @@ class Audio:
             self._stop(server)
 
         await self._join_voice_channel(voice_channel)
-        await self.bot.say("Use ~play and your song to hear some dank tunes :P")
-    @commands.command(hidden=True, pass_context=True, no_pm=True)
-    @checks.is_owner()
-    async def amove(self, ctx):
-        """Joins your voice channel"""
-        author = ctx.message.author
-        server = ctx.message.server
-        voice_channel = author.voice_channel
-
-        await self._join_voice_channel(author.voice_channel)
-        await self.bot.say("Use ~play and your song to hear some dank tunes :P")
 
     @commands.group(pass_context=True, no_pm=True)
     async def local(self, ctx):
@@ -1270,10 +1252,10 @@ class Audio:
         voice_client = self.voice_client(server)
 
         if not hasattr(voice_client, 'audio_player'):
-            await self.bot.say("Nothing playing, nothing to pause. ¯\_(ツ)_/¯")
+            await self.bot.say("Nothing playing, nothing to pause.")
         elif voice_client.audio_player.is_playing():
             voice_client.audio_player.pause()
-            await self.bot.say("Paused. :pause_button:  ")
+            await self.bot.say("Paused.")
         else:
             await self.bot.say("Nothing playing, nothing to pause.")
 
@@ -1319,12 +1301,12 @@ class Audio:
         #   downloading the next song
 
         if self.currently_downloading(server):
-            await self.bot.say(" :raised_hand: Wait Up ! Im already Downloading a file !! :raised_hand: ")
+            await self.bot.say("I'm already downloading a file!")
             return
 
         if "." in url:
             if not self._valid_playable_url(url):
-                await self.bot.say("Invalid Url :x:")
+                await self.bot.say("That's not a valid URL.")
                 return
         else:
             url = url.replace("/", "&#47")
@@ -1365,7 +1347,7 @@ class Audio:
 
             await self.bot.say("Going back 1 song.")
         else:
-            await self.bot.say("Not playing anything on this server.:thinking: ")
+            await self.bot.say("Not playing anything on this server.")
 
     @commands.group(pass_context=True, no_pm=True)
     async def playlist(self, ctx):
@@ -1392,7 +1374,7 @@ class Audio:
         playlist.server = server
 
         self._save_playlist(server, name, playlist)
-        await self.bot.say("I saved an empty playlist named '{}' for you.".format(name))
+        await self.bot.say("Empty playlist '{}' saved.".format(name))
 
     @playlist.command(pass_context=True, no_pm=True, name="add")
     async def playlist_add(self, ctx, name, url):
@@ -1445,7 +1427,7 @@ class Audio:
         except InvalidURL:
             await self.bot.say("Invalid link.")
         else:
-            await self.bot.say("Playlist Appeneded :ok_hand:")
+            await self.bot.say("Done.")
 
     @playlist.command(pass_context=True, no_pm=True, name="extend")
     async def playlist_extend(self, ctx, playlist_url_or_name):
@@ -1702,9 +1684,8 @@ class Audio:
 
         self._shuffle_queue(server)
         self._shuffle_temp_queue(server)
-        shuffle = await self.bot.say("Shuffling...")
 
-        await self.bot.edit_message(shuffle,"QUEUE Shuffled. :diamond_shape_with_a_dot_inside: ")
+        await self.bot.say("Queues shuffled.")
 
     @commands.command(pass_context=True, aliases=["next"], no_pm=True)
     async def skip(self, ctx):
@@ -1763,6 +1744,7 @@ class Audio:
         mod_role = settings.get_server_mod(server)
 
         is_owner = member.id == settings.owner
+        is_server_owner = member == server.owner
         is_admin = discord.utils.get(member.roles, name=admin_role) is not None
         is_mod = discord.utils.get(member.roles, name=mod_role) is not None
 
@@ -1770,7 +1752,7 @@ class Audio:
         nonbots = sum(not m.bot for m in member.voice_channel.voice_members)
         alone = nonbots <= 1
 
-        return is_owner or is_admin or is_mod or alone
+        return is_owner or is_server_owner or is_admin or is_mod or alone
 
     @commands.command(pass_context=True, no_pm=True)
     async def sing(self, ctx):
@@ -1816,7 +1798,6 @@ class Audio:
         else:
             await self.bot.say("Darude - Sandstorm.")
 
-
     @commands.command(pass_context=True, no_pm=True)
     async def stop(self, ctx):
         """Stops a currently playing song or playlist. CLEARS QUEUE."""
@@ -1824,7 +1805,7 @@ class Audio:
         if self.is_playing(server):
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
-                    await self.bot.say('Stopping... :stop_button:')
+                    await self.bot.say('Stopping...')
                     self._stop(server)
                 else:
                     await self.bot.say("You can't stop music when there are other"
@@ -1908,7 +1889,6 @@ class Audio:
                     await self._stop_and_disconnect(server)
                     stop_times[server] = None
             await asyncio.sleep(5)
-            await self.bot.say("Disconnectting :v: :wave:")
 
     def get_server_settings(self, server):
         try:
@@ -2106,7 +2086,13 @@ def check_files():
         print("Creating default audio settings.json...")
         dataIO.save_json(settings_path, default)
     else:  # consistency check
-        current = dataIO.load_json(settings_path)
+        try:
+            current = dataIO.load_json(settings_path)
+        except JSONDecodeError:
+            # settings.json keeps getting corrupted for unknown reasons. Let's
+            # try to keep it from making the cog load fail.
+            dataIO.save_json(settings_path, default)
+            current = dataIO.load_json(settings_path)
         if current.keys() != default.keys():
             for key in default.keys():
                 if key not in current.keys():
