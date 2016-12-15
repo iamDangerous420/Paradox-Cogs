@@ -23,14 +23,13 @@ default_settings = {
                    }
 
 
-log = logging.getLogger("red.admin")
-
 class ModError(Exception):
     pass
 
 
 class UnauthorizedCaseEdit(ModError):
     pass
+
 
 class CaseMessageNotFound(ModError):
     pass
@@ -367,21 +366,6 @@ class Mod:
                    "".format(**_settings))
             await self.bot.say(box(msg))
 
-    @commands.command(pass_context=True)
-    @checks.admin_or_permissions(move_members=True)
-    async def move(self, ctx, channel: discord.Channel, *users: discord.Member):
-        """
-        Move two or more users at a time to a voice channel
-        Case sensitime Which means it has to be in the exact format Or if you have developer mode you can Use id's
-        Examples: ~move AFK @dangerous @teddy / ~move channel id : 199292534671802369 user ids: 187570149207834624 203649661611802624 
-        this also works if you do one id and one text like ~move 199292534671802369 @dangerous"""
-
-        for user in users:
-            await self.bot.move_member(user, channel)
-            await self.bot.say("Moved **{0}** to ***__{1}__***".format(user, channel))
-            await asyncio.sleep(0.1)
-        await self.bot.say("***Im done moving those fags to the vc *** :v: ")  
-
     @modset.command(name="adminrole", pass_context=True, no_pm=True)
     async def _modset_adminrole(self, ctx, role_name: str):
         """Sets the admin role for this server, case insensitive."""
@@ -403,7 +387,6 @@ class Mod:
     @modset.command(pass_context=True, no_pm=True)
     async def modlog(self, ctx, channel : discord.Channel=None):
         """Sets a channel as mod log
-
         Leaving the channel parameter empty will deactivate it"""
         server = ctx.message.server
         if channel:
@@ -421,7 +404,6 @@ class Mod:
     @modset.command(pass_context=True, no_pm=True)
     async def banmentionspam(self, ctx, max_mentions : int=False):
         """Enables auto ban for messages mentioning X different people
-
         Accepted values: 5 or superior"""
         server = ctx.message.server
         if max_mentions:
@@ -465,7 +447,6 @@ class Mod:
     async def deletedelay(self, ctx, time: int=None):
         """Sets the delay until the bot removes the command message.
             Must be between -1 and 60.
-
         A delay of -1 means the bot will not remove the message."""
         server = ctx.message.server
         if time is not None:
@@ -491,6 +472,22 @@ class Mod:
                 else:
                     await self.bot.say("I will not delete command messages.")
 
+
+    @commands.command(pass_context=True)
+    @checks.admin_or_permissions(move_members=True)
+    async def move(self, ctx, channel: discord.Channel, *users: discord.Member):
+        """
+        Move two or more users at a time to a voice channel
+        Case sensitime Which means it has to be in the exact format Or if you have developer mode you can Use id's
+        Examples: ~move AFK @dangerous @teddy / ~move channel id : 199292534671802369 user ids: 187570149207834624 203649661611802624 
+        this also works if you do one id and one text like ~move 199292534671802369 @dangerous"""
+
+        for user in users:
+            await self.bot.move_member(user, channel)
+            await self.bot.say("Moved **{0}** to ***__{1}__***".format(user, channel))
+            await asyncio.sleep(0.1)
+        await self.bot.say("***Im done moving those fags to the vc *** :v: ")  
+
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason: str=None):
@@ -506,7 +503,7 @@ class Mod:
                                 action="Kick\N{WOMANS BOOTS}",
                                 mod=author,
                                 user=user)
-            await self.bot.say(" I Fucken :boot: Ripped {} I kicked :boot: {} Right outta Here ".format(user.name, user.name))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: I've kicked {} outta Here :thumbsup: ".format(user.name))
         except discord.errors.Forbidden:
             await self.bot.say("Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ sorry")
         except Exception as e:
@@ -519,6 +516,7 @@ class Mod:
         author = ctx.message.author
         server = author.server
         try:
+            self._tmp_banned_cache.append(user)
             await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
             await self.bot.ban(user)
             logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
@@ -527,9 +525,9 @@ class Mod:
                                 action="Ban \N{HAMMER}",
                                 mod=author,
                                 user=user)
-            await self.bot.say("Foken :hammer: Banned {} :hammer:  The Fok outta here".format(user.name, user.name))
+            await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
         except discord.errors.Forbidden:
-            await self.bot.say("Not Allowed to Ban/Ban that specified user  Bruv ¯\_(ツ)_/¯ sorry")
+            await self.bot.say("I'm not allowed to do that.")
         except Exception as e:
             print(e)
         finally:
@@ -1439,15 +1437,6 @@ class Mod:
         else:
             raise CaseMessageNotFound()
 
-    async def get_bot_api_response(self, url, key, serverid):
-        data = {"guild_id": serverid, "permissions": 0, "authorize": True}
-        data = json.dumps(data).encode('utf-8')
-        headers = {'authorization': key, 'content-type': 'application/json'}
-        async with self.session.post(url, data=data, headers=headers) as r:
-            status = r.status
-        return status
-
-
     async def check_filter(self, message):
         server = message.server
         if server.id in self.filter.keys():
@@ -1462,6 +1451,7 @@ class Mod:
                     except:
                         pass
         return False
+
 
     async def check_duplicates(self, message):
         server = message.server
@@ -1591,6 +1581,7 @@ class Mod:
         return original == empty
 
 
+
 def check_folders():
     folders = ("data", "data/mod/")
     for folder in folders:
@@ -1643,7 +1634,7 @@ def setup(bot):
     global logger
     check_folders()
     check_files()
-    logger = logging.getLogger("mod")
+    logger = logging.getLogger("red.mod")
     # Prevents the logger from being loaded again in case of module reload
     if logger.level == 0:
         logger.setLevel(logging.INFO)
