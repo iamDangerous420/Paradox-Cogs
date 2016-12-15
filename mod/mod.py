@@ -16,6 +16,8 @@ import json
 import aiohttp
 import urllib.parse as up
 
+log = logging.getLogger("red.admin")
+
 default_settings = {
     "ban_mention_spam" : False,
     "delete_repeats"   : False,
@@ -189,15 +191,15 @@ class Mod:
         role = self._role_from_string(server, rolename)
 
         if role is None:
-            await self.bot.say('That role cannot be found.')
+            await self.bot.say(':no_good: Cannot find the role {} :thinking:'.format(rolename))
             return
 
         if not channel.permissions_for(server.me).manage_roles:
-            await self.bot.say('I don\'t have manage_roles.')
+            await self.bot.say('I don\'t have manage_roles. :| ')
             return
 
         await self.bot.add_roles(user, role)
-        await self.bot.say('Added role {} to {}'.format(role.name, user.name))
+        await self.bot.say(':P  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name))
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_roles=True)
@@ -221,11 +223,11 @@ class Mod:
         role = self._role_from_string(server, rolename)
 
         if role is None:
-            await self.bot.say('That role cannot be found.')
+            await self.bot.say(':no_good: That role cannot be found. :no_good:')
             return
 
         await self.bot.delete_role(server,role)
-        message = "I've **Succesfully** deleted the role `{}` :thumbsup:".format(rolename)
+        message = " :call_me: I've **Succesfully** deleted the role `{}` :thumbsup:".format(rolename)
         await self.bot.say(message)
 
     @commands.group(pass_context=True, no_pm=True)
@@ -267,7 +269,7 @@ class Mod:
 
         role = self._role_from_string(server, rolename)
         if role is None:
-            await self.bot.say("Role not found.")
+            await self.bot.say("Role not found. :no_good:")
             return
 
         if user is None:
@@ -276,11 +278,11 @@ class Mod:
         if role in user.roles:
             try:
                 await self.bot.remove_roles(user, role)
-                await self.bot.say("Role successfully removed.")
+                await self.bot.say(":thumbsup: Role {} successfully removed From {} :bangbang:".format(rolename, user.name))
             except discord.Forbidden:
-                await self.bot.say("I don't have permissions to manage roles!")
+                await self.bot.say(" :bangbang: I don't have permissions to manage roles!:bangbang: ")
         else:
-            await self.bot.say("User does not have that role.")
+            await self.bot.say(" :bangbang: User does not have that role. :no_good: ")
 
     @commands.group(no_pm=True, pass_context=True, invoke_without_command=True)
     async def selfrole(self, ctx, *, rolename):
@@ -484,9 +486,9 @@ class Mod:
 
         for user in users:
             await self.bot.move_member(user, channel)
-            await self.bot.say("Moved **{0}** to ***__{1}__***".format(user, channel))
+            await self.bot.say("Moved **{0}** to ***__{1}__*** :heavy_check_mark: ".format(user, channel))
             await asyncio.sleep(0.1)
-        await self.bot.say("***Im done moving those fags to the vc *** :v: ")  
+        await self.bot.say("***:white_check_mark: Im done moving those fags to the vc *** :v: ")  
 
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(kick_members=True)
@@ -505,7 +507,7 @@ class Mod:
                                 user=user)
             await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: I've kicked {} outta Here :thumbsup: ".format(user.name))
         except discord.errors.Forbidden:
-            await self.bot.say("Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ sorry")
+            await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
         except Exception as e:
             print(e)
 
@@ -527,13 +529,26 @@ class Mod:
                                 user=user)
             await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
         except discord.errors.Forbidden:
-            await self.bot.say("I'm not allowed to do that.")
+            await self.bot.say(" :bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
         except Exception as e:
             print(e)
         finally:
             await asyncio.sleep(1)
             self._tmp_banned_cache.remove(user)
 
+    @commands.command(pass_context = True, no_pm=True)
+    @checks.admin_or_permissions(ban_members=True)
+    async def unban(self, ctx, member : discord.User):
+        """dun work"""
+        member = discord.utils.find(lambda mem: mem.id == str(user_id), message.channel.server.members)
+        try:
+            await self.bot.unban(member)
+        except discord.Forbidden:
+            await self.bot.say('I do not have permissions to unban members.')
+        except discord.HTTPException:
+            await self.bot.say('Unbanning failed.')
+        else:
+            await self.bot.say('{0} has been Unbanned from this server.'.format(member.name))
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(ban_members=True)
     async def softban(self, ctx, user: discord.Member):
