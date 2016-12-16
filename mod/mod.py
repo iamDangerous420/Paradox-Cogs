@@ -50,10 +50,6 @@ class Mod:
         self.blacklist_list = dataIO.load_json("data/mod/blacklist.json")
         self.ignore_list = dataIO.load_json("data/mod/ignorelist.json")
         self.filter = dataIO.load_json("data/mod/filter.json")
-        self.location = 'data/antilink/settings.json'
-        self.json = dataIO.load_json(self.location)
-        self.regex = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.gg|discordapp\.com\/invite)\b([-a-zA-Z0-9/]*)>?")
-        self.regex_discordme = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.me\/)\b([-a-zA-Z0-9/]*)>?")
         self.past_names = dataIO.load_json("data/mod/past_names.json")
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
@@ -69,6 +65,10 @@ class Mod:
         self.base_api_url = "https://discordapp.com/api/oauth2/authorize?"
         self.enabled = fileIO('data/autoapprove/enabled.json', 'load')
         self.session = aiohttp.ClientSession()
+        self.location = 'data/antilink/settings.json'
+        self.json = dataIO.load_json(self.location)
+        self.regex = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.gg|discordapp\.com\/invite)\b([-a-zA-Z0-9/]*)>?")
+        self.regex_discordme = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.me\/)\b([-a-zA-Z0-9/]*)>?")
 
     def __unload(self):
         self.session.close()
@@ -1648,6 +1648,32 @@ class Mod:
 
         await asyncio.sleep(delay)
         await _delete_helper(self.bot, message)
+
+    async def _new_message(self, message):
+        """Finds the message and checks it for regex"""
+        user = message.author
+        if message.server is None:
+            pass
+        if message.server.id in self.json:
+            if self.json[message.server.id]['toggle'] is True:
+                if self.regex.search(message.content) is not None or self.regex_discordme.search(message.content) is not None:
+                    roles = [r.name for r in user.roles]
+                    bot_admin = settings.get_server_admin(message.server)
+                    bot_mod = settings.get_server_mod(message.server)
+                    if user.id == settings.owner:
+                        pass
+                    elif bot_admin in roles:
+                        pass
+                    elif bot_mod in roles:
+                        pass
+                    elif user.permissions_in(message.channel).manage_messages is True:
+                        pass
+                    else:
+                        asyncio.sleep(0.5)
+                        await self.bot.delete_message(message)
+                        if self.json[message.server.id]['dm'] is True:
+                            await self.bot.send_message(message.author, self.json[message.server.id]['message'])
+
 
     async def on_message(self, message):
         if message.channel.is_private or self.bot.user == message.author \
