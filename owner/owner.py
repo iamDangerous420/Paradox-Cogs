@@ -51,7 +51,9 @@ class Owner:
         self.bot = bot
         self.setowner_lock = False
         self._announce_msg = None
+        self._announce_server = None
         self._settings = dataIO.load_json('data/admin/settings.json')
+        self._settable_roles = self._settings.get("ROLES", {})
         self.file_path = "data/red/disabled_commands.json"
         self.disabled_commands = dataIO.load_json(self.file_path)
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
@@ -72,28 +74,20 @@ class Owner:
             else:
                 await self.bot.say("Alright then.")
 
-    def _save_settings(self):
-        dataIO.save_json('data/admin/settings.json', self._settings)
-
-    def _set_serverlock(self, lock=True):
-        self._settings["SERVER_LOCK"] = lock
-        self._save_settings()
-
-    def __unload(self):
-        self.session.close()
-
     def _is_server_locked(self):
         return self._settings.get("SERVER_LOCK", False)
 
+
     @commands.command(pass_context=True)
     @checks.is_owner()
-    async def a(self, ctx, *, msg):
+    async def announce(self, ctx, *, msg):
         """Announces a message to all servers that a bot is in."""
         if self._announce_msg is not None:
             await self.bot.say("Already announcing, wait until complete to"
                                " issue a new announcement.")
         else:
             self._announce_msg = msg
+            self._announce_server = ctx.message.server
 
     @commands.command(pass_context=True)
     @checks.is_owner()
@@ -821,7 +815,7 @@ class Owner:
     @commands.command()
     async def invite(self):
         """Invite me to a new server"""
-        await self.bot.say("You must have manage server permissions in order"
+        await self.bot.whisper("You must have manage server permissions in order"
                            " to add me to a new server. If you do, just click"
                            " the link below and select the server you wish for"
                            " me to join.\n\n"
@@ -928,6 +922,49 @@ class Owner:
         except discord.HTTPException:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
+    @commands.command()
+    async def python(self):
+        """Shows info about Dmx"""  
+        author_repo = "http://www.learnpython.org/"
+        red_repo = "http://aiohttp.readthedocs.io/en/stable/"
+        server_url = "http://discordpy.readthedocs.io/en/latest/api.html"
+        owner = "https://docs.python.org/3/"
+        discordpy_repo = "https://github.com/Rapptz/discord.py"
+        python_url = "https://www.python.org/"
+        since = datetime.datetime(2016, 1, 2, 0, 0)
+        days_since = (datetime.datetime.now() - since).days
+        python_url = "https://github.com/Rapptz/discord.py/tree/master/discord/ext/commands"
+        dpy_version = "[{}]({})".format(discord.__version__, discordpy_repo)
+        py_version = "[{}.{}.{}]({})".format(*os.sys.version_info[:3],
+                                             python_url)
+
+        name = self.bot.user.name
+
+        avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
+
+        about = (
+            "**Python is a coding language** [Learn Python]({})\n"
+            "Python docs [Documentation]({})\n"
+            "AioHttp Docs [Learn AioHttp]({})\n"
+            "Discord.py is Discords version of python :P Have fun coding\n"
+            "Discord.py Docs [Learn today]({})"
+            "\n"
+            "Commands Ext Docstrings: [Python]({}), powered by [discord.py]({})\n\n"
+            "".format(author_repo, owner, red_repo, server_url, python_url,
+                      discordpy_repo))
+
+        embed = discord.Embed(colour=discord.Colour.purple())
+        embed.add_field(name="Python", value=py_version)
+        embed.add_field(name="Brought to you by", value="Alan")
+        embed.add_field(name="discord.py", value=dpy_version)
+        embed.add_field(name="Python&D.py Help", value=about)
+        embed.set_footer(text="This is useless to uses on phone move along. :P".format(name), icon_url=avatar)
+
+        try:
+            await self.bot.say(embed=embed)
+        except discord.HTTPException:
+            await self.bot.say("I need the `Embed links` permission "
+                               "to send this")
 
     @commands.command()
     async def uptime(self):
@@ -974,6 +1011,8 @@ class Owner:
                 break
             server = self.bot.get_server(server_id)
             if server is None:
+                continue
+            if server == self._announce_server:
                 continue
             chan = server.default_channel
             log.debug("Looking to announce to {} on {}".format(chan.name,
