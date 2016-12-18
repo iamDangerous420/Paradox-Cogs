@@ -1182,7 +1182,7 @@ def setup(bot):
     check_folder()
     check_file()
     n = General(bot)
-    logger = logging.getLogger("remind")
+    logger = logging.getLogger("remindme")
     if logger.level == 0: # Prevents the logger from being loaded again in case of module reload
         logger.setLevel(logging.INFO)
         handler = logging.FileHandler(filename='data/remind/reminders.log', encoding='utf-8', mode='a')
