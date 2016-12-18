@@ -510,7 +510,7 @@ class General:
         future = int(time.time()+seconds)
         self.reminders.append({"ID" : author.id, "FUTURE" : future, "TEXT" : text})
         logger.info("{} ({}) set a reminder.".format(author.name, author.id))
-        await self.bot.say(":thumbsup: **Gotcha !!** Ima remind you that in ***{} {}. :smile:***".format(str(quantity), time_unit + s))
+        await self.bot.say(":thumbsup: **Gotcha !!** Ima remind you that in ***{} {}s. :smile:***".format(str(quantity), time_unit + s))
         fileIO("data/remindme/reminders.json", "save", self.reminders)
 
     @commands.command(pass_context=True)
