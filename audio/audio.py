@@ -1151,7 +1151,6 @@ class Audio:
         await self.bot.say("**Done!**")
 
     @commands.command(hidden=True, pass_context=True, no_pm=True)
-    @checks.is_owner()
     async def summon(self, ctx):
         """Joins your voice channel"""
         author = ctx.message.author
