@@ -1291,16 +1291,16 @@ class Audio:
         try:
             self.has_connect_perm(author, server)
         except AuthorNotConnected:
-            await self.bot.say("You must join a voice channel before I can"
-                               " play anything.")
+            await self.bot.say("You ain't In a voice channel"
+                               "How am i gonna play for you :neuttral_face:")
             return
         except UnauthorizedConnect:
-            await self.bot.say("I don't have permissions to join your"
-                               " voice channel.")
+            await self.bot.say(":neutral_face I can't join your"
+                               " voice channel. D:")
             return
         except UnauthorizedSpeak:
-            await self.bot.say("I don't have permissions to speak in your"
-                               " voice channel.")
+            await self.bot.say("**I don't have permissions to speak in your"
+                               " voice channel!!**")
             return
 
         if not self.voice_connected(server):
@@ -1314,12 +1314,12 @@ class Audio:
         #   downloading the next song
 
         if self.currently_downloading(server):
-            await self.bot.say("I'm already downloading a file!")
+            await self.bot.say(":raised_hand: **Im already Downloading a file WAIT UP**")
             return
 
         if "." in url:
             if not self._valid_playable_url(url):
-                await self.bot.say("That's not a valid URL.")
+                await self.bot.say(":x: That's not a **valid URL.** :no_good:")
                 return
         else:
             url = url.replace("/", "&#47")
