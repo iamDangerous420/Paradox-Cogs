@@ -1279,7 +1279,8 @@ class Audio:
         server = ctx.message.server
         author = ctx.message.author
         voice_channel = author.voice_channel
-
+        song = self._get_queue_nowplaying(server)
+        
         # Checking if playing in current server
 
         if self.is_playing(server):
@@ -1331,7 +1332,8 @@ class Audio:
         self._stop_player(server)
         self._clear_queue(server)
         self._add_to_queue(server, url)
-        await self.bot.say("**Im Playing your song fam** :thumbsup:")
+        await self.bot.send_typing(ctx.message.channel)
+        await self.bot.say("**Im Playing your song fam** :thumbsup:\n **Song:** `{}`".format(song))
 
     @commands.command(pass_context=True, no_pm=True)
     async def prev(self, ctx):
