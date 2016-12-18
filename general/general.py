@@ -29,7 +29,7 @@ class General:
         self.bot = bot
         self.data = dataIO.load_json(JSON)
         self.stopwatches = {}
-        self.reminders = fileIO("data/remindme/reminders.json", "load")
+        self.reminders = fileIO("data/remind/reminders.json", "load")
         self.units = {"minute" : 60, "hour" : 3600, "day" : 86400, "week": 604800, "month": 2592000}
         self.settings = 'data/youtube/settings.json'
         self.youtube_regex = (
@@ -128,7 +128,7 @@ class General:
                     await self.bot.send_message(message.channel, embed=em)
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("RemindMe"):
+        while self is self.bot.get_cog("Remind"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
@@ -143,7 +143,7 @@ class General:
             for reminder in to_remove:
                 self.reminders.remove(reminder)
             if to_remove:
-                fileIO("data/remindme/reminders.json", "save", self.reminders)
+                fileIO("data/remind/reminders.json", "save", self.reminders)
             await asyncio.sleep(5)
 
     @commands.command(pass_context=True, name="away")
@@ -510,8 +510,8 @@ class General:
         future = int(time.time()+seconds)
         self.reminders.append({"ID" : author.id, "FUTURE" : future, "TEXT" : text})
         logger.info("{} ({}) set a reminder.".format(author.name, author.id))
-        await self.bot.say(":thumbsup: **Gotcha !!** Ima remind you that in ***{} {}s. :smile:***".format(str(quantity), time_unit + s))
-        fileIO("data/remindme/reminders.json", "save", self.reminders)
+        await self.bot.say(":thumbsup: **Gotcha !!** Ima remind you that in ***{} {}. :smile:***".format(str(quantity), time_unit + s))
+        fileIO("data/remind/reminders.json", "save", self.reminders)
 
     @commands.command(pass_context=True)
     async def forget(self, ctx):
@@ -525,13 +525,13 @@ class General:
         if not to_remove == []:
             for reminder in to_remove:
                 self.reminders.remove(reminder)
-            fileIO("data/remindme/reminders.json", "save", self.reminders)
+            fileIO("data/remind/reminders.json", "save", self.reminders)
             await self.bot.say("**Notifications Removed** :thumbsup:")
         else:
             await self.bot.say(":no_good: You have **No** Notifications :thinking:")
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("RemindMe"):
+        while self is self.bot.get_cog("Remind"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
@@ -546,7 +546,7 @@ class General:
             for reminder in to_remove:
                 self.reminders.remove(reminder)
             if to_remove:
-                fileIO("data/remindme/reminders.json", "save", self.reminders)
+                fileIO("data/remind/reminders.json", "save", self.reminders)
             await asyncio.sleep(5)
 
     @commands.command(pass_context=True)
@@ -1093,7 +1093,7 @@ class NewPoll():
         self.poll_sessions.remove(self)
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("RemindMe"):
+        while self is self.bot.get_cog("Remind"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
@@ -1108,7 +1108,7 @@ class NewPoll():
             for reminder in to_remove:
                 self.reminders.remove(reminder)
             if to_remove:
-                fileIO("data/remindme/reminders.json", "save", self.reminders)
+                fileIO("data/remind/reminders.json", "save", self.reminders)
             await asyncio.sleep(5)
 
     def checkAnswer(self, message):
@@ -1144,7 +1144,7 @@ def check_file():
         print("Creating default settings.json...")
         dataIO.save_json(f, data)
 
-    f = "data/remindme/reminders.json"
+    f = "data/remind/reminders.json"
     if not fileIO(f, "check"):
         print("Creating empty reminders.json...")
         fileIO(f, "save", [])
@@ -1173,19 +1173,19 @@ def check_folder():
         print("Creating data/youtube folder...")
         os.makedirs("data/youtube")
 
-    if not os.path.exists("data/remindme"):
-        print("Creating data/remindme folder...")
-        os.makedirs("data/remindme")
+    if not os.path.exists("data/remind"):
+        print("Creating data/remind folder...")
+        os.makedirs("data/remind")
 
 def setup(bot):
     global logger
     check_folder()
     check_file()
     n = General(bot)
-    logger = logging.getLogger("remindme")
+    logger = logging.getLogger("remind")
     if logger.level == 0: # Prevents the logger from being loaded again in case of module reload
         logger.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename='data/remindme/reminders.log', encoding='utf-8', mode='a')
+        handler = logging.FileHandler(filename='data/remind/reminders.log', encoding='utf-8', mode='a')
         handler.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt="[%d/%m/%Y %H:%M]"))
         logger.addHandler(handler)
     bot.add_listener(n.check_poll_votes, "on_message")
