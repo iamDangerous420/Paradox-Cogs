@@ -1098,15 +1098,8 @@ class Audio:
         self.set_server_setting(server, "VOTE_ENABLED", enabled)
         self.save_settings()
 
-    @commands.group(pass_context=True)
-    async def audiostat(self, ctx):
-        """General stats on audio stuff."""
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
-            return
-
-    @audiostat.command(name="servers")
-    async def audiostat_servers(self):
+    @commands.command(pass_context=True)
+    async def audioservers(self):
         """Number of servers currently playing."""
 
         count = self._player_count()
@@ -1147,6 +1140,7 @@ class Audio:
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
             await self._stop_and_disconnect(server)
+			await self.bot.say(" :v: K Bye :wave:")
 
     @disconnect.command(name="all", hidden=True, no_pm=True)
     async def disconnect_all(self):
@@ -1154,8 +1148,21 @@ class Audio:
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
             await self._stop_and_disconnect(vc.server)
-        await self.bot.say("done.")
+        await self.bot.say("**Done!**")
 
+    @commands.command(hidden=True, pass_context=True, no_pm=True)
+    @checks.is_owner()
+    async def summon(self, ctx):
+        """Joins your voice channel"""
+        author = ctx.message.author
+        server = ctx.message.server
+        voice_channel = author.voice_channel
+
+        if voice_channel is not None:
+            self._stop(server)
+
+        await self._join_voice_channel(voice_channel)
+        await self.bot.say(":inbox_tray: **Im In** :thumbsup:")
     @commands.command(hidden=True, pass_context=True, no_pm=True)
     @checks.is_owner()
     async def joinvoice(self, ctx):
