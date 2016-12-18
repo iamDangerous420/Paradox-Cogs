@@ -1161,6 +1161,12 @@ class Audio:
         if voice_channel is not None:
             self._stop(server)
 
+        if voice_channel is None:
+            await self.bot.say(":anger: You are not in a "
+                               " **VOICE CHANNEL** :rage:")
+            return
+
+
         await self._join_voice_channel(voice_channel)
         await self.bot.say(":inbox_tray: **Im In** :thumbsup:")
     @commands.command(hidden=True, pass_context=True, no_pm=True)
@@ -1567,7 +1573,7 @@ class Audio:
 
         if "." in url:
             if not self._valid_playable_url(url):
-                await self.bot.say("That's not a valid URL.")
+                await self.bot.say(":x:That's not a **valid URL.**:x:")
                 return
         else:
             url = "[SEARCH:]" + url
@@ -1590,10 +1596,10 @@ class Audio:
         """Not a command, use `queue` with no args to call this."""
         server = ctx.message.server
         if server.id not in self.queue:
-            await self.bot.say("Nothing playing on this server!")
+            await self.bot.say("**Nothing playing on this server!**")
             return
         elif len(self.queue[server.id]["QUEUE"]) == 0:
-            await self.bot.say("Nothing queued on this server.")
+            await self.bot.say("**Nothing queued on this server.** If you are reciving this message and you are **infact** in a vc Please do `{}song` Instead :thumbsup:".format(ctx.prefixx))
             return
 
         msg = ""
@@ -1606,7 +1612,7 @@ class Audio:
         queue_url_list = self._get_queue(server, 5)
         tempqueue_url_list = self._get_queue_tempqueue(server, 5)
 
-        await self.bot.say("Gathering information...")
+        await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
 
         queue_song_list = await self._download_all(queue_url_list)
         tempqueue_song_list = await self._download_all(tempqueue_url_list)
@@ -1614,17 +1620,17 @@ class Audio:
         song_info = []
         for num, song in enumerate(tempqueue_song_list, 1):
             try:
-                song_info.append("{}. {.title}".format(num, song))
+                song_info.append("**{}.** `{.title}`".format(num, song))
             except AttributeError:
-                song_info.append("{}. {.webpage_url}".format(num, song))
+                song_info.append("**{}.** {.webpage_url}".format(num, song))
 
         for num, song in enumerate(queue_song_list, len(song_info) + 1):
             if num > 5:
                 break
             try:
-                song_info.append("{}. {.title}".format(num, song))
+                song_info.append("**{}.** `{.title}`".format(num, song))
             except AttributeError:
-                song_info.append("{}. {.webpage_url}".format(num, song))
+                song_info.append("**{}.** {.webpage_url}".format(num, song))
         msg += "\n***Next up:***\n" + "\n".join(song_info)
 
         await self.bot.say(msg)
