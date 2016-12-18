@@ -1140,7 +1140,7 @@ class Audio:
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
             await self._stop_and_disconnect(server)
-            await self.bot.say(" :v: K Bye :wave:")
+            await self.bot.say(" :outbox_tray:  Im out :wave:")
 
     @disconnect.command(name="all", hidden=True, no_pm=True)
     async def disconnect_all(self):
@@ -1258,19 +1258,19 @@ class Audio:
         """Pauses the current song, `[p]resume` to continue."""
         server = ctx.message.server
         if not self.voice_connected(server):
-            await self.bot.say("Not voice connected in this server.")
+            await self.bot.say(":no_good: **Not voice connected in this server.** :x:")
             return
 
         # We are connected somewhere
         voice_client = self.voice_client(server)
 
         if not hasattr(voice_client, 'audio_player'):
-            await self.bot.say("Nothing playing, nothing to pause.")
+            await self.bot.say("Nothing playing, nothing to pause. ¯\_(ツ)_/¯")
         elif voice_client.audio_player.is_playing():
             voice_client.audio_player.pause()
-            await self.bot.say("Paused.")
+            await self.bot.say("Paused.:paused:")
         else:
-            await self.bot.say("Nothing playing, nothing to pause.")
+            await self.bot.say("¯\_(ツ)_/¯ Nothing playing, nothing to pause. ¯\_(ツ)_/¯")
 
     @commands.command(pass_context=True, no_pm=True)
     async def play(self, ctx, *, url_or_search_terms):
@@ -1333,7 +1333,7 @@ class Audio:
         self._clear_queue(server)
         self._add_to_queue(server, url)
         await self.bot.send_typing(ctx.message.channel)
-        await self.bot.say("**Im Playing your song fam** :thumbsup:\n **Song:** `{}`".format(song))
+        await self.bot.say("**:play_pause: Im Playing your song fam** :thumbsup:".format(song))
 
     @commands.command(pass_context=True, no_pm=True)
     async def prev(self, ctx):
@@ -1361,9 +1361,9 @@ class Audio:
 
             self.voice_client(server).audio_player.stop()
 
-            await self.bot.say("Going back 1 song.")
+            await self.bot.say(":track_previous: **Going back 1 song.** :track_previous:")
         else:
-            await self.bot.say("Not playing anything on this server.")
+            await self.bot.say("**Not playing anything on this server.** :thinking:")
 
     @commands.group(pass_context=True, no_pm=True)
     async def playlist(self, ctx):
@@ -1390,7 +1390,7 @@ class Audio:
         playlist.server = server
 
         self._save_playlist(server, name, playlist)
-        await self.bot.say("Empty playlist '{}' saved.".format(name))
+        await self.bot.say("**I've Saved a empty playist called '{}' For you. :thumbsup:".format(name))
 
     @playlist.command(pass_context=True, no_pm=True, name="add")
     async def playlist_add(self, ctx, name, url):
@@ -1404,11 +1404,11 @@ class Audio:
 
         if self._valid_playable_url(url):
             try:
-                await self.bot.say("Enumerating song list... This could take"
-                                   " a few moments.")
+                await self.bot.say("**Getting Song list**"
+                                   " This might take some time :raised_hand:")
                 songlist = await self._parse_playlist(url)
             except InvalidPlaylist:
-                await self.bot.say("That playlist URL is invalid.")
+                await self.bot.say(":x: **That playlist URL is invalid.**")
                 return
 
             playlist = self._make_playlist(author, url, songlist)
@@ -1739,7 +1739,7 @@ class Audio:
                         if self._get_queue_repeat(server) is False:
                             self._set_queue_nowplaying(server, None)
                         self.skip_votes[server.id] = []
-                        await self.bot.say(":raising_hand: Votes ***Acknowledged***  **Skipping !!** :thumbsup: ")
+                        await self.bot.say(":raised_hand: Votes ***Acknowledged***  **Skipping !!** :thumbsup: ")
                         return
                     else:
                         reply += " Votes: %d/%d" % (num_votes, num_members)
