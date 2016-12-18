@@ -1417,7 +1417,7 @@ class Audio:
             playlist.server = server
 
             self._save_playlist(server, name, playlist)
-            await self.bot.say("Playlist '{}' saved. Tracks: {}".format(
+            await self.bot.say(" :musical_note: **Saved Playlist** `{}`\n Containing `{}` Songs :thumbsup".format(
                 name, len(songlist)))
         else:
             await self.bot.say("That URL is not a valid Soundcloud or YouTube"
@@ -1431,18 +1431,18 @@ class Audio:
         author = ctx.message.author
         server = ctx.message.server
         if name not in self._list_playlists(server):
-            await self.bot.say("There is no playlist with that name.")
+            await self.bot.say("**There is no playlist with that name.** :thinking:")
             return
         playlist = self._load_playlist(
             server, name, local=self._playlist_exists_local(server, name))
         try:
             playlist.append_song(author, url)
         except UnauthorizedSave:
-            await self.bot.say("You're not the author of that playlist.")
+            await self.bot.say(":no_good: **You're not the author of that playlist.**:x:")
         except InvalidURL:
-            await self.bot.say("Invalid link.")
+            await self.bot.say("**Invalid link.**:x:")
         else:
-            await self.bot.say("Done.")
+            await self.bot.say("**Playlist** `{}` ***Appended***".format(name))
 
     @playlist.command(pass_context=True, no_pm=True, name="extend")
     async def playlist_extend(self, ctx, playlist_url_or_name):
@@ -1462,7 +1462,7 @@ class Audio:
             msg += "```"
             await self.bot.say("Available playlists:\n{}".format(msg))
         else:
-            await self.bot.say("There are no playlists.")
+            await self.bot.say(":x: **There are no playlists.** :x: ")
 
     @playlist.command(pass_context=True, no_pm=True, name="queue")
     async def playlist_queue(self, ctx, url):
