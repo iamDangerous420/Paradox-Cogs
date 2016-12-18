@@ -1820,7 +1820,7 @@ class Audio:
         if self.is_playing(server):
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
-                    await self.bot.say('Stopping...')
+                    await self.bot.say(':raised_hand: Stopping :stop_button:')
                     self._stop(server)
                 else:
                     await self.bot.say("You can't stop music when there are other"
