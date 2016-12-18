@@ -1150,7 +1150,7 @@ class Audio:
             await self._stop_and_disconnect(vc.server)
         await self.bot.say("**Done!**")
 
-    @commands.command(hidden=True, pass_context=True, no_pm=True)
+    @commands.command( pass_context=True, no_pm=True)
     async def summon(self, ctx):
         """Joins your voice channel"""
         author = ctx.message.author
@@ -1165,8 +1165,9 @@ class Audio:
                                " **VOICE CHANNEL** :rage:")
             return
 
-		await self._join_voice_channel(voice_channel)
-        await self.bot.say(":inbox_tray: **Im In** :thumbsup:")
+        await self._join_voice_channel(voice_channel)
+        await self.bot.say(":inbox_tray: **I've joined** ***{0} successfully!*** :thumbsup:".format(str(ctx.message.author.voice_channel)))
+
     @commands.command(hidden=True, pass_context=True, no_pm=True)
     @checks.is_owner()
     async def joinvoice(self, ctx):
