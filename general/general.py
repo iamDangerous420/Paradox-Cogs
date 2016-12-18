@@ -128,7 +128,7 @@ class General:
                     await self.bot.send_message(message.channel, embed=em)
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("Remind"):
+        while self is self.bot.get_cog("general"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
@@ -531,7 +531,7 @@ class General:
             await self.bot.say(":no_good: You have **No** Notifications :thinking:")
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("Remind"):
+        while self is self.bot.get_cog("general"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
@@ -1093,7 +1093,7 @@ class NewPoll():
         self.poll_sessions.remove(self)
 
     async def check_reminders(self):
-        while self is self.bot.get_cog("Remind"):
+        while self is self.bot.get_cog("general"):
             to_remove = []
             for reminder in self.reminders:
                 if reminder["FUTURE"] <= int(time.time()):
