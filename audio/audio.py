@@ -1267,7 +1267,7 @@ class Audio:
             await self.bot.say("Nothing playing, nothing to pause. ¯\_(ツ)_/¯")
         elif voice_client.audio_player.is_playing():
             voice_client.audio_player.pause()
-            await self.bot.say("Paused.:paused:")
+            await self.bot.say("**Paused** :pause_button: ")
         else:
             await self.bot.say("¯\_(ツ)_/¯ Nothing playing, nothing to pause. ¯\_(ツ)_/¯")
 
