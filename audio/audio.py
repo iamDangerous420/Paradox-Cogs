@@ -1140,7 +1140,7 @@ class Audio:
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
             await self._stop_and_disconnect(server)
-			await self.bot.say(" :v: K Bye :wave:")
+            await self.bot.say(" :v: K Bye :wave:")
 
     @disconnect.command(name="all", hidden=True, no_pm=True)
     async def disconnect_all(self):
