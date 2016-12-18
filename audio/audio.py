@@ -1636,14 +1636,14 @@ class Audio:
         if ctx.invoked_subcommand is None:
             if self.is_playing(server):
                 if self.queue[server.id]["REPEAT"]:
-                    msg = "The queue is currently looping."
+                    msg = "**The queue is currently looping.**"
                 else:
-                    msg = "The queue is currently not looping."
+                    msg = "**The queue is currently not looping.**"
                 await self.bot.say(msg)
                 await self.bot.say(
                     "Do `{}repeat toggle` to change this.".format(ctx.prefix))
             else:
-                await self.bot.say("Play something to see this setting.")
+                await self.bot.say("**Play something to see this setting.**")
 
     @repeat.command(pass_context=True, no_pm=True, name="toggle")
     async def repeat_toggle(self, ctx):
@@ -1657,16 +1657,16 @@ class Audio:
         self._set_queue_repeat(server, not self.queue[server.id]["REPEAT"])
         repeat = self.queue[server.id]["REPEAT"]
         if repeat:
-            await self.bot.say("Repeat toggled on.")
+            await self.bot.say("**I've Toggled repeat** :thumbsup:")
         else:
-            await self.bot.say("Repeat toggled off.")
+            await self.bot.say("**I've UnToggled repeat** :thumbsup:")
 
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
         """Resumes a paused song or playlist"""
         server = ctx.message.server
         if not self.voice_connected(server):
-            await self.bot.say("Not voice connected in this server.")
+            await self.bot.say(":x: **Not voice connected in this server.**")
             return
 
         # We are connected somewhere
@@ -1677,22 +1677,22 @@ class Audio:
         elif not voice_client.audio_player.is_done() and \
                 not voice_client.audio_player.is_playing():
             voice_client.audio_player.resume()
-            await self.bot.say("Resuming.")
+            await self.bot.say("**Resuming** :smile:")
         else:
-            await self.bot.say("Nothing paused, nothing to resume.")
+            await self.bot.say(":joy: **Nothing paused, nothing to resume.** :stuck_out_tongue_closed_eyes: ")
 
     @commands.command(pass_context=True, no_pm=True, name="shuffle")
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
         if server.id not in self.queue:
-            await self.bot.say("I have nothing in queue to shuffle.")
+            await self.bot.say(":x: **Nothing in queue to shuffle.**")
             return
 
         self._shuffle_queue(server)
         self._shuffle_temp_queue(server)
 
-        await self.bot.say("Queues shuffled.")
+        await self.bot.say(":ok_hand: **Shuffled**")
 
     @commands.command(pass_context=True, aliases=["next"], no_pm=True)
     async def skip(self, ctx):
@@ -1709,14 +1709,14 @@ class Audio:
                     vc.audio_player.stop()
                     if self._get_queue_repeat(server) is False:
                         self._set_queue_nowplaying(server, None)
-                    await self.bot.say("Skipping...")
+                    await self.bot.say("***Skipping** :thumbsup:")
                 else:
                     if msg.author.id in self.skip_votes[server.id]:
                         self.skip_votes[server.id].remove(msg.author.id)
-                        reply = "I removed your vote to skip."
+                        reply = ":thumbsup: I've Removed your vote to skip."
                     else:
                         self.skip_votes[server.id].append(msg.author.id)
-                        reply = "you voted to skip."
+                        reply = ":thumbsup: You've Voted to skip."
 
                     num_votes = len(self.skip_votes[server.id])
                     # Exclude bots and non-plebs
@@ -1730,16 +1730,16 @@ class Audio:
                         if self._get_queue_repeat(server) is False:
                             self._set_queue_nowplaying(server, None)
                         self.skip_votes[server.id] = []
-                        await self.bot.say("Vote threshold met. Skipping...")
+                        await self.bot.say(":raising_hand: Votes ***Acknowledged***  **Skipping !!** :thumbsup: ")
                         return
                     else:
                         reply += " Votes: %d/%d" % (num_votes, num_members)
                         reply += " (%d%% out of %d%% needed)" % (vote, thresh)
                     await self.bot.reply(reply)
             else:
-                await self.bot.say("You need to be in the voice channel to skip the music.")
+                await self.bot.say(" :x: **You need to be in the voice channel to skip the music!!**")
         else:
-            await self.bot.say("Can't skip if I'm not playing.")
+            await self.bot.say("**Can't skip if I'm not playing.** :thinking:")
 
     def can_instaskip(self, member):
         server = member.server
@@ -1774,7 +1774,7 @@ class Audio:
         """Info about the current song."""
         server = ctx.message.server
         if not self.is_playing(server):
-            await self.bot.say("I'm not playing on this server.")
+            await self.bot.say("**Not playing anything**")
             return
 
         song = self._get_queue_nowplaying(server)
@@ -1819,9 +1819,9 @@ class Audio:
                                        " people in the channel! Vote to skip"
                                        " instead.")
             else:
-                await self.bot.say("You need to be in the voice channel to stop the music.")
+                await self.bot.say(":no_good: **You need to be in the voice channel to stop the music.** :x: ")
         else:
-            await self.bot.say("Can't stop if I'm not playing.")
+            await self.bot.say(":thinking: Can't stop if i'm not playing anything :eyes:")
 
     @commands.command(name="yt", pass_context=True, no_pm=True)
     async def yt_search(self, ctx, *, search_terms: str):
