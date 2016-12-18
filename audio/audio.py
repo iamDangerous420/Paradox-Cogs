@@ -1165,8 +1165,7 @@ class Audio:
                                " **VOICE CHANNEL** :rage:")
             return
 
-
-        await self._join_voice_channel(voice_channel)
+		await self._join_voice_channel(voice_channel)
         await self.bot.say(":inbox_tray: **Im In** :thumbsup:")
     @commands.command(hidden=True, pass_context=True, no_pm=True)
     @checks.is_owner()
