@@ -1132,7 +1132,7 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.group(pass_context=True, hidden=True, no_pm=True)
+    @commands.group(pass_context=True, no_pm=True)
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server."""
         if ctx.invoked_subcommand is None:
@@ -1802,7 +1802,7 @@ class Audio:
             else:
                 dur = None
             msg = ("\n:notes: **Song:** {}\n:microphone: **Author:** {}\n :bust_in_silhouette:**Uploader:** {}\n"
-                   ":busts_in_silhouette:**Views:** {}\n :stopwatch:**Duration:** {}\n\n<{}>".format(
+                   ":busts_in_silhouette:**Views:** {}\n :stopwatch:**Duration:** {}\n\n<:link:{}>".format(
                        song.title, song.creator, song.uploader,
                        song.view_count, dur, song.webpage_url))
             await self.bot.say(msg.replace("**Author:** None\n", "")
