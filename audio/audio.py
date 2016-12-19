@@ -1402,7 +1402,7 @@ class Audio:
 
         if self._valid_playable_url(url):
             try:
-                await self.bot.say("**Getting Song list**"
+                lol = await self.bot.say("**Getting Song list**"
                                    " This might take some time :raised_hand:")
                 songlist = await self._parse_playlist(url)
             except InvalidPlaylist:
@@ -1416,7 +1416,7 @@ class Audio:
             playlist.server = server
 
             self._save_playlist(server, name, playlist)
-            await self.bot.say(" :musical_note: **Saved Playlist** `{}`\n Containing `{}` Songs :thumbsup:".format(
+            await self.bot.edit_message(lol, ":musical_note: **Saved Playlist** :page_with_curl: `{}`\n Containing `{}` Songs :thumbsup:".format(
                 name, len(songlist)))
         else:
             await self.bot.say("That URL is not a valid Soundcloud or YouTube"
