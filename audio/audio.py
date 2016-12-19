@@ -1137,6 +1137,10 @@ class Audio:
         """Disconnects from voice channel in current server."""
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
+        except AuthorNotConnected:
+            await self.bot.say(":x:You ain't the voice channel"
+                               "**You cannot Disconnect me** :no_good:")
+            return
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
 
