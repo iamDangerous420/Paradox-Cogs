@@ -970,6 +970,31 @@ class Audio:
             return True
         return False
 
+    @commands.command(pass_context=True, no_pm=True)
+    async def volume(self, ctx, percent: int=None):
+        """Sets the volume (0 - 100)
+        Note: volume may be set up to 200 but you may experience clipping."""
+        server = ctx.message.server
+        if percent is None:
+            vol = self.get_server_settings(server)['VOLUME']
+            msg = "Volume is currently set to %d%%" % vol
+        elif percent >= 0 and percent <= 200:
+            self.set_server_setting(server, "VOLUME", percent)
+            msg = "Volume is now set to %d." % percent
+            if percent > 100:
+                msg += ("\nWarning: volume levels above 100 may result in"
+                        " clipping")
+
+            # Set volume of playing audio
+            vc = self.voice_client(server)
+            if vc:
+                vc.audio_player.volume = percent / 100
+
+            self.save_settings()
+        else:
+            msg = "Volume must be between 0 and 100."
+        await self.bot.say(msg)
+
     @commands.group(pass_context=True)
     async def audioset(self, ctx):
         """Audio settings."""
@@ -1048,31 +1073,6 @@ class Audio:
             await self.bot.say("Songs' titles will no longer show up as"
                                " status")
         self.save_settings()
-
-    @commands.command(pass_context=True, no_pm=True)
-    async def volume(self, ctx, percent: int=None):
-        """Sets the volume (0 - 100)
-        Note: volume may be set up to 200 but you may experience clipping."""
-        server = ctx.message.server
-        if percent is None:
-            vol = self.get_server_settings(server)['VOLUME']
-            msg = "Volume is currently set to %d%%" % vol
-        elif percent >= 0 and percent <= 200:
-            self.set_server_setting(server, "VOLUME", percent)
-            msg = "Volume is now set to %d." % percent
-            if percent > 100:
-                msg += ("\nWarning: volume levels above 100 may result in"
-                        " clipping")
-
-            # Set volume of playing audio
-            vc = self.voice_client(server)
-            if vc:
-                vc.audio_player.volume = percent / 100
-
-            self.save_settings()
-        else:
-            msg = "Volume must be between 0 and 100."
-        await self.bot.say(msg)
 
     @audioset.command(pass_context=True, name="vote", no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
@@ -1454,12 +1454,12 @@ class Audio:
         """Lists all available playlists"""
         files = self._list_playlists(ctx.message.server)
         if files:
-            msg = "```xl\n"
+            msg = "```Markdown\n"
             for f in files:
                 msg += "{}, ".format(f)
             msg = msg.strip(", ")
             msg += "```"
-            await self.bot.say("Available playlists:\n{}".format(msg))
+            await self.bot.say(":play_pause: :page_with_curl: **Available playlists:**\n#{}".format(msg))
         else:
             await self.bot.say(":x: **There are no playlists.** :x: ")
 
@@ -1469,7 +1469,7 @@ class Audio:
         Does NOT write to disk."""
         server = ctx.message.server
         if not self.voice_connected(server):
-            await self.bot.say(" I'm **Not voice connected** in this server.")
+            await self.bot.say(" I'm **Not voice connected** in this server. (╯°□°）╯︵ ┻━┻   ")
             return
 
         # We are connected somewhere
