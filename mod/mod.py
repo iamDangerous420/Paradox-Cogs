@@ -640,7 +640,7 @@ class Mod:
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
                 logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
-                    author.name, author.id, user.name, user.id, str(days)))
+                    author.name, author.id, user.name, user.id)
                 await self.new_case(server,
                                     action="Ban \N{HAMMER}",
                                     mod=author,
