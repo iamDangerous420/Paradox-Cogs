@@ -1,6 +1,10 @@
   
+import time
 import discord
 from discord.ext import commands
+from .utils.chat_formatting import *
+from random import randint
+from random import choice as randchoice
 from .utils import checks
 # import asyncio
 # from __main__ import send_cmd_help
@@ -9,6 +13,7 @@ from cogs.utils.dataIO import dataIO
 import os
 import time
 import re
+
 
 try:
     from tabulate import tabulate
