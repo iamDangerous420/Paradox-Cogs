@@ -326,7 +326,7 @@ class Mod:
         COMMA SEPARATED LIST (e.g. Admin,Staff,Mod)"""
         server = ctx.message.server
         if rolelist is None:
-            await self.bot.say("**RoleList Is none** If you're trying to clear the list please do {}adminset selfrolesclear".format(ctx.prefix))
+            await self.bot.say("**RoleList Is none** If you're trying to clear the list please do `{}adminset selfrolesclear`".format(ctx.prefix))
             return
         unparsed_roles = list(map(lambda r: r.strip(), rolelist.split(',')))
         parsed_roles = list(map(lambda r: self._role_from_string(server, r),
@@ -339,7 +339,7 @@ class Mod:
         parsed_role_set = list({r.name for r in parsed_roles})
         self._set_selfroles(server, parsed_role_set)
         await self.bot.say(
-            "Self roles successfully set to: {}".format(parsed_role_set))
+            "Self roles successfully set to: **{}**".format(parsed_role_set))
 
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
@@ -351,7 +351,7 @@ class Mod:
 
         role = self._role_from_string(server, rolename)
         if role is None:
-            await self.bot.say("Role not found. :no_good:")
+            await self.bot.say("**Role not found.** :no_good:")
             return
 
         if user is None:
@@ -360,7 +360,7 @@ class Mod:
         if role in user.roles:
             try:
                 await self.bot.remove_roles(user, role)
-                await self.bot.say(":thumbsup: Role {} successfully removed From {} :bangbang:".format(rolename, user.name))
+                await self.bot.say(":thumbsup: Role `{}` **Successfully** removed From ***{}*** :bangbang:".format(rolename, user.name))
             except discord.Forbidden:
                 await self.bot.say(" :bangbang: I don't have permissions to manage roles!:bangbang: ")
         else:
