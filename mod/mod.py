@@ -631,32 +631,42 @@ class Mod:
         """Bans user and deletes last X days worth of messages."""
         author = ctx.message.author
         server = author.server
-        try:
-            self._tmp_banned_cache.append(user)
-            await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
-            await self.bot.ban(user)
-            logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
-                author.name, author.id, user.name, user.id))
-            await self.new_case(server,
-                                action="Ban \N{HAMMER}",
-                                mod=author,
-                                user=user)
-            await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
-        except discord.errors.Forbidden:
-            await self.bot.say(" :bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
-        except Exception as e:
-            print(e)
-        finally:
-            await asyncio.sleep(1)
-            self._tmp_banned_cache.remove(user)
+        can_ban = channel.permissions_for(server.me).ban_members
+        if can_ban:
+            try:
+                try:  # We don't want blocked DMs preventing us from banning
+                    await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+                except:
+                    pass
+                    self._tmp_banned_cache.append(user)
+                    await self.bot.ban(user)
+                    logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
+                        author.name, author.id, user.name, user.id))
+                    await self.new_case(server,
+                                        action="Ban \N{HAMMER}",
+                                        mod=author,
+                                        user=user)
+                    await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
+                except discord.errors.Forbidden:
+                    await self.bot.say(" :bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
+                except Exception as e:
+                    print(e)
+                finally:
+                    await asyncio.sleep(1)
+                    self._tmp_banned_cache.remove(user)
 
-    @commands.command(pass_context = True, no_pm=True)
+    @commands.command(pass_context = True, hidden = True, no_pm=True)
     @checks.admin_or_permissions(ban_members=True)
-    async def unban(self, ctx, member : discord.User):
+    async def unban(self, ctx, user : discord.User):
         """dun work"""
+        server = ctx.message.server
+        channel = ctx.message.channel
+        can_ban = channel.permissions_for(server.me).ban_members
+        author = ctx.message.author
+        
         member = discord.utils.find(lambda mem: mem.id == str(user_id), message.channel.server.members)
         try:
-            await self.bot.unban(member)
+            await self.bot.unban(server, user)
         except discord.Forbidden:
             await self.bot.say('I do not have permissions to unban members.')
         except discord.HTTPException:
@@ -673,15 +683,14 @@ class Mod:
         author = ctx.message.author
         try:
             invite = await self.bot.create_invite(server, max_age=3600*24)
-            invite = "\nInvite: " + invite
         except:
             invite = ""
         if can_ban:
             try:
                 try:  # We don't want blocked DMs preventing us from banning
-                    msg = await self.bot.send_message(user, "You have been banned and "
-                              "then unbanned as a quick way to delete your messages.\n"
-                              "You can now join the server again.{}".format(invite))
+                    msg = await self.bot.send_message(user, "**You've Been Softbanned!**\N{DASH SYMBOL} \N{HAMMER}\n"
+                              "As a Means Deleting your messages.\n"
+                              "You can now join the server again.\n {} ".format(invite))
                 except:
                     pass
                 self._tmp_banned_cache.append(user)
@@ -694,7 +703,7 @@ class Mod:
                                     mod=author,
                                     user=user)
                 await self.bot.unban(server, user)
-                await self.bot.say("Done. Enough chaos.")
+                await self.bot.say("**My work here is Done. :thumbsup:**\nUser **{}** Has been **Soft** ***BANNED*** \N{DASH SYMBOL} \N{HAMMER}".format(user.name))
             except discord.errors.Forbidden:
                 await self.bot.say("My role is not high enough to softban that user.")
                 await self.bot.delete_message(msg)
