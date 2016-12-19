@@ -1139,7 +1139,7 @@ class Audio:
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
             await self._stop_and_disconnect(server)
-            await self.bot.say(" :outbox_tray:  I've Disconnected from {0} :wave:".format(str(ctx.message.author.voice_channel)))
+            await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
 
     @disconnect.command(name="all", hidden=True, no_pm=True)
     async def disconnect_all(self):
@@ -1416,7 +1416,7 @@ class Audio:
             playlist.server = server
 
             self._save_playlist(server, name, playlist)
-            await self.bot.say(" :musical_note: **Saved Playlist** `{}`\n Containing `{}` Songs :thumbsup".format(
+            await self.bot.say(" :musical_note: **Saved Playlist** `{}`\n Containing `{}` Songs :thumbsup:".format(
                 name, len(songlist)))
         else:
             await self.bot.say("That URL is not a valid Soundcloud or YouTube"
