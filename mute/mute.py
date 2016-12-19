@@ -233,13 +233,17 @@ class mute:
     @checks.mod_or_permissions(manage_messages=True)
     async def warn(self, ctx, user: discord.Member, *, reason: str=None):
         """Warns a user with boilerplate about the rules."""
-        msg = ['**Hey!!** %s, ' % user.mention]
-        msg.append("you're doing something that might get you **muted** :zipper_mouth: if you keep "
-                   "doing it.")
+        author = ctx.message.author
+        msg = [':bangbang:  **Hey!!** %s, ' % user.mention]
+        msg.append("**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: "
+                   )
         if reason:
             msg.append(" **Specifically**, ***__%s__***." % reason)
-        msg.append("Be sure to review the server rules :thumbsup: .")
-        await self.bot.say(' '.join(msg))
+        msg.append("**Be sure to review the server rules** :thumbsup: .")
+        description = msg
+        em = discord.Embed(description=msg, color=discord.Color.red())
+        avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
+        await self.bot.say(' '.join(description))
 
     async def setup_role(self, server, quiet=False):
         role = discord.utils.get(server.roles, name=self.role_name)
@@ -249,18 +253,18 @@ class mute:
                 await self.bot.say("The Manage Roles and Manage Channels permissions are required to use this command.")
                 return None
             else:
-                msg = "The %s role doesn't exist; Creating it now wait up boi... " % self.role_name
+                msg = "The **%s** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n" % self.role_name
                 if not quiet:
                     msgobj = await self.bot.reply(msg)
                 log.debug('Creating mute role :)')
                 perms = discord.Permissions.none()
                 role = await self.bot.create_role(server, name=self.role_name, permissions=perms)
                 if not quiet:
-                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + 'configuring channels :D ... ')
+                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '**Configurating channels** :smile:... ')
                 for c in server.channels:
                     await self.on_channel_create(c, role)
                 if not quiet:
-                    await self.bot.edit_message(msgobj, msgobj.content + 'Andddd We done ***DABBB***.')
+                    await self.bot.edit_message(msgobj, msgobj.content + 'https://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
         return role
 
     @commands.command(pass_context=True, no_pm=True)
