@@ -1448,7 +1448,6 @@ class Audio:
         playlist = self._load_playlist(
             server, name, local=self._playlist_exists_local(server, name))
         try:
-        try:
             playlist.append_song(author, url)
         except UnauthorizedSave:
             await self.bot.say(":no_good: **You're not the author of that playlist.**:x:")
