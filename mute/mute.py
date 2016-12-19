@@ -90,6 +90,8 @@ class mute:
     async def cmute(self, ctx, user: discord.Member, duration: str=None, *, reason: str=None):
         """Same as mute but cleans up after itself and the target"""
         server = ctx.message.server
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16) 
         role = await self.setup_role(server, quiet=True)
         if not role:
             return
@@ -98,7 +100,15 @@ class mute:
         if server.id not in self.json:
             self.json[server.id] = {}
 
+        if user.id in self.json[server.id]:
+            msg = 'User was already Muted\nResetting Dat timer :timer: Boii...'
+        elif role in user.roles:
+            msg = 'User was Muted but had no timer, Muting dat bitch now!...'
+        else:
+            msg = '***Bam Muted :speak_no_evil: :pencil2:️:no_entry_sign: BABA BIITCCCH Now stay muted  :wave: !!~***.'
+
         if not duration:
+            msg += ' \n`Using default duration of` ' + DEFAULT_TIMEOUT
             duration = _parse_time(DEFAULT_TIMEOUT)
             timestamp = time.time() + duration
         elif duration.lower() in ['forever', 'inf', 'infinite']:
@@ -123,7 +133,6 @@ class mute:
         # schedule callback for role removal
         if duration:
             self.schedule_unmute(duration, user, reason)
-
         def is_user(m):
             return m == ctx.message or m.author == user
 
@@ -131,9 +140,9 @@ class mute:
             await self.bot.purge_from(ctx.message.channel, limit=PURGE_MESSAGES + 1, check=is_user)
             await self.bot.delete_message(ctx.message)
         except discord.errors.Forbidden:
-            await self.bot.send_message(ctx.message.channel, "Mute set, but I need"
-                                        "permissions to ***manage messages*** to clean up.")
-
+            msg = '**Mute set**,But I require ***manage messages*** to clean up. **Please Assign Admin permissions To avoid errors such as these infuture** :thumbsup:'
+        em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        await self.bot.say(embed=em)
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def mute(self, ctx, user: discord.Member, duration: str=None, *, reason: str=None):
@@ -143,6 +152,8 @@ class mute:
 
         server = ctx.message.server
         role = await self.setup_role(server)
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16) 
         if role is None:
             return
 
@@ -151,14 +162,14 @@ class mute:
             self.json[server.id] = {}
 
         if user.id in self.json[server.id]:
-            msg = 'User was already Muted; resetting Dat timer :timer: Boii...'
+            msg = 'User was already Muted\nResetting Dat timer :timer: Boii...'
         elif role in user.roles:
             msg = 'User was Muted but had no timer, Muting dat bitch now!...'
         else:
             msg = '***Bam Muted :speak_no_evil: :pencil2:️:no_entry_sign: BABA BIITCCCH Now stay muted  :wave: !!~***.'
 
         if not duration:
-            msg += ' `Using default duration of` ' + DEFAULT_TIMEOUT
+            msg += ' \n`Using default duration of` ' + DEFAULT_TIMEOUT
             duration = _parse_time(DEFAULT_TIMEOUT)
             timestamp = time.time() + duration
         elif duration.lower() in ['forever', 'inf', 'infinite']:
@@ -183,8 +194,47 @@ class mute:
         # schedule callback for role removal
         if duration:
             self.schedule_unmute(duration, user, reason)
+        em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        await self.bot.say(embed=em)
 
-        await self.bot.say(msg)
+    @commands.command(pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def warn(self, ctx, user: discord.Member, *, reason: str=None):
+        """Warns a user with boilerplate about the rules."""
+        author = ctx.message.author
+        msg = [':bangbang:  **Hey!!** %s, ' % user.mention]
+        msg.append("**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: "
+                   )
+        if reason:
+            msg.append(" **Specifically**, ***__%s__***." % reason)
+        msg.append("**Be sure to review the server rules** :thumbsup: .")
+        description = msg
+        em = discord.Embed(description=msg, color=discord.Color.red())
+        avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
+        await self.bot.say(' '.join(description))
+
+    async def setup_role(self, server, quiet=False):
+        role = discord.utils.get(server.roles, name=self.role_name)
+        if not role:
+            if not (any(r.permissions.manage_roles for r in server.me.roles) and
+                    any(r.permissions.manage_channels for r in server.me.roles)):
+                await self.bot.say("The Manage Roles and Manage Channels permissions are required to use this command.")
+                return None
+            else:
+                msg = "The **%s** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n" % self.role_name
+                if not quiet:
+                    msgobj = await self.bot.reply(msg)
+                log.debug('Creating mute role :)')
+                perms = discord.Permissions.none()
+                role = await self.bot.create_role(server, name=self.role_name, permissions=perms)
+                if not quiet:
+                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '**Configurating channels** :smile:... ')
+                for c in server.channels:
+                    await self.on_channel_create(c, role)
+                if not quiet:
+                    await self.bot.edit_message(msgobj, msgobj.content + '\nhttps://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
+        return role
+
 
     @commands.command(pass_context=True, no_pm=True, name='lsmute')
     @checks.mod_or_permissions(manage_messages=True)
@@ -228,44 +278,6 @@ class mute:
 
         msg = '```\n%s\n```' % tabulate(disp_table, headers)
         await self.bot.say(msg)
-
-    @commands.command(pass_context=True, no_pm=True)
-    @checks.mod_or_permissions(manage_messages=True)
-    async def warn(self, ctx, user: discord.Member, *, reason: str=None):
-        """Warns a user with boilerplate about the rules."""
-        author = ctx.message.author
-        msg = [':bangbang:  **Hey!!** %s, ' % user.mention]
-        msg.append("**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: "
-                   )
-        if reason:
-            msg.append(" **Specifically**, ***__%s__***." % reason)
-        msg.append("**Be sure to review the server rules** :thumbsup: .")
-        description = msg
-        em = discord.Embed(description=msg, color=discord.Color.red())
-        avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
-        await self.bot.say(' '.join(description))
-
-    async def setup_role(self, server, quiet=False):
-        role = discord.utils.get(server.roles, name=self.role_name)
-        if not role:
-            if not (any(r.permissions.manage_roles for r in server.me.roles) and
-                    any(r.permissions.manage_channels for r in server.me.roles)):
-                await self.bot.say("The Manage Roles and Manage Channels permissions are required to use this command.")
-                return None
-            else:
-                msg = "The **%s** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n" % self.role_name
-                if not quiet:
-                    msgobj = await self.bot.reply(msg)
-                log.debug('Creating mute role :)')
-                perms = discord.Permissions.none()
-                role = await self.bot.create_role(server, name=self.role_name, permissions=perms)
-                if not quiet:
-                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '**Configurating channels** :smile:... ')
-                for c in server.channels:
-                    await self.on_channel_create(c, role)
-                if not quiet:
-                    await self.bot.edit_message(msgobj, msgobj.content + 'https://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
-        return role
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
