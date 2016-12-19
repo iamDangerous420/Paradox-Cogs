@@ -1448,6 +1448,7 @@ class Audio:
         playlist = self._load_playlist(
             server, name, local=self._playlist_exists_local(server, name))
         try:
+        try:
             playlist.append_song(author, url)
         except UnauthorizedSave:
             await self.bot.say(":no_good: **You're not the author of that playlist.**:x:")
@@ -1634,17 +1635,17 @@ class Audio:
         song_info = []
         for num, song in enumerate(tempqueue_song_list, 1):
             try:
-                song_info.append("**{}.** `{.title}`".format(num, song))
+                song_info.append("`#{}.` :notes:***{.title}***".format(num, song))
             except AttributeError:
-                song_info.append("**{}.** {.webpage_url}".format(num, song))
+                song_info.append("`#{}.`{.webpage_url}".format(num, song))
 
         for num, song in enumerate(queue_song_list, len(song_info) + 1):
             if num > 5:
                 break
             try:
-                song_info.append("**{}.** `{.title}`".format(num, song))
+                song_info.append("`#{}.` :notes:***{.title}***".format(num, song))
             except AttributeError:
-                song_info.append("**{}.** {.webpage_url}".format(num, song))
+                song_info.append("`#{}.` {.webpage_url}".format(num, song))
         msg += "\n***Next up:***\n" + "\n".join(song_info)
 
         await self.bot.say(msg)
