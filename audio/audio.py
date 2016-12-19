@@ -1133,7 +1133,6 @@ class Audio:
             self._cache_size()))
 
     @commands.group(pass_context=True, hidden=True, no_pm=True)
-    @checks.is_owner()
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server."""
         if ctx.invoked_subcommand is None:
@@ -1142,6 +1141,7 @@ class Audio:
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
 
     @disconnect.command(name="all", hidden=True, no_pm=True)
+    @checks.is_owner()
     async def disconnect_all(self):
         """Disconnects from all voice channels."""
         while len(list(self.bot.voice_clients)) != 0:
