@@ -273,7 +273,7 @@ class Mod:
             return
 
         await self.bot.add_roles(user, role)
-        await self.bot.say(':P  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name))
+        await self.bot.say(':bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name))
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_roles=True)
@@ -285,7 +285,7 @@ class Mod:
         server = ctx.message.server
         name = ''.join(rolename)
         await self.bot.create_role(server, name= '{}'.format(name))
-        message = "I've **Succesfully** created the role `{}` :thumbsup:".format(name)
+        message = ":bangbang: I've **Succesfully** created the role `{}` :thumbsup:".format(name)
         await self.bot.say(message)
 
     @commands.command(pass_context=True)
@@ -310,16 +310,21 @@ class Mod:
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @adminset.command(pass_context=True, name="selfroles")
+    @adminset.command(pass_context=True, name="selfrolesclear")
+    @checks.admin_or_permissions(manage_roles=True)
+    async def adminset_selfroles_clear(self, ctx, *, rolelist=None):
+        """Clears selfroles"""
+        server = ctx.message.server
+        if rolelist is None:
+            await self.bot.say("**SelfRole List CLEARED** :thumbsup:")
+            self._set_selfroles(server, [])
+            return
+	@adminset.command(pass_context=True, name="selfroles")
     @checks.admin_or_permissions(manage_roles=True)
     async def adminset_selfroles(self, ctx, *, rolelist=None):
         """Set which roles users can set themselves.
         COMMA SEPARATED LIST (e.g. Admin,Staff,Mod)"""
         server = ctx.message.server
-        if rolelist is None:
-            await self.bot.say("selfrole list cleared.")
-            self._set_selfroles(server, [])
-            return
         unparsed_roles = list(map(lambda r: r.strip(), rolelist.split(',')))
         parsed_roles = list(map(lambda r: self._role_from_string(server, r),
                                 unparsed_roles))
@@ -366,8 +371,8 @@ class Mod:
         author = ctx.message.author
         role_names = self._get_selfrole_names(server)
         if role_names is None:
-            await self.bot.say("I have no user settable roles for this"
-                               " server.")
+            await self.bot.say(":no_good: **I have no user settable roles for this"
+                               " server.** :frowning:")
             return
 
         roles = list(map(lambda r: self._role_from_string(server, r),
@@ -388,7 +393,7 @@ class Mod:
         else:
             log.debug("Role {} added to {} on {}".format(rolename, author.name,
                                                          server.id))
-            await self.bot.say("Role added.")
+            await self.bot.reply(":punch: I've **Succesfully Added the role** `{}` To you :smile:".format(rolename))
 
     @selfrole.command(no_pm=True, pass_context=True, name="remove")
     async def selfrole_remove(self, ctx, *, rolename):
@@ -420,7 +425,7 @@ class Mod:
             log.debug("Role {} removed from {} on {}".format(rolename,
                                                              author.name,
                                                              server.id))
-            await self.bot.say("Role removed.")
+            await self.bot.reply(":punch: I've **Succesfully Removed the role** `{}` from you :thumbsup:".format(rolename))
 
     @commands.group(pass_context=True, no_pm=True)
     @checks.serverowner_or_permissions(administrator=True)
