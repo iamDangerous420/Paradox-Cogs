@@ -1656,14 +1656,14 @@ class Audio:
         if ctx.invoked_subcommand is None:
             if self.is_playing(server):
                 if self.queue[server.id]["REPEAT"]:
-                    msg = "**The queue is currently looping.**"
+                    msg = ":loop: **The queue is currently looping.**:arrows_counterclockwise:"
                 else:
-                    msg = "**The queue is currently not looping.**"
+                    msg = "**The queue is currently not looping.:twisted_rightwards_arrows: **"
                 await self.bot.say(msg)
                 await self.bot.say(
-                    "Do `{}repeat toggle` to change this.".format(ctx.prefix))
+                    "**Do** :loop: `{}repeat toggle` **to change this**.".format(ctx.prefix))
             else:
-                await self.bot.say("**Play something to see this setting.**")
+                await self.bot.say(":play_pause: **Play something to see this setting.**")
 
     @repeat.command(pass_context=True, no_pm=True, name="toggle")
     async def repeat_toggle(self, ctx):
@@ -1677,16 +1677,16 @@ class Audio:
         self._set_queue_repeat(server, not self.queue[server.id]["REPEAT"])
         repeat = self.queue[server.id]["REPEAT"]
         if repeat:
-            await self.bot.say("**I've Toggled repeat** :thumbsup:")
+            await self.bot.say(":arrows_clockwise: **I've Toggled repeat** :arrows_counterclockwise: :thumbsup:")
         else:
-            await self.bot.say("**I've UnToggled repeat** :thumbsup:")
+            await self.bot.say(":twisted_rightwards_arrows:**I've UnToggled repeat** :thumbsup:")
 
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
         """Resumes a paused song or playlist"""
         server = ctx.message.server
         if not self.voice_connected(server):
-            await self.bot.say(":x: **Not voice connected in this server.**")
+            await self.bot.say(":bangbang: **Not voice connected in this server.**:x:")
             return
 
         # We are connected somewhere
@@ -1697,16 +1697,16 @@ class Audio:
         elif not voice_client.audio_player.is_done() and \
                 not voice_client.audio_player.is_playing():
             voice_client.audio_player.resume()
-            await self.bot.say(":play_pause: **Resuming** :smile:")
+            await self.bot.say(":play_pause: **Resuming** :thumbsup:")
         else:
-            await self.bot.say(":joy: **Nothing paused, nothing to resume.** :stuck_out_tongue_closed_eyes: ")
+            await self.bot.say(":bangbang: **Nothing paused, nothing to resume.** :joy: ")
 
     @commands.command(pass_context=True, no_pm=True, name="shuffle")
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
         if server.id not in self.queue:
-            await self.bot.say(":x: **Nothing in queue to shuffle.**")
+            await self.bot.say(":bangbang:**Nothing in queue to shuffle.** :x: ")
             return
 
         self._shuffle_queue(server)
@@ -1759,7 +1759,7 @@ class Audio:
             else:
                 await self.bot.say(" :x: **You need to be in the voice channel to skip the music!!**")
         else:
-            await self.bot.say("**Can't skip if I'm not playing.** :thinking:")
+            await self.bot.say(":bangbang:**Can't skip if I'm not playing.** :thinking:")
 
     def can_instaskip(self, member):
         server = member.server
@@ -1794,7 +1794,7 @@ class Audio:
         """Info about the current song."""
         server = ctx.message.server
         if not self.is_playing(server):
-            await self.bot.say("**Not playing anything**")
+            await self.bot.say(":bangbang: :x: **Not playing anything** :x: :bangbang:")
             return
 
         song = self._get_queue_nowplaying(server)
@@ -1835,9 +1835,9 @@ class Audio:
                     await self.bot.say(':raised_hand: Stopping :stop_button:')
                     self._stop(server)
                 else:
-                    await self.bot.say("You can't stop music when there are other"
-                                       " people in the channel! Vote to skip"
-                                       " instead.")
+                    await self.bot.say(":bangbang: :x: **You can't stop music when there are other"
+                                       " people in the channel!** ***Vote to skip"
+                                       " instead.***:bangbang: :x: ")
             else:
                 await self.bot.say(":no_good: **You need to be in the voice channel to stop the music.** :x: ")
         else:
@@ -1846,7 +1846,7 @@ class Audio:
     @commands.command(name="yt", pass_context=True, no_pm=True)
     async def yt_search(self, ctx, *, search_terms: str):
         """Searches and plays a video from YouTube"""
-        await self.bot.say("Searching...")
+        await self.bot.say(":raised_hand: **Searching...**")
         await ctx.invoke(self.play, url_or_search_terms=search_terms)
 
     def is_playing(self, server):
