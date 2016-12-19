@@ -628,7 +628,7 @@ class Mod:
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason: str=None):
-        """Bans user and deletes last X days worth of messages."""
+        """Bans user does not log like red i broke it """
         author = ctx.message.author
         server = author.server
         channel = ctx.message.channel
@@ -639,7 +639,7 @@ class Mod:
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
+                await self.bot.say(" :punch: I've **Succesfully Banned**:heavy_check_mark: ***{}*** :hammer: The Fok outta {} :heavy_check_mark:".format(user.name, server.name))
             except discord.errors.Forbidden:
                 await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
             except Exception as e:
