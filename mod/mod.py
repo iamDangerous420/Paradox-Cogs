@@ -18,6 +18,7 @@ import urllib.parse as up
 
 log = logging.getLogger("red.admin")
 
+
 default_settings = {
     "ban_mention_spam" : False,
     "delete_repeats"   : False,
@@ -42,7 +43,7 @@ class NoModLogChannel(ModError):
 
 
 class Mod:
-    """Moderation tools."""
+    """Moderation tools.""" 
 
     def __init__(self, bot):
         self.bot = bot
@@ -51,8 +52,6 @@ class Mod:
         self.ignore_list = dataIO.load_json("data/mod/ignorelist.json")
         self.filter = dataIO.load_json("data/mod/filter.json")
         self.past_names = dataIO.load_json("data/mod/past_names.json")
-        self._settings = dataIO.load_json('data/admin/settings.json')
-        self._settable_roles = self._settings.get("ROLES", {})
         self.past_nicknames = dataIO.load_json("data/mod/past_nicknames.json")
         settings = dataIO.load_json("data/mod/settings.json")
         self.settings = defaultdict(lambda: default_settings.copy(), settings)
@@ -67,6 +66,8 @@ class Mod:
         self.session = aiohttp.ClientSession()
         self.location = 'data/antilink/settings.json'
         self.json = dataIO.load_json(self.location)
+        self._settings = dataIO.load_json('data/admin/settings.json')
+        self._settable_roles = self._settings.get("ROLES", {})
         self.regex = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.gg|discordapp\.com\/invite)\b([-a-zA-Z0-9/]*)>?")
         self.regex_discordme = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.me\/)\b([-a-zA-Z0-9/]*)>?")
 
@@ -556,7 +557,6 @@ class Mod:
                 else:
                     await self.bot.say("I will not delete command messages.")
 
-
     @commands.command(pass_context=True)
     @checks.admin_or_permissions(move_members=True)
     async def move(self, ctx, channel: discord.Channel, *users: discord.Member):
@@ -639,12 +639,6 @@ class Mod:
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
-                logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
-                    author.name, author.id, user.name, user.id)
-                await self.new_case(server,
-                                    action="Ban \N{HAMMER}",
-                                    mod=author,
-                                    user=user)
                 await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
             except discord.errors.Forbidden:
                 await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
@@ -1124,7 +1118,6 @@ class Mod:
     @checks.mod_or_permissions(manage_messages=True)
     async def reason(self, ctx, case, *, reason : str=""):
         """Lets you specify a reason for mod-log's cases
-
         Defaults to last case assigned to yourself, if available."""
         author = ctx.message.author
         server = author.server
@@ -1239,7 +1232,6 @@ class Mod:
     @ignore.command(name="channel", pass_context=True)
     async def ignore_channel(self, ctx, channel: discord.Channel=None):
         """Ignores channel
-
         Defaults to current one"""
         current_ch = ctx.message.channel
         if not channel:
@@ -1279,7 +1271,6 @@ class Mod:
     @unignore.command(name="channel", pass_context=True)
     async def unignore_channel(self, ctx, channel: discord.Channel=None):
         """Removes channel from ignore list
-
         Defaults to current one"""
         current_ch = ctx.message.channel
         if not channel:
@@ -1318,7 +1309,6 @@ class Mod:
     @checks.mod_or_permissions(manage_messages=True)
     async def _filter(self, ctx):
         """Adds/removes words from filter
-
         Use double quotes to add/remove sentences
         Using this command with no subcommands will send
         the list of the server's filtered words."""
@@ -1337,7 +1327,6 @@ class Mod:
     @_filter.command(name="add", pass_context=True)
     async def filter_add(self, ctx, *words: str):
         """Adds words to the filter
-
         Use double quotes to add sentences
         Examples:
         filter add word1 word2 word3
@@ -1362,7 +1351,6 @@ class Mod:
     @_filter.command(name="remove", pass_context=True)
     async def filter_remove(self, ctx, *words: str):
         """Remove words from the filter
-
         Use double quotes to remove sentences
         Examples:
         filter remove word1 word2 word3
@@ -1395,7 +1383,6 @@ class Mod:
     @editrole.command(aliases=["color"], pass_context=True)
     async def colour(self, ctx, role: discord.Role, value: discord.Colour):
         """Edits a role's colour
-
         Use double quotes if the role contains spaces.
         Colour must be in hexadecimal format.
         \"http://www.w3schools.com/colors/colors_picker.asp\"
@@ -1418,7 +1405,6 @@ class Mod:
     @checks.admin_or_permissions(administrator=True)
     async def edit_role_name(self, ctx, role: discord.Role, name: str):
         """Edits a role's name
-
         Use double quotes if the role or the name contain spaces.
         Examples:
         !editrole name \"The Transistor\" Test"""
@@ -1589,7 +1575,6 @@ class Mod:
                         pass
         return False
 
-
     async def check_duplicates(self, message):
         server = message.server
         author = message.author
@@ -1742,6 +1727,16 @@ class Mod:
         original = [p for p in iter(overwrites)]
         empty = [p for p in iter(discord.PermissionOverwrite())]
         return original == empty
+
+
+def check_folders():
+    folders = ("data", "data/mod/")
+    for folder in folders:
+        if not os.path.exists(folder):
+            print("Creating " + folder + " folder...")
+            os.makedirs(folder)
+
+
 
 
 
