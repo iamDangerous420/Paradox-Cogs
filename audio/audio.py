@@ -1146,7 +1146,9 @@ class Audio:
         if not self.voice_connected(server):
             await self.bot.say(" I'm **Not voice connected** in this server. (╯°□°）╯︵ ┻━┻   ")
             return
-        if ctx.message.author.voice_channel == server.me.voice_channel:
+        if ctx.message.author.voice_channel is not server.me.voice_channel:
+            await self.bot.say(" :no_good: You are  **In the voice channel** ***{}*** You cannot disconnect me. :x:".format(server.me.voice_channel))
+            return
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
 
