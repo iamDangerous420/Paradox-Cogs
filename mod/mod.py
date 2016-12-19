@@ -631,29 +631,24 @@ class Mod:
         """Bans user and deletes last X days worth of messages."""
         author = ctx.message.author
         server = author.server
+        channel = ctx.message.channel
         can_ban = channel.permissions_for(server.me).ban_members
         if can_ban:
-            try:
-                try:  # We don't want blocked DMs preventing us from banning
-                    await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
-                except:
-                    pass
-                    self._tmp_banned_cache.append(user)
-                    await self.bot.ban(user)
-                    logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
-                        author.name, author.id, user.name, user.id))
-                    await self.new_case(server,
-                                        action="Ban \N{HAMMER}",
-                                        mod=author,
-                                        user=user)
-                    await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
-                except discord.errors.Forbidden:
-                    await self.bot.say(" :bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
-                except Exception as e:
-                    print(e)
-                finally:
-                    await asyncio.sleep(1)
-                    self._tmp_banned_cache.remove(user)
+            try:  # We don't want blocked DMs preventing us from banning
+                await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+                pass
+                self._tmp_banned_cache.append(user)
+                await self.bot.ban(user)
+                logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(author.name, author.id, user.name, user.id))
+                await self.new_case(server, action="Ban \N{HAMMER}", mod=author, user=user)
+                await self.bot.say(" :punch: I've Succesfully Banned {} :hammer: The Fok outta here :heavy_check_mark::heavy_check_mark:".format(user.name))
+            except discord.errors.Forbidden:
+                await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
+            except Exception as e:
+                print(e)
+            finally:
+                await asyncio.sleep(1)
+                self._tmp_banned_cache.remove(user)
 
     @commands.command(pass_context = True, hidden = True, no_pm=True)
     @checks.admin_or_permissions(ban_members=True)
