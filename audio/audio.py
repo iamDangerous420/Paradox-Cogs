@@ -1670,8 +1670,8 @@ class Audio:
         """Flips repeat setting."""
         server = ctx.message.server
         if not self.is_playing(server):
-            await self.bot.say("I don't have a repeat setting to flip."
-                               " Try playing something first.")
+            await self.bot.say(":anger: **I'm Not playing how am i going to** ***repeat*** "
+                               " **Try playing something first.*** :thumbsup:")
             return
 
         self._set_queue_repeat(server, not self.queue[server.id]["REPEAT"])
