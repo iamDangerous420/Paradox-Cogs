@@ -1801,8 +1801,8 @@ class Audio:
                     dur = "{0}:{1:0>2}".format(m, s)
             else:
                 dur = None
-            msg = ("\n**Title:** {}\n**Author:** {}\n**Uploader:** {}\n"
-                   "**Views:** {}\n**Duration:** {}\n\n<{}>".format(
+            msg = ("\n:notes: **Song:** {}\n:microphone: **Author:** {}\n:bust_in_silhouette:**Uploader:** {}\n"
+                   :busts_in_silhouette:"**Views:** {}\n:stopwatch: **Duration:** {}\n\n<{}>".format(
                        song.title, song.creator, song.uploader,
                        song.view_count, dur, song.webpage_url))
             await self.bot.say(msg.replace("**Author:** None\n", "")
