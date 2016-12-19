@@ -1470,7 +1470,7 @@ class Audio:
         Does NOT write to disk."""
         server = ctx.message.server
         if not self.voice_connected(server):
-            await self.bot.say("Not voice connected in this server.")
+            await self.bot.say(" I'm **Not voice connected** in this server.")
             return
 
         # We are connected somewhere
@@ -1498,7 +1498,7 @@ class Audio:
 
         if self._playlist_exists(server, name):
             self._delete_playlist(server, name)
-            await self.bot.say("Playlist deleted.")
+            await self.bot.say(":no_good: **Playlist** ***deleted.*** :thumbsup:")
         else:
             await self.bot.say("Playlist not found.")
 
@@ -1512,8 +1512,8 @@ class Audio:
         caller = inspect.currentframe().f_back.f_code.co_name
 
         if voice_channel is None:
-            await self.bot.say("You must be in a voice channel to start a"
-                               " playlist.")
+            await self.bot.say(":x: You must be in a voice channel to start a"
+                               " playlist.:x:")
             return
 
         if self._playlist_exists(server, name):
@@ -1521,16 +1521,16 @@ class Audio:
                 try:
                     self.has_connect_perm(author, server)
                 except AuthorNotConnected:
-                    await self.bot.say("You must join a voice channel before"
-                                       " I can play anything.")
+                    await self.bot.say(":anger: **You must join a voice channel before"
+                                       " I can play anything.** -_-")
                     return
                 except UnauthorizedConnect:
-                    await self.bot.say("I don't have permissions to join your"
-                                       " voice channel.")
+                    await self.bot.say("(╯°□°）╯︵ ┻━┻**I don't have permissions to join your"
+                                       " voice channel.** :neutral_face:")
                     return
                 except UnauthorizedSpeak:
-                    await self.bot.say("I don't have permissions to speak in"
-                                       " your voice channel.")
+                    await self.bot.say("(╯°□°）╯︵ ┻━┻ **I don't have permissions to speak in"
+                                       " your voice channel.** :neutral_face: ")
                     return
                 else:
                     await self._join_voice_channel(voice_channel)
@@ -1542,9 +1542,9 @@ class Audio:
                 shuffle(playlist.playlist)
 
             self._play_playlist(server, playlist)
-            await self.bot.say("Playlist queued.")
+            await self.bot.say(":play_pause: :page_with_curl:  **Playlist Queued** :thumbsup:")
         else:
-            await self.bot.say("That playlist does not exist.")
+            await self.bot.say("**Playlist** **NONEXISTENT** (╯°□°）╯︵ ┻━┻(╯°□°）╯︵ ┻━┻(╯°□°）╯︵ ┻━┻")
 
     @playlist.command(pass_context=True, no_pm=True, name="mix")
     async def playlist_start_mix(self, ctx, name):
@@ -1575,7 +1575,7 @@ class Audio:
 
         if "." in url:
             if not self._valid_playable_url(url):
-                await self.bot.say(":x:That's not a **valid URL.**:x:")
+                await self.bot.say("(╯°□°）╯︵ ┻━┻ That's not a **valid URL.**:x:")
                 return
         else:
             url = "[SEARCH:]" + url
@@ -1592,13 +1592,13 @@ class Audio:
             log.debug("queueing to the actual queue for sid {}".format(
                 server.id))
             self._add_to_queue(server, url)
-        await self.bot.say("Queued.")
+        await self.bot.say(":play_pause: :page_with_curl:  **Queued** :thumbsup:")
 
     async def _queue_list(self, ctx):
         """Not a command, use `queue` with no args to call this."""
         server = ctx.message.server
         if server.id not in self.queue:
-            await self.bot.say("**Nothing playing on this server!**")
+            await self.bot.say("**Nothing playing on this server!**(╯°□°）╯︵ ┻━┻")
             return
         elif len(self.queue[server.id]["QUEUE"]) == 0:
             await self.bot.say("**Nothing queued on this server.** If you are reciving this message and you are **infact** in a vc Please do `{}song` Instead :thumbsup:".format(ctx.prefixx))
@@ -1700,7 +1700,7 @@ class Audio:
         self._shuffle_queue(server)
         self._shuffle_temp_queue(server)
 
-        await self.bot.say(":ok_hand: **Shuffled**")
+        await self.bot.say(":ok_hand: **Shuffled** :game_die: ")
 
     @commands.command(pass_context=True, aliases=["next"], no_pm=True)
     async def skip(self, ctx):
