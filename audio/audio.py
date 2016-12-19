@@ -1693,7 +1693,7 @@ class Audio:
         voice_client = self.voice_client(server)
 
         if not hasattr(voice_client, 'audio_player'):
-            await self.bot.say("Nothing paused, nothing to resume.")
+            await self.bot.say("¯\_(ツ)_/¯**Nothing paused, nothing to resume.**¯\_(ツ)_/¯ ")
         elif not voice_client.audio_player.is_done() and \
                 not voice_client.audio_player.is_playing():
             voice_client.audio_player.resume()
