@@ -1291,7 +1291,7 @@ class Audio:
             self.has_connect_perm(author, server)
         except AuthorNotConnected:
             await self.bot.say("You ain't In a voice channel"
-                               "How am i gonna play for you :neuttral_face:")
+                               "How am i gonna play for you :neutral_face:")
             return
         except UnauthorizedConnect:
             await self.bot.say(":neutral_face I can't join your"
