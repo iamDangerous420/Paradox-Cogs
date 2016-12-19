@@ -1613,7 +1613,7 @@ class Audio:
             await self.bot.say("**Nothing playing on this server!**(╯°□°）╯︵ ┻━┻")
             return
         elif len(self.queue[server.id]["QUEUE"]) == 0:
-            await self.bot.say("**Nothing queued on this server.** If you are reciving this message and you are **infact** in a vc Please do `{}song` Instead :thumbsup:".format(ctx.prefixx))
+            await self.bot.say("**Nothing queued on this server.** If you are receiving this message and you are **infact** in a vc Please do `{}song` Instead :thumbsup:".format(ctx.prefix))
             return
 
         msg = ""
@@ -1626,7 +1626,7 @@ class Audio:
         queue_url_list = self._get_queue(server, 5)
         tempqueue_url_list = self._get_queue_tempqueue(server, 5)
 
-        await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
+        lol= await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
 
         queue_song_list = await self._download_all(queue_url_list)
         tempqueue_song_list = await self._download_all(tempqueue_url_list)
@@ -1697,7 +1697,7 @@ class Audio:
         elif not voice_client.audio_player.is_done() and \
                 not voice_client.audio_player.is_playing():
             voice_client.audio_player.resume()
-            await self.bot.say("**Resuming** :smile:")
+            await self.bot.say(":play_pause: **Resuming** :smile:")
         else:
             await self.bot.say(":joy: **Nothing paused, nothing to resume.** :stuck_out_tongue_closed_eyes: ")
 
