@@ -354,7 +354,7 @@ class General:
 
         await self.bot.say("( ͡° ͜ʖ ͡°)")
     @commands.command()
-    async def Bangers(self):
+    async def bangers(self):
         """Dangerous's playlist"""
 
         await self.bot.say(" Heres the playlist enjoy the tunes :musical_note: https://www.youtube.com/playlist?list=PL42LCVbTlLSywDEpoLDWdDdjZDVgNsD5A :musical_note: ")
