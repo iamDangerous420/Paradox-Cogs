@@ -1798,9 +1798,9 @@ class Audio:
 
     @commands.command(pass_context=True, no_pm=True)
     async def sing(self, ctx):
-        """Makes Red sing one of her songs"""
-        ids = ("zGTkAVsrfg8", "cGMWL8cOeAU", "vFrjMq4aL-g", "WROI5WYBU_A",
-               "41tIUr_ex3g", "f9O2Rjn1azc")
+        """Make Danger MX Play a dank song WARNING CONTAINS EAR RAPE"""
+        ids = ("KT7W9oJP6BI", "1b2we5jOKXA", "5m5q8BiqrlQ", "rL11QgXr2Ug",
+               "ntLop32pYd0", "oWPXdDMkRF0", "1-xGerv5FOk", "u73uM1_Dor0", "MimslO4g2yE")
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
