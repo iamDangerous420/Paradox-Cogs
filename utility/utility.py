@@ -122,7 +122,7 @@ class Utility:
         lolol = await self.bot.say(embed=msg)
         data = discord.Embed(
             description="***{}'s***  **Member Stats**".format(server.name),
-            colour=discord.Colour(value=colour))
+            colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         data.add_field(name="**<:vpOnline:212789758110334977>Online Users**", value="***{}***".format(len([e.name for e in server.members if e.status == discord.Status.online])))
         data.add_field(name="**<:vpAway:212789859071426561>Idle Users**", value="***{}***".format(len([e.name for e in server.members if e.status == discord.Status.idle])))
         data.add_field(name="**<:vpDnD:236744731088912384>Dnd Users**", value="***{}***".format(len([e.name for e in server.members if e.status == discord.Status.dnd])))
@@ -130,6 +130,7 @@ class Utility:
         data.add_field(name="**👤 Total Humans**", value="***{}***".format(len([e.name for e in server.members if not e.bot])))
         data.add_field(name="**🤖Total Bots**", value="***{}***".format(len([e.name for e in server.members if e.bot])))
         data.add_field(name="**👤🤖Total Bots & Humans🤖👤**", value="***{}***".format(len([e.name for e in server.members])))
+        data.set_footer(text="Count as of =>")
         if server.icon_url:
             data.set_author(name="", url=server.icon_url)
             data.set_thumbnail(url=server.icon_url)
@@ -139,7 +140,7 @@ class Utility:
 
     @commands.command(pass_context=True)
     @checks.is_owner()
-    async def cstats(self, ctx):
+    async def bstats(self, ctx):
         """Stats for Danger's servers"""
         server = ctx.message.server
         colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
@@ -155,9 +156,9 @@ class Utility:
         data.add_field(name="**<:vpAway:212789859071426561>Idle Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.idle])))
         data.add_field(name="**<:vpDnD:236744731088912384>Dnd Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.dnd])))
         data.add_field(name="**<:vpOffline:212790005943369728>Offline Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.offline])))
-        data.add_field(name="**Total Bots**", value=(len([e.name for e in self.bot.get_all_members() if not e.bot])))
+        data.add_field(name="**Total Humans**", value=(len([e.name for e in self.bot.get_all_members() if not e.bot])))
         data.add_field(name="**Total Bots**", value=(len([e.name for e in self.bot.get_all_members() if e.bot])))
-        data.set_footer(text=" I count {} Total Bots & Humans From {} servers".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
+        data.set_footer(text=" I count {} Total Bots & Humans From {} servers as of ".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
         await self.bot.edit_message(fuckmyass699696, embed=data)
 
         if server.icon_url:
