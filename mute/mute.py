@@ -207,16 +207,20 @@ class mute:
     async def warn(self, ctx, user: discord.Member, *, reason: str=None):
         """Warns a user with boilerplate about the rules."""
         author = ctx.message.author
-        msg = [':bangbang:  **Hey!!** %s, ' % user.mention]
-        msg.append("**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: "
-                   )
-        if reason:
-            msg.append(" **Specifically**, ***__%s__***." % reason)
-        msg.append("**Be sure to review the server rules** :thumbsup: .")
-        description = msg
-        em = discord.Embed(description=msg, color=discord.Color.red())
+        server = ctx.message.server
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+
+        if reason is None: 
+            msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: **Be sure to review the rules for {}** :thumbsup: .  ".format(user.mention, server.name)
+        else:
+            msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x:  **Specifically**, ***__{}__***. **Be sure to review the rules for {}** :thumbsup:.".format(user.mention, reason, server.name)
+        em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
-        await self.bot.say(' '.join(description))
+        em.set_author(name='Warning from {}'.format(author.name), icon_url=avatar)
+        if server.icon_url:
+            em.set_thumbnail(url=server.icon_url)
+        await self.bot.say(embed=em)
 
     async def setup_role(self, server, quiet=False):
         role = discord.utils.get(server.roles, name=self.role_name)
