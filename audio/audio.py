@@ -1557,10 +1557,6 @@ class Audio:
             if caller == "playlist_start_mix":
                 shuffle(playlist.playlist)
 
-        if ctx.message.author.voice_channel is not server.me.voice_channel:
-            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot play music with me. :x:".format(server.me.voice_channel))
-            return
-
             self._play_playlist(server, playlist)
             await self.bot.say(":play_pause: :page_with_curl:  **Playlist Queued** :thumbsup:")
         else:
