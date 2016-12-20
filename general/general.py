@@ -650,6 +650,11 @@ class General:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
 
+    @commands.command(Hidden=True, pass_context=True, no_pm=True)
+    async def pwincess(self, ctx):
+        """Command special for pwincess <3"""
+
+        await self.bot.say("<@105899177401180160> is my master, waifu, and god,:heart_eyes::heart:️")
     @commands.command(name = "google", pass_context=True, no_pm=True)
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def _google(self, ctx, text):
