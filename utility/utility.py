@@ -47,6 +47,8 @@ class Utility:
         """Check members in the role totally didn't copy dex's eye emoji"""
         server = ctx.message.server
         message = ctx.message
+        channel = ctx.message.channel
+        await self.bot.send_typing(ctx.message.channel)
         therole = discord.utils.find(lambda r: r.name.lower() == rolename.lower(), ctx.message.server.roles)
         if therole is not None and len([m for m in server.members if therole in m.roles]) < 50:
             lolies = await self.bot.say(" :raised_hand: Wait up Getting Names :bookmark: ")
@@ -88,6 +90,8 @@ class Utility:
         """get your role id"""
         channel = ctx.message.channel
         server = ctx.message.server
+        channel = ctx.message.channel
+        await self.bot.send_typing(ctx.message.channel)
 
         role = self._role_from_string(server, rolename)
 
@@ -143,10 +147,12 @@ class Utility:
     async def bstats(self, ctx):
         """Stats for Danger's servers"""
         server = ctx.message.server
+        channel = ctx.message.channel
         colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
         msg = discord.Embed(description=":raised_hand:***Collecting Stats*** :raised_hand:",
         colour=discord.Colour(value=colour))
+        await self.bot.send_typing(ctx.message.channel)
         fuckmyass699696 = await self.bot.say(embed=msg)
         await asyncio.sleep(0.7)
         data = discord.Embed(
@@ -167,6 +173,25 @@ class Utility:
         else:
             data.set_author(name="")
         await self.bot.edit_message(fuckmyass699696, embed=data)
+
+    @commands.command(pass_context=True)
+    async def bots(self, ctx):
+        """Lists teh bots"""
+        channel = ctx.message.channel
+        await self.bot.send_typing(ctx.message.channel)
+
+        list = "\n".join([m.name for m in ctx.message.server.members if m.bot])
+        for page in pagify(list, ["\n"], shorten_by=7, page_length=2000):
+            await self.bot.say(box(page))
+
+    @commands.command(pass_context=True)
+    async def roles(self, ctx):
+        """States roles from highest to lowest"""
+
+        list = "\n".join([x.name for x in ctx.message.server.role_hierarchy if x.name != "@everyone"])
+        for page in pagify(list, ["\n"], shorten_by=7, page_length=2000):
+            await self.bot.say(box(page))
+
 def setup(bot):
     n = Utility(bot)
     bot.add_cog(n)
