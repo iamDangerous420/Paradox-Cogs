@@ -1793,7 +1793,7 @@ class Audio:
         return is_owner or is_server_owner or is_admin or is_mod or alone
 
     @commands.command(pass_context=True, no_pm=True)
-    async def sing(self, ctx):
+    async def tunes(self, ctx):
         """Make Danger MX Play a dank song WARNING CONTAINS EAR RAPE"""
         ids = ("KT7W9oJP6BI", "1b2we5jOKXA", "5m5q8BiqrlQ", "rL11QgXr2Ug",
                "ntLop32pYd0", "oWPXdDMkRF0", "1-xGerv5FOk", "u73uM1_Dor0", "MimslO4g2yE")
