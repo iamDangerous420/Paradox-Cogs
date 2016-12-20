@@ -1147,7 +1147,7 @@ class Audio:
             await self.bot.say(" I'm **Not voice connected** in this server. (╯°□°）╯︵ ┻━┻   ")
             return
         if ctx.message.author.voice_channel is not server.me.voice_channel:
-            await self.bot.say(" :no_good: You are  **In the voice channel** ***{}*** You cannot disconnect me. :x:".format(server.me.voice_channel))
+            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot disconnect me. :x:".format(server.me.voice_channel))
             return
         if ctx.message.author.voice_channel == server.me.voice_channel:
             await self._stop_and_disconnect(server)
@@ -1270,6 +1270,10 @@ class Audio:
         server = ctx.message.server
         if not self.voice_connected(server):
             await self.bot.say(":no_good: **Not voice connected in this server.** :x:")
+            return
+
+        if ctx.message.author.voice_channel is not server.me.voice_channel:
+            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot pause me. :x:".format(server.me.voice_channel))
             return
 
         # We are connected somewhere
@@ -1553,6 +1557,10 @@ class Audio:
             if caller == "playlist_start_mix":
                 shuffle(playlist.playlist)
 
+        if ctx.message.author.voice_channel is not server.me.voice_channel:
+            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot play music with me. :x:".format(server.me.voice_channel))
+            return
+
             self._play_playlist(server, playlist)
             await self.bot.say(":play_pause: :page_with_curl:  **Playlist Queued** :thumbsup:")
         else:
@@ -1575,6 +1583,10 @@ class Audio:
         server = ctx.message.server
         if not self.voice_connected(server):
             await ctx.invoke(self.play, url_or_search_terms=url)
+            return
+
+        if ctx.message.author.voice_channel is not server.me.voice_channel:
+            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot play music with me. :x:".format(server.me.voice_channel))
             return
 
         # We are connected somewhere
@@ -1707,6 +1719,9 @@ class Audio:
         server = ctx.message.server
         if server.id not in self.queue:
             await self.bot.say(":bangbang:**Nothing in queue to shuffle.** :x: ")
+            return
+        if ctx.message.author.voice_channel is not server.me.voice_channel:
+            await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot shuffle me. :x:".format(server.me.voice_channel))
             return
 
         self._shuffle_queue(server)
