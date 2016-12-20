@@ -970,8 +970,15 @@ class Audio:
             return True
         return False
 
-    @commands.command(pass_context=True, no_pm=True)
-    async def volume(self, ctx, percent: int=None):
+    @commands.group(pass_context=True)
+    async def audioset(self, ctx):
+        """Audio settings."""
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+            return
+
+    @audioset.command(pass_context=True, name="vol", no_pm=True)
+    async def audioset_volume(self, ctx, percent: int=None):
         """Sets the volume (0 - 100)
         Note: volume may be set up to 200 but you may experience clipping."""
         server = ctx.message.server
@@ -994,13 +1001,6 @@ class Audio:
         else:
             msg = "Volume must be between 0 and 100."
         await self.bot.say(msg)
-
-    @commands.group(pass_context=True)
-    async def audioset(self, ctx):
-        """Audio settings."""
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
-            return
 
     @audioset.command(name="cachemax")
     @checks.is_owner()
@@ -1290,7 +1290,7 @@ class Audio:
         server = ctx.message.server
         author = ctx.message.author
         voice_channel = author.voice_channel
-        song = self._get_queue_nowplaying(server)
+        song =  self._get_queue_nowplaying(server)
         
         # Checking if playing in current server
 
@@ -1729,7 +1729,7 @@ class Audio:
                     vc.audio_player.stop()
                     if self._get_queue_repeat(server) is False:
                         self._set_queue_nowplaying(server, None)
-                    await self.bot.say("***Skipping** :thumbsup:")
+                    await self.bot.say("***Skipping*** :thumbsup:")
                 else:
                     if msg.author.id in self.skip_votes[server.id]:
                         self.skip_votes[server.id].remove(msg.author.id)
@@ -1789,6 +1789,17 @@ class Audio:
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
+    @commands.command(pass_context=True, no_pm=True)
+    async def np(self, ctx):
+        """Info about the current song."""
+        server = ctx.message.server
+        if not self.is_playing(server):
+            await self.bot.say(":bangbang: :x: **Not playing anything** :x: :bangbang:")
+            return
+
+        song = self._get_queue_nowplaying(server)
+
+        await self.bot.say ("**Now Playing** :notes: ***{0}*** `In {1}` :musical_note: ".format(song.title, server.me.voice_channel))
     @commands.command(pass_context=True, no_pm=True)
     async def song(self, ctx):
         """Info about the current song."""
