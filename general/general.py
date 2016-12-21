@@ -658,7 +658,7 @@ class General:
             await self.bot.say(":two_hearts: <@105899177401180160> is my master, waifu, and god,:heart_eyes: :heart:️")
             return
         else:
-            await self.bot.reply(":x: Sorry i only Reply to my master waifu goddes Pwincess :stuck_out_tongue:")
+            await self.bot.reply(":x: Sorry i only Reply to my master waifu goddess Pwincess :stuck_out_tongue:")
 
     @commands.command(name = "google", pass_context=True, no_pm=True)
     @commands.cooldown(5, 60, commands.BucketType.user)
