@@ -655,7 +655,7 @@ class General:
         """Command special for pwincess <3"""
         user = ctx.message.author
         if user.id == "105899177401180160" or user.id == "187570149207834624":
-            await self.bot.say(":two_hearts: <@105899177401180160> is my master, waifu and and goddess. :heart_eyes: :heart:️ :ok_hand: :fire:️")
+            await self.bot.say(":two_hearts: <@105899177401180160> is my master, waifu and goddess. :heart_eyes: :heart:️ :ok_hand: :fire:️")
             return
         else:
             await self.bot.reply(":x: Sorry i only Reply to my master waifu goddess Pwincess :stuck_out_tongue:")
