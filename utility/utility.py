@@ -163,7 +163,7 @@ class Utility:
         data.add_field(name="**<:vpOffline:212790005943369728>Offline Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.offline])))
         data.add_field(name=":busts_in_silhouette: **Total Humans**:busts_in_silhouette: ", value=(len([e.name for e in self.bot.get_all_members() if not e.bot])))
         data.add_field(name=":robot: **Total Bots**:robot: ", value=(len([e.name for e in self.bot.get_all_members() if e.bot])))
-        data.set_footer(text=" I count {} Total Bots:robot:  & Humans :busts_in_silhouette: From {} servers as of ".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
+        data.set_footer(text=" I count {} Total Bots🤖 & Humans 👥 From {} servers as of ".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
         await self.bot.edit_message(fuckmyass699696, embed=data)
 
         if server.icon_url:
