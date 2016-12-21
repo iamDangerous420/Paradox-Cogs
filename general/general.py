@@ -650,11 +650,16 @@ class General:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
 
-    @commands.command(Hidden=True, pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, hidden = True, no_pm=True)
     async def pwincess(self, ctx):
         """Command special for pwincess <3"""
+        user = ctx.message.author
+        if user.id == "105899177401180160":
+            await self.bot.say(":two_hearts: <@105899177401180160> is my master, waifu, and god,:heart_eyes: :heart:️")
+            return
+        else:
+            await self.bot.reply(":x: Sorry i only Reply to my master waifu goddes Pwincess :stuck_out_tongue:")
 
-        await self.bot.say("<@105899177401180160> is my master, waifu, and god,:heart_eyes::heart:️")
     @commands.command(name = "google", pass_context=True, no_pm=True)
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def _google(self, ctx, text):
