@@ -143,7 +143,6 @@ class Utility:
         await self.bot.edit_message(lolol, embed=data)
 
     @commands.command(pass_context=True)
-    @checks.is_owner()
     async def bstats(self, ctx):
         """Stats for Danger's servers"""
         server = ctx.message.server
@@ -162,9 +161,9 @@ class Utility:
         data.add_field(name="**<:vpAway:212789859071426561>Idle Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.idle])))
         data.add_field(name="**<:vpDnD:236744731088912384>Dnd Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.dnd])))
         data.add_field(name="**<:vpOffline:212790005943369728>Offline Users**", value=(len([e.name for e in self.bot.get_all_members() if e.status == discord.Status.offline])))
-        data.add_field(name="**Total Humans**", value=(len([e.name for e in self.bot.get_all_members() if not e.bot])))
-        data.add_field(name="**Total Bots**", value=(len([e.name for e in self.bot.get_all_members() if e.bot])))
-        data.set_footer(text=" I count {} Total Bots & Humans From {} servers as of ".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
+        data.add_field(name=":busts_in_silhouette: **Total Humans**:busts_in_silhouette: ", value=(len([e.name for e in self.bot.get_all_members() if not e.bot])))
+        data.add_field(name=":robot: **Total Bots**:robot: ", value=(len([e.name for e in self.bot.get_all_members() if e.bot])))
+        data.set_footer(text=" I count {} Total Bots:robot:  & Humans :busts_in_silhouette: From {} servers as of ".format(len([e.name for e in self.bot.get_all_members()]), len(self.bot.servers)))
         await self.bot.edit_message(fuckmyass699696, embed=data)
 
         if server.icon_url:
