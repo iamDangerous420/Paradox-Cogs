@@ -984,13 +984,13 @@ class Audio:
         server = ctx.message.server
         if percent is None:
             vol = self.get_server_settings(server)['VOLUME']
-            msg = "Volume is currently set to %d%%" % vol
+            msg = ":loud_sound: ***Volume Level is %d%% :headphones:***" % vol
         elif percent >= 0 and percent <= 200:
             self.set_server_setting(server, "VOLUME", percent)
-            msg = "Volume is now set to %d." % percent
+            msg = ":level_slider: **Volume is now set to %d. :headphones: **" % percent
             if percent > 100:
-                msg += ("\nWarning: volume levels above 100 may result in"
-                        " clipping")
+                msg += ("\n**Warning:** ***Volume levels above 100 may result in"
+                        " clipping***")
 
             # Set volume of playing audio
             vc = self.voice_client(server)
@@ -999,7 +999,7 @@ class Audio:
 
             self.save_settings()
         else:
-            msg = "Volume must be between 0 and 100."
+            msg = " :raised_hand:**Volume must be between 0 and 100.** :x:"
         await self.bot.say(msg)
 
     @audioset.command(name="cachemax")
@@ -1040,11 +1040,11 @@ class Audio:
     async def audioset_maxlength(self, length: int):
         """Maximum track length (seconds) for requested links"""
         if length <= 0:
-            await self.bot.say("Wow, a non-positive length value...aren't"
-                               " you smart.")
+            await self.bot.say("***Wow,***  a **non-positive length value...aren't"
+                               " you smart.** ***-_-***")
             return
         self.settings["MAX_LENGTH"] = length
-        await self.bot.say("Maximum length is now {} seconds.".format(length))
+        await self.bot.say("**Maximum length is now** ***{}*** **seconds.**:thumbsup:".format(length))
         self.save_settings()
 
     @audioset.command(name="player")
@@ -1053,9 +1053,9 @@ class Audio:
         """Toggles between Ffmpeg and Avconv"""
         self.settings["AVCONV"] = not self.settings["AVCONV"]
         if self.settings["AVCONV"]:
-            await self.bot.say("Player toggled. You're now using avconv.")
+            await self.bot.say("**Player toggled. You're now using avconv.**")
         else:
-            await self.bot.say("Player toggled. You're now using ffmpeg.")
+            await self.bot.say("**Player toggled. You're now using ffmpeg.**")
         self.save_settings()
 
     @audioset.command(name="status")
@@ -1132,20 +1132,24 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.group(pass_context=True, no_pm=True)
+    @commands.group(pass_context=True, aliases=["dc,leave"], no_pm=True)
     async def disconnect(self, ctx):
-        """Disconnects from voice channel in current server."""
+        """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
             server = ctx.message.server
             author = ctx.message.author
             voice_channel = author.voice_channel
+            user = ctx.message.channel
+
         if voice_channel is None:
             await self.bot.say(":anger: You are not in the"
                                " **VOICE CHANNEL** :rage:")
             return
+
         if not self.voice_connected(server):
             await self.bot.say(" I'm **Not voice connected** in this server. (╯°□°）╯︵ ┻━┻   ")
             return
+
         if ctx.message.author.voice_channel is not server.me.voice_channel:
             await self.bot.say(" :no_good: You are ** Not In the voice channel** ***{}*** You cannot disconnect me. :x:".format(server.me.voice_channel))
             return
@@ -1153,6 +1157,10 @@ class Audio:
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
 
+        if user.id == "187570149207834624":
+            await self._stop_and_disconnect(server)
+            await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
+            return
     @disconnect.command(name="all", hidden=True, no_pm=True)
     @checks.is_owner()
     async def disconnect_all(self):
@@ -1180,91 +1188,7 @@ class Audio:
         await self._join_voice_channel(voice_channel)
         await self.bot.say(":inbox_tray: **I've joined** ***{0} successfully!*** :thumbsup:".format(str(ctx.message.author.voice_channel)))
 
-    @commands.command(hidden=True, pass_context=True, no_pm=True)
-    @checks.is_owner()
-    async def joinvoice(self, ctx):
-        """Joins your voice channel"""
-        author = ctx.message.author
-        server = ctx.message.server
-        voice_channel = author.voice_channel
-
-        if voice_channel is not None:
-            self._stop(server)
-
-        await self._join_voice_channel(voice_channel)
-
-    @commands.group(pass_context=True, no_pm=True)
-    async def local(self, ctx):
-        """Local playlists commands"""
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
-
-    @local.command(name="start", pass_context=True, no_pm=True)
-    async def play_local(self, ctx, *, name):
-        """Plays a local playlist"""
-        server = ctx.message.server
-        author = ctx.message.author
-        voice_channel = author.voice_channel
-
-        # Checking already connected, will join if not
-
-        if not self.voice_connected(server):
-            try:
-                self.has_connect_perm(author, server)
-            except AuthorNotConnected:
-                await self.bot.say("You must join a voice channel before I can"
-                                   " play anything.")
-                return
-            except UnauthorizedConnect:
-                await self.bot.say("I don't have permissions to join your"
-                                   " voice channel.")
-                return
-            except UnauthorizedSpeak:
-                await self.bot.say("I don't have permissions to speak in your"
-                                   " voice channel.")
-                return
-            else:
-                await self._join_voice_channel(voice_channel)
-        else:  # We are connected but not to the right channel
-            if self.voice_client(server).channel != voice_channel:
-                pass  # TODO: Perms
-
-        # Checking if playing in current server
-
-        if self.is_playing(server):
-            await self.bot.say("I'm already playing a song on this server!")
-            return  # TODO: Possibly execute queue?
-
-        # If not playing, spawn a downloader if it doesn't exist and begin
-        #   downloading the next song
-
-        if self.currently_downloading(server):
-            await self.bot.say("I'm already downloading a file!")
-            return
-
-        lists = self._list_local_playlists()
-
-        if not any(map(lambda l: os.path.split(l)[1] == name, lists)):
-            await self.bot.say("Local playlist not found.")
-            return
-
-        self._play_local_playlist(server, name)
-
-    @local.command(name="list", no_pm=True)
-    async def list_local(self):
-        """Lists local playlists"""
-        local_playlists = self._list_local_playlists()
-        if local_playlists:
-            msg = "```xl\n"
-            for p in local_playlists:
-                msg += "{}, ".format(p)
-            msg = msg.strip(", ")
-            msg += "```"
-            await self.bot.say("Available local playlists:\n{}".format(msg))
-        else:
-            await self.bot.say("There are no playlists.")
-
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, aliases["p"], no_pm=True)
     async def pause(self, ctx):
         """Pauses the current song, `[p]resume` to continue."""
         server = ctx.message.server
@@ -1567,7 +1491,7 @@ class Audio:
         """Plays and mixes a playlist."""
         await self.playlist_start.callback(self, ctx, name)
 
-    @commands.command(pass_context=True, no_pm=True, name="queue")
+    @commands.command(pass_context=True, no_pm=True, name="queue", aliases["q"],)
     async def _queue(self, ctx, *, url=None):
         """Queues a song to play next. Extended functionality in `[p]help`
         If you use `queue` when one song is playing, your new song will get
@@ -1800,7 +1724,7 @@ class Audio:
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases["nowplayling,playing"],)
     async def np(self, ctx):
         """Info about the current song."""
         server = ctx.message.server
@@ -1847,7 +1771,7 @@ class Audio:
         else:
             await self.bot.say("Darude - Sandstorm.")
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases["s"],)
     async def stop(self, ctx):
         """Stops a currently playing song or playlist. CLEARS QUEUE."""
         server = ctx.message.server
