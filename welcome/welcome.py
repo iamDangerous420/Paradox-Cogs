@@ -11,7 +11,7 @@ default_greeting = "**Welcome** ***{0.name}***  **to** ***{1.name}!*** :smiley:"
 default_settings = {"GREETING": default_greeting, "ON": False, "CHANNEL": None, "WHISPER" : False}
 
 class Welcome:
-    """Welcomes new members to the server in the default channel"""
+    """Welcomes new members to the server in the default/set channel"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -47,9 +47,9 @@ class Welcome:
             Welcome {0.name} to {1.name}!
 
         Example formats:
-            {0.mention}.. What are you doing here?
-            ***{1.name}***  has a new member! ***{0.name}#{0.discriminator} - {0.id}***
-            Someone new joined! Who is it?! D: IS HE HERE TO HURT US?!
+           1 {0.mention}.. What are you doing here? 🤔
+           2 ***{1.name}***  has a new member! ***{0.name}#{0.discriminator} - {0.id}***👍
+           3 Someone new joined! Who is it?! D: IS HE HERE TO HURT US?!
         """
         server = ctx.message.server
         self.settings[server.id]["GREETING"] = format_msg
@@ -66,7 +66,7 @@ class Welcome:
             await self.bot.say("**I will now Welcome New users.**:thumbsup:")
             await self.send_testing_msg(ctx)
         else:
-            await self.bot.say("I will no longer welcome new users.")
+            await self.bot.say(":bangbang: **I will no longer welcome new users.** :thumbsup:")
         fileIO("data/welcome/settings.json", "save", self.settings)
 
     @welcomeset.command(pass_context=True)
@@ -156,7 +156,7 @@ class Welcome:
         server = ctx.message.server
         channel = self.get_welcome_channel(server)
         if channel is None:
-            await self.bot.send_message(ctx.message.channel, ":bangbang::x:**I cannot find the specified Channel** :bangBang:")
+            await self.bot.send_message(ctx.message.channel, ":bangbang::x:**I cannot find the specified Channel** :bangbang:")
             return
         await self.bot.send_message(ctx.message.channel, ":raised_hand: **Sending A testing message to** ***{}*** :thumbsup:".format(channel))
         if self.speak_permissions(server):
