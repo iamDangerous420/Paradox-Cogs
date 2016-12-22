@@ -1653,6 +1653,7 @@ class Mod:
     async def _new_message(self, message):
         """Finds the message and checks it for regex"""
         user = message.author
+        server = message.server
         if message.server is None:
             pass
         if message.server.id in self.json:
@@ -1721,6 +1722,58 @@ class Mod:
                 dataIO.save_json("data/mod/past_nicknames.json",
                                  self.past_nicknames)
 
+    async def member_join(self, member):
+        server = member.server
+        if server.id not in self.settings:
+            self.settings[server.id] = default_settings
+            self.settings[server.id]["CHANNEL"] = server.default_channel.id
+            fileIO("data/welcome/settings.json","save",self.settings)
+        if not self.settings[server.id]["ON"]:
+            return
+        if server == None:
+            print("Server is None. Private Message or some new fangled Discord thing?.. Anyways there be an error, the user was {}".format(member.name))
+            return
+        channel = self.get_welcome_channel(server)
+        if channel is None:
+            print('welcome.py: Channel not found. It was most likely deleted. User joined: {}'.format(member.name))
+            return
+        if self.settings[server.id]["WHISPER"]:
+            await self.bot.send_message(member, self.settings[server.id]["GREETING"].format(member, server))
+        if self.settings[server.id]["WHISPER"] != True and self.speak_permissions(server):
+            await self.bot.send_message(channel, self.settings[server.id]["GREETING"].format(member, server))
+        else:
+            print("Permissions Error. User that joined: {0.name}".format(member))
+            print("Bot doesn't have permissions to send messages to {0.name}'s #{1.name} channel".format(server,channel))
+
+
+    def get_welcome_channel(self, server):
+        try:
+            return server.get_channel(self.settings[server.id]["CHANNEL"])
+        except:
+            return None
+
+    def speak_permissions(self, server):
+        channel = self.get_welcome_channel(server)
+        if channel is None:
+            return False
+        return server.get_member(self.bot.user.id).permissions_in(channel).send_messages
+
+    async def send_testing_msg(self, ctx):
+        server = ctx.message.server
+        channel = self.get_welcome_channel(server)
+        if channel is None:
+            await self.bot.send_message(ctx.message.channel, ":bangbang::x:**I cannot find the specified Channel** :bangBang:")
+            return
+        await self.bot.send_message(ctx.message.channel, ":raised_hand: **Sending A testing message to** ***{}*** :thumbsup:".format(channel))
+        if self.speak_permissions(server):
+            if self.settings[server.id]["WHISPER"]:
+                await self.bot.send_message(ctx.message.author, self.settings[server.id]["GREETING"].format(ctx.message.author,server))
+            if self.settings[server.id]["WHISPER"] != True:
+                await self.bot.send_message(channel, self.settings[server.id]["GREETING"].format(ctx.message.author,server))
+        else: 
+            await self.bot.send_message(ctx.message.channel,":bangbang::no_good:**I am uncapable of sending messages to** ***{0.mention}***:x:".format(channel))
+        
+
     def are_overwrites_empty(self, overwrites):
         """There is currently no cleaner way to check if a
         PermissionOverwrite object is empty"""
@@ -1753,6 +1806,10 @@ def check_folders():
 
     if not os.path.exists('data/antilink'):
         os.makedirs('data/antilink')
+
+    if not os.path.exists("data/welcome"):
+        print("Creating data/welcome folder...")
+        os.makedirs("data/welcome")
 
 
 def check_files():
@@ -1794,6 +1851,20 @@ def check_files():
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
+    f = "data/welcome/settings.json"
+    if not fileIO(f, "check"):
+        print("Creating welcome settings.json...")
+        fileIO(f, "save", {})
+    else: #consistency check
+        current = fileIO(f, "load")
+        for k,v in current.items():
+            if v.keys() != default_settings.keys():
+                for key in default_settings.keys():
+                    if key not in v.keys():
+                        current[k][key] = default_settings[key]
+                        print("Adding " + str(key) + " field to welcome settings.json")
+        fileIO(f, "save", current)
+
 
 
 
@@ -1812,6 +1883,7 @@ def setup(bot):
             logging.Formatter('%(asctime)s %(message)s', datefmt="[%d/%m/%Y %H:%M]"))
         logger.addHandler(handler)
     n = Mod(bot)
+    bot.add_listener(n.member_join,"on_member_join")
     bot.add_listener(n.check_names, "on_member_update")
     bot.add_listener(n._new_message, 'on_message')
     bot.add_cog(n)
