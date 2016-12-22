@@ -1188,7 +1188,7 @@ class Audio:
         await self._join_voice_channel(voice_channel)
         await self.bot.say(":inbox_tray: **I've joined** ***{0} successfully!*** :thumbsup:".format(str(ctx.message.author.voice_channel)))
 
-    @commands.command(pass_context=True, aliases["p"], no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["p"])
     async def pause(self, ctx):
         """Pauses the current song, `[p]resume` to continue."""
         server = ctx.message.server
@@ -1491,7 +1491,7 @@ class Audio:
         """Plays and mixes a playlist."""
         await self.playlist_start.callback(self, ctx, name)
 
-    @commands.command(pass_context=True, no_pm=True, name="queue", aliases["q"],)
+    @commands.command(pass_context=True, no_pm=True, name="queue", aliases=["q"])
     async def _queue(self, ctx, *, url=None):
         """Queues a song to play next. Extended functionality in `[p]help`
         If you use `queue` when one song is playing, your new song will get
@@ -1724,7 +1724,7 @@ class Audio:
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
-    @commands.command(pass_context=True, no_pm=True, aliases["nowplayling,playing"],)
+    @commands.command(pass_context=True, no_pm=True, aliases=["nowplayling,playing"])
     async def np(self, ctx):
         """Info about the current song."""
         server = ctx.message.server
@@ -1771,7 +1771,7 @@ class Audio:
         else:
             await self.bot.say("Darude - Sandstorm.")
 
-    @commands.command(pass_context=True, no_pm=True, aliases["s"],)
+    @commands.command(pass_context=True, no_pm=True, aliases=["s"])
     async def stop(self, ctx):
         """Stops a currently playing song or playlist. CLEARS QUEUE."""
         server = ctx.message.server
