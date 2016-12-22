@@ -13,6 +13,7 @@ import importlib
 import traceback
 import logging
 import asyncio
+from copy import deepcopy
 import threading
 import datetime
 import time
@@ -690,37 +691,6 @@ class Owner:
             except:
                 pass
 
-    @commands.command(hidden=True)
-    @checks.is_owner()
-    async def join(self, invite_url: discord.Invite=None):
-        """Joins new server"""
-        if hasattr(self.bot.user, 'bot') and self.bot.user.bot is True:
-            # Check to ensure they're using updated discord.py
-            msg = ("***Sending you and autho link m8888***"
-                   " WOTTT "
-                   "WOTT "
-                   "WOT!!!")
-            await self.bot.say(msg)
-            if hasattr(self.bot, 'oauth_url'):
-                await self.bot.whisper("Here's my OAUTH2 link:\n{}".format(
-                    self.bot.oauth_url))
-            return
-
-        if invite_url is None:
-            await self.bot.say("I need a Discord Invite link for the "
-                               "server you want me to join.")
-            return
-
-        try:
-            await self.bot.accept_invite(invite_url)
-            await self.bot.say("Server joined.")
-            log.debug("We just joined {}".format(invite_url))
-        except discord.NotFound:
-            await self.bot.say("The invite was invalid or expired.")
-        except discord.HTTPException:
-            await self.bot.say("I wasn't able to accept the invite."
-                               " Try again.")
-
     @commands.command(pass_context=True, no_pm=True)
     @checks.is_owner()
     async def leave(self, ctx):
@@ -827,10 +797,11 @@ class Owner:
     @commands.command(pass_context=True)
     async def contact(self, ctx, *, message : str):
         """Sends message to the owner"""
-        if settings.owner == "id_here":
+        if self.bot.settings.owner is None:
             await self.bot.say("I have no owner set.")
             return
-        owner = discord.utils.get(self.bot.get_all_members(), id=settings.owner)
+        owner = discord.utils.get(self.bot.get_all_members(),
+                                  id=self.bot.settings.owner)
         author = ctx.message.author
         if ctx.message.channel.is_private is False:
             server = ctx.message.server
@@ -845,11 +816,11 @@ class Owner:
             await self.bot.say("I cannot send your message, I'm unable to find"
                                " my owner... *sigh*")
         except discord.errors.HTTPException:
-            await self.bot.say("Fam fam fam :raised_hand: That message is ***WAAYY*** Too long. ")
+            await self.bot.say("**Fam fam fam** ***FAMM*** :raised_hand: That message is ***WAAYY*** Too long.")
         except:
             await self.bot.say("I'm unable to deliver your message. Sorry.")
         else:
-            await self.bot.say("Your message has been sent. :ok_hand: ")
+            await self.bot.say("**Your message has been sent.** :ok_hand:")
 
     async def leave_confirmation(self, server, owner, ctx):
         if not ctx.message.channel.is_private:
@@ -982,17 +953,6 @@ class Owner:
         em = discord.Embed(description='***Ayee*** Been up for ==> ***{} Days {} Hours And {} Minutes *** '.format(str(days), str(hours), str(minutes)), colour=discord.Colour(value=colour))
         await self.bot.say(embed=em)
 
-    @commands.command()
-    async def version(self):
-        """Shows DMX's current version"""
-        response = self.bot.loop.run_in_executor(None, self._get_version)
-        result = await asyncio.wait_for(response, timeout=10)
-        try:
-            await self.bot.say(embed=result)
-        except discord.HTTPException:
-            await self.bot.say("I need the `Embed links` permission "
-                               "to send this")
-
     @commands.command(pass_context=True)
     @checks.is_owner()
     async def sudo(self, ctx, user: discord.Member, *, command):
@@ -1004,38 +964,16 @@ class Owner:
             + command
         await self.bot.process_commands(new_msg)
 
-    async def announcer(self, msg):
-        server_ids = map(lambda s: s.id, self.bot.servers)
-        for server_id in server_ids:
-            if self != self.bot.get_cog('Admin'):
-                break
-            server = self.bot.get_server(server_id)
-            if server is None:
-                continue
-            if server == self._announce_server:
-                continue
-            chan = server.default_channel
-            log.debug("Looking to announce to {} on {}".format(chan.name,
-                                                               server.name))
-            me = server.me
-            if chan.permissions_for(me).send_messages:
-                log.debug("I can send messages to {} on {}, sending".format(
-                    server.name, chan.name))
-                await self.bot.send_message(chan, msg)
-            await asyncio.sleep(1)
-
-    async def announce_manager(self):
-        while self == self.bot.get_cog('Admin'):
-            if self._announce_msg is not None:
-                log.debug("Found new announce message, announcing")
-                await self.announcer(self._announce_msg)
-                self._announce_msg = None
-            await asyncio.sleep(1)
-
-    async def server_locker(self, server):
-        if self._is_server_locked():
-            await self.bot.leave_server(server)
-
+    @commands.command()
+    async def version(self):
+        """Shows Red's current version"""
+        response = self.bot.loop.run_in_executor(None, self._get_version)
+        result = await asyncio.wait_for(response, timeout=10)
+        try:
+            await self.bot.say(embed=result)
+        except discord.HTTPException:
+            await self.bot.say("I need the `Embed links` permission "
+                               "to send this")
 
     def _load_cog(self, cogname):
         if not self._does_cogfile_exist(cogname):
@@ -1082,6 +1020,7 @@ class Owner:
 
         if choice == "yes":
             self.bot.settings.owner = author.id
+            self.bot.settings.save_settings()
             print(author.name + " has been set as owner.")
             self.setowner_lock = False
             self.owner.hidden = True
@@ -1111,6 +1050,43 @@ class Owner:
         embed.set_footer(text="Total commits: " + ncommits)
 
         return embed
+
+    async def announcer(self, msg):
+        server_ids = map(lambda s: s.id, self.bot.servers)
+        for server_id in server_ids:
+            if self != self.bot.get_cog('Admin'):
+                break
+            server = self.bot.get_server(server_id)
+            if server is None:
+                continue
+            if server == self._announce_server:
+                continue
+            chan = server.default_channel
+            log.debug("Looking to announce to {} on {}".format(chan.name,
+                                                               server.name))
+            me = server.me
+            if chan.permissions_for(me).send_messages:
+                log.debug("I can send messages to {} on {}, sending".format(
+                    server.name, chan.name))
+                await self.bot.send_message(chan, msg)
+            await asyncio.sleep(1)
+
+    async def announce_manager(self):
+        while self == self.bot.get_cog('Admin'):
+            if self._announce_msg is not None:
+                log.debug("Found new announce message, announcing")
+                await self.announcer(self._announce_msg)
+                self._announce_msg = None
+            await asyncio.sleep(1)
+
+    async def server_locker(self, server):
+        if self._is_server_locked():
+            await self.bot.leave_server(server)
+
+
+    def _list_cogs(self):
+        cogs = [os.path.basename(f) for f in glob.glob("cogs/*.py")]
+        return ["cogs." + os.path.splitext(f)[0] for f in cogs]
 
 def check_files():
     if not os.path.isfile("data/red/disabled_commands.json"):
