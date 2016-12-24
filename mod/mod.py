@@ -737,7 +737,7 @@ class Mod:
         await asyncio.sleep(3)
         await self.bot.delete_message(reply)
 
-    @commands.group(pass_context=True)
+    @commands.command(pass_context=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def spam(self, ctx, user : discord.Member, number : int=30):
         """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
@@ -763,7 +763,7 @@ class Mod:
         if number> 199:
                 await self.bot.reply("Cannot spam more than 200 msgs lag purposes sorry !")
                 return
-        while counter < number:
+        while number < number:
             await self.bot.send_message(user, "***You got spamed  punk (╯°□°）╯︵ ┻━┻!*** By ***Anonymous*** ** ¯\_(ツ)_/¯!**.")
             await self.bot.say("**spammed**".format(user.name))
     @commands.command(pass_context=True)
@@ -1711,6 +1711,31 @@ class Mod:
                 self.past_nicknames[server.id][before.id] = list(nicks)
                 dataIO.save_json("data/mod/past_nicknames.json",
                                  self.past_nicknames)
+
+    async def _new_message(self, message):
+        """Finds the message and checks it for regex"""
+        user = message.author
+        if message.server is None:
+            pass
+        if message.server.id in self.json:
+            if self.json[message.server.id]['toggle'] is True:
+                if self.regex.search(message.content) is not None or self.regex_discordme.search(message.content) is not None:
+                    roles = [r.name for r in user.roles]
+                    bot_admin = settings.get_server_admin(message.server)
+                    bot_mod = settings.get_server_mod(message.server)
+                    if user.id == settings.owner:
+                        pass
+                    elif bot_admin in roles:
+                        pass
+                    elif bot_mod in roles:
+                        pass
+                    elif user.permissions_in(message.channel).manage_messages is True:
+                        pass
+                    else:
+                        asyncio.sleep(0.5)
+                        await self.bot.delete_message(message)
+                        if self.json[message.server.id]['dm'] is True:
+                            await self.bot.send_message(message.author, self.json[message.server.id]['message'])
 
     async def member_join(self, member):
         server = member.server
