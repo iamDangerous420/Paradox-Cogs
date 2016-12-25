@@ -1329,7 +1329,7 @@ class Audio:
         playlist.server = server
 
         self._save_playlist(server, name, playlist)
-        await self.bot.say("**I've Saved a empty playist called '{}' For you. :thumbsup:".format(name))
+        await self.bot.say("**I've Saved a empty playist called `{} For you. :thumbsup:**".format(name))
 
     @playlist.command(pass_context=True, no_pm=True, name="add")
     async def playlist_add(self, ctx, name, url):
@@ -1637,6 +1637,7 @@ class Audio:
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
+        channel = ctx.message.channel
         if server.id not in self.queue:
             await self.bot.say(":bangbang:**Nothing in queue to shuffle.** :x: ")
             return
@@ -1647,7 +1648,17 @@ class Audio:
         self._shuffle_queue(server)
         self._shuffle_temp_queue(server)
 
-        await self.bot.say(":ok_hand: **Shuffled** :game_die: ")
+
+        d =await self.bot.send_message(channel, ":raised_hand: __***Shuffling***__ :raised_hand:")
+        await asyncio.sleep(0.5)
+        await self.bot.edit_message(d, ":headphones:  :microphone:  :musical_score:  :level_slider:")
+        await asyncio.sleep(1)
+        await self.bot.edit_message(d, ":headphones:  :notes: :loud_sound:  :musical_note: ")
+        await asyncio.sleep(1.5)
+        await self.bot.edit_message(d, ":level_slider:  :musical_note:  :loud_sound:  :notes: ")
+        await asyncio.sleep(0.5)
+        await self.bot.edit_message(d, ":ok_hand: **Shuffled** :thumbsup: ")
+        return
 
     @commands.command(pass_context=True, aliases=["next"], no_pm=True)
     async def skip(self, ctx):
