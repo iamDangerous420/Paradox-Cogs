@@ -1558,7 +1558,9 @@ class Audio:
         queue_url_list = self._get_queue(server, 5)
         tempqueue_url_list = self._get_queue_tempqueue(server, 5)
 
-        lol= await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
+        lol = await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
+        await asyncio.sleep(0.5)
+        await self.bot.delete_message(lol)
 
         queue_song_list = await self._download_all(queue_url_list)
         tempqueue_song_list = await self._download_all(tempqueue_url_list)
