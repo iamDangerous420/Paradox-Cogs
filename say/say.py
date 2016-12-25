@@ -9,7 +9,7 @@ from cogs.utils import checks
 from cogs.utils.chat_formatting import box
 from cogs.utils.chat_formatting import pagify
 from random import choice
-import datetime 
+import datetime
 import logging
 import os
 
@@ -72,7 +72,7 @@ class say:
     async def monkeysee(self, ctx):
         channel = ctx.message.channel
         author = ctx.message.author
-        await self.bot.send_message(channel, "***OOH OHH AH AH Monkey** ***See***  Monkey  **Do**")
+        await self.bot.send_message(channel, "***OOH OHH AH AH Monkey*** ***See***  Monkey  **Do**")
         while True:
             torepeat = await self.bot.wait_for_message(author=author, channel=channel, timeout = None)
             await self.bot.send_message(channel, torepeat.content)
