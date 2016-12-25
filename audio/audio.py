@@ -1542,8 +1542,8 @@ class Audio:
         """Not a command, use `queue` with no args to call this."""
         server = ctx.message.server
         if server.id not in self.queue:
-            await self.bot.say("**Nothing playing on this server!**(╯°□°）╯︵ ┻━┻")
-            return
+                await self.bot.say("**Nothing playing on this server!**(╯°□°）╯︵ ┻━┻")
+                return
         elif len(self.queue[server.id]["QUEUE"]) == 0:
             await self.bot.say("**Nothing queued on this server.** If you are receiving this message and you are **infact** in a vc Please do `{}song` Instead :thumbsup:".format(ctx.prefix))
             return
@@ -1559,7 +1559,7 @@ class Audio:
         tempqueue_url_list = self._get_queue_tempqueue(server, 5)
 
         lol = await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1.2)
         await self.bot.delete_message(lol)
 
         queue_song_list = await self._download_all(queue_url_list)
@@ -1656,8 +1656,10 @@ class Audio:
         await self.bot.edit_message(d, ":headphones:  :microphone:  :musical_score:  :level_slider:")
         await asyncio.sleep(1)
         await self.bot.edit_message(d, ":headphones:  :notes: :loud_sound:  :musical_note: ")
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(1)
         await self.bot.edit_message(d, ":level_slider:  :musical_note:  :loud_sound:  :notes: ")
+        await asyncio.sleep(0.5)
+        await self.bot.edit_message(d, ":notes:  :musical_note:  :headphones:  :microphone: ")
         await asyncio.sleep(0.5)
         await self.bot.edit_message(d, ":ok_hand: **Shuffled** :thumbsup: ")
         return
