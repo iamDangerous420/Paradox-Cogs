@@ -1156,11 +1156,6 @@ class Audio:
         if ctx.message.author.voice_channel == server.me.voice_channel:
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
-
-        if user.id == "187570149207834624":
-            await self._stop_and_disconnect(server)
-            await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
-            return
     @disconnect.command(name="all", hidden=True, no_pm=True)
     @checks.is_owner()
     async def disconnect_all(self):
@@ -1635,7 +1630,7 @@ class Audio:
         else:
             await self.bot.say(":bangbang: **Nothing paused, nothing to resume.** :joy: ")
 
-    @commands.command(pass_context=True, no_pm=True, name="shuffle")
+    @commands.command(pass_context=True, no_pm=True, name="shuffle", aliases=["shuff, sh"])
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
