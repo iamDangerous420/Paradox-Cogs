@@ -618,6 +618,13 @@ class General:
             message = 'Something went terribly wrong! [{}]'.format(e)
             await self.bot.say('```{}```'.format(message))
 
+    @commands.command(name="8ball", aliases=["8"], pass_context=True)
+    async def _8ball(self, ctx, *, question : str):
+        """Ask DMX a question :P"""
+        em = discord.Embed(description=question, color=ctx.message.author.color)
+        em.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar_url)
+        em.set_footer(text=randchoice(self.ball), icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwOi8vY29jaGlzZWJpbGxpYXJkcy5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTUvMTAvOGJhbGwucG5nIn0.Zd5xXVHeFbamUjFRxvcv1yAJ9pM')
+        await self.bot.say(embed=em)
     @commands.command(pass_context=True, no_pm=True)
     async def gsinvite(self, ctx):
         """Get a invite to the current server"""
@@ -649,6 +656,7 @@ class General:
         except:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
+
 
     @commands.command(pass_context=True, hidden = True, no_pm=True)
     async def pwincess(self, ctx):
