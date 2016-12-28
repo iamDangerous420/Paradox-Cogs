@@ -1141,11 +1141,6 @@ class Audio:
             server = ctx.message.server
             user = ctx.message.channel
 
-        if voice_channel is None:
-            await self.bot.say(":anger: You are not in the"
-                               " **VOICE CHANNEL** :rage:")
-            return
-
         if not self.voice_connected(server):
             await self.bot.say(" I'm **Not voice connected** in this server. (╯°□°）╯︵ ┻━┻   ")
             return
