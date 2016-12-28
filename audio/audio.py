@@ -1137,7 +1137,7 @@ class Audio:
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
             author = ctx.message.author
-			voice_channel = author.voice_channel
+            voice_channel = author.voice_channel
             server = ctx.message.server
             user = ctx.message.channel
 
