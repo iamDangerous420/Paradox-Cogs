@@ -1136,9 +1136,9 @@ class Audio:
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
+            voice_channel = author.voice_channel
             server = ctx.message.server
             author = ctx.message.author
-            voice_channel = author.voice_channel
             user = ctx.message.channel
 
         if voice_channel is None:
