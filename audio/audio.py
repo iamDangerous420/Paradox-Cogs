@@ -1138,7 +1138,7 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.command(pass_context=True, aliases=["dc","leave"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["dc"], no_pm=True)
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
