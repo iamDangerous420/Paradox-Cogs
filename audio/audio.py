@@ -945,7 +945,7 @@ class Audio:
                 active_servers = self._get_active_voice_clients()
             except:
                 log.debug("Voice client changed while trying to update bot's"
-                          " song status")
+                          " song statusw")
                 return
             if len(active_servers) == 1:
                 server = active_servers[0].server
