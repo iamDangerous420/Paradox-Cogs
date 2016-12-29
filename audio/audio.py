@@ -1132,7 +1132,7 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.group(pass_context=True, aliases=["dc,leave"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["dc,leave"], no_pm=True)
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
@@ -1151,14 +1151,20 @@ class Audio:
         if ctx.message.author.voice_channel == server.me.voice_channel:
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
-    @disconnect.command(name="all", hidden=True, no_pm=True)
+    @commands.command(pass_context=True, name="dcall", hidden=True, no_pm=True)
     @checks.is_owner()
-    async def disconnect_all(self):
+    async def disconnect_all(self, ctx):
         """Disconnects from all voice channels."""
+        author = ctx.message.author
+        channel = ctx.message.channel
+        voice_channel = author.voice_channel
+        server = ctx.message.server
+        user = ctx.message.channel
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
             await self._stop_and_disconnect(vc.server)
-        await self.bot.say("**Done!**")
+        await self.bot.send_message(vc.server, "**My owner has disconnected me from all Channels probably for an update or shutdown please be patient.**")
+        await self.bot.send_message(channel, "**Done!**")
 
     @commands.command( pass_context=True, no_pm=True)
     async def summon(self, ctx):
@@ -1222,7 +1228,7 @@ class Audio:
             self.has_connect_perm(author, server)
         except AuthorNotConnected:
             await self.bot.say("You ain't In a voice channel"
-                               "How am i gonna play for you :neutral_face:")
+                               " How am i gonna play for you :neutral_face:")
             return
         except UnauthorizedConnect:
             await self.bot.say(":neutral_face I can't join your"
