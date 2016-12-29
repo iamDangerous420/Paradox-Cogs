@@ -1314,7 +1314,8 @@ class Audio:
 
     @playlist.command(pass_context=True, no_pm=True, name="create")
     async def playlist_create(self, ctx, name):
-        """Creates an empty playlist"""
+        """Creates an empty playlist
+        alias is ~create <name>"""
         server = ctx.message.server
         author = ctx.message.author
         if not self._valid_playlist_name(name) or len(name) > 25:
@@ -1335,7 +1336,8 @@ class Audio:
 
     @playlist.command(pass_context=True, no_pm=True, name="add")
     async def playlist_add(self, ctx, name, url):
-        """Add a YouTube or Soundcloud playlist."""
+        """Add a YouTube or Soundcloud playlist.
+        alias is ~add <playlsitname> <link>"""
         server = ctx.message.server
         author = ctx.message.author
         if not self._valid_playlist_name(name) or len(name) > 25:
@@ -1399,7 +1401,7 @@ class Audio:
         if files:
             msg = "```Markdown\n"
             for f in files:
-                msg += "{}, ".format(f)
+                msg += "<{}>, ".format(f)
             msg = msg.strip(", ")
             msg += "```"
             await self.bot.say(":play_pause: :page_with_curl: **Available playlists:**\n#{}".format(msg))
@@ -1430,7 +1432,8 @@ class Audio:
 
     @playlist.command(pass_context=True, no_pm=True, name="remove")
     async def playlist_remove(self, ctx, name):
-        """Deletes a saved playlist."""
+        """Deletes a saved playlist.
+        alias is ~pldel"""
         server = ctx.message.server
 
         if not self._valid_playlist_name(name):
@@ -1446,7 +1449,8 @@ class Audio:
 
     @playlist.command(pass_context=True, no_pm=True, name="start")
     async def playlist_start(self, ctx, name):
-        """Plays a playlist."""
+        """Plays a playlist.
+        and alias is start <playlistname>"""
         server = ctx.message.server
         author = ctx.message.author
         voice_channel = ctx.message.author.voice_channel
@@ -1617,7 +1621,7 @@ class Audio:
         else:
             await self.bot.say(":twisted_rightwards_arrows:**I've UnToggled repeat** :thumbsup:")
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=['re'])
     async def resume(self, ctx):
         """Resumes a paused song or playlist"""
         server = ctx.message.server
@@ -1637,7 +1641,7 @@ class Audio:
         else:
             await self.bot.say(":bangbang: **Nothing paused, nothing to resume.** :joy: ")
 
-    @commands.command(pass_context=True, no_pm=True, name="shuffle", aliases=["shuff, sh"])
+    @commands.command(pass_context=True, no_pm=True, name="shuffle", aliases=["shuff,sh"])
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
@@ -1666,7 +1670,7 @@ class Audio:
         await self.bot.edit_message(d, ":ok_hand: **Shuffled** :thumbsup: ")
         return
 
-    @commands.command(pass_context=True, aliases=["next"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["next, n"], no_pm=True)
     async def skip(self, ctx):
         """Skips a song, using the set threshold if the requester isn't
         a mod or admin. Mods, admins and bot owner are not counted in
@@ -1788,6 +1792,29 @@ class Audio:
         else:
             await self.bot.say("Darude - Sandstorm.")
 
+    @commands.command(pass_context=True, no_pm=True, aliases=["cl"])
+    async def clear(self, ctx):
+        """Stops AND CLEARS QUEUE."""
+        server = ctx.message.server
+        channel = ctx.message.channel
+        if self.is_playing(server):
+            if ctx.message.author.voice_channel == server.me.voice_channel:
+                if self.can_instaskip(ctx.message.author):
+                    d = await self.bot.send_message(channel, ':raised_hand: **clearing** ::wastebasket:')
+                    await asyncio.sleep(1)
+                    await self.bot.edit_message(d, ':put_litter_in_its_place: **clearing.** :raised_hand:')
+                    await asyncio.sleep(1.1)
+                    await self.bot.edit_message(d, ':no_good: **clearing..** :stop_button:')
+                    await asyncio.sleep(1.2)
+                    await self.bot.edit_message(d, ':boom: ***Cleared...*** :stop_button:')
+                    await asyncio.sleep(2)
+                    await self.bot.edit_message(d, '¯\_(ツ)_/¯ Im jk i cleared the queue since the first msg ¯\_(ツ)_/¯')
+                    self._clear_queue(server)
+            else:
+                await self.bot.say(":no_good: **You need to be in the voice channel to clear the playlist** :x: ")
+        else:
+            await self.bot.say(":thinking: Can't clear if i'm not playing anything :eyes:")
+
     @commands.command(pass_context=True, no_pm=True, aliases=["s"])
     async def stop(self, ctx):
         """Stops a currently playing song or playlist. CLEARS QUEUE."""
@@ -1795,7 +1822,7 @@ class Audio:
         if self.is_playing(server):
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
-                    await self.bot.say(':raised_hand: Stopping :stop_button:')
+                    await self.bot.say(':raised_hand: ***Stopping*** :stop_button:')
                     self._stop(server)
                 else:
                     await self.bot.say(":bangbang: :x: **You can't stop music when there are other"
