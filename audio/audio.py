@@ -1098,8 +1098,14 @@ class Audio:
         self.save_settings()
 
     @commands.command(pass_context=True)
-    async def audioservers(self):
+    async def audioservers(self, ctx):
         """Number of servers currently playing."""
+        author = ctx.message.author
+        channel = ctx.message.channel
+        voice_channel = author.voice_channel
+        server = ctx.message.server
+        user = ctx.message.channel
+        vc = list(self.bot.voice_clients)[0]
 
         count = self._player_count()
 
@@ -1163,7 +1169,7 @@ class Audio:
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
             await self._stop_and_disconnect(vc.server)
-        await self.bot.send_message(vc.server, "**My owner has disconnected me from all Channels probably for an update or shutdown please be patient.**")
+        await self.bot.send_message(vc.server, "**My owner has disconnected me from all Channels probably for an** ***Audio related update***  **or shutdown please be patient.**")
         await self.bot.send_message(channel, "**Done!**")
 
     @commands.command( pass_context=True, no_pm=True)
