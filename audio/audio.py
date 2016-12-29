@@ -1138,7 +1138,7 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.command(pass_context=True, aliases=["dc,leave"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["dc","leave"], no_pm=True)
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
@@ -1166,6 +1166,7 @@ class Audio:
         voice_channel = author.voice_channel
         server = ctx.message.server
         user = ctx.message.channel
+
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
             await self._stop_and_disconnect(vc.server)
@@ -1641,7 +1642,7 @@ class Audio:
         else:
             await self.bot.say(":bangbang: **Nothing paused, nothing to resume.** :joy: ")
 
-    @commands.command(pass_context=True, no_pm=True, name="shuffle", aliases=["shuff,sh"])
+    @commands.command(pass_context=True, no_pm=True, name="shuffle", aliases=["shuff","sh"])
     async def _shuffle(self, ctx):
         """Shuffles the current queue"""
         server = ctx.message.server
@@ -1670,7 +1671,7 @@ class Audio:
         await self.bot.edit_message(d, ":ok_hand: **Shuffled** :thumbsup: ")
         return
 
-    @commands.command(pass_context=True, aliases=["next, n"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["next","n"], no_pm=True)
     async def skip(self, ctx):
         """Skips a song, using the set threshold if the requester isn't
         a mod or admin. Mods, admins and bot owner are not counted in
@@ -1745,7 +1746,7 @@ class Audio:
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
-    @commands.command(pass_context=True, no_pm=True, aliases=["nowplayling,playing"])
+    @commands.command(pass_context=True, no_pm=True, aliases=["nowplayling","playing"])
     async def np(self, ctx):
         """Info about the current song."""
         server = ctx.message.server
