@@ -945,7 +945,7 @@ class Audio:
                 active_servers = self._get_active_voice_clients()
             except:
                 log.debug("Voice client changed while trying to update bot's"
-                          " song statusw")
+                          " song status")
                 return
             if len(active_servers) == 1:
                 server = active_servers[0].server
@@ -977,8 +977,8 @@ class Audio:
             await send_cmd_help(ctx)
             return
 
-    @audioset.command(pass_context=True, name="vol", no_pm=True)
-    async def audioset_volume(self, ctx, percent: int=None):
+    @commands.command(pass_context=True, aliases=["vol"], no_pm=True)
+    async def volume(self, ctx, percent: int=None):
         """Sets the volume (0 - 100)
         Note: volume may be set up to 200 but you may experience clipping."""
         server = ctx.message.server
@@ -1139,6 +1139,7 @@ class Audio:
             self._cache_size()))
 
     @commands.command(pass_context=True, aliases=["dc"], no_pm=True)
+    @checks.is_owner()
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
         if ctx.invoked_subcommand is None:
@@ -1157,6 +1158,7 @@ class Audio:
         if ctx.message.author.voice_channel == server.me.voice_channel:
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
+        return
     @commands.command(pass_context=True, name="dcall", hidden=True, no_pm=True)
     @checks.is_owner()
     async def disconnect_all(self, ctx):
