@@ -51,8 +51,6 @@ class Owner:
     def __init__(self, bot):
         self.bot = bot
         self.setowner_lock = False
-        self._announce_msg = None
-        self._announce_server = None
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
         self.file_path = "data/red/disabled_commands.json"
@@ -78,17 +76,6 @@ class Owner:
     def _is_server_locked(self):
         return self._settings.get("SERVER_LOCK", False)
 
-
-    @commands.command(pass_context=True)
-    @checks.is_owner()
-    async def announce(self, ctx, *, msg):
-        """Announces a message to all servers that a bot is in."""
-        if self._announce_msg is not None:
-            await self.bot.say("Already announcing, wait until complete to"
-                               " issue a new announcement.")
-        else:
-            self._announce_msg = msg
-            self._announce_server = ctx.message.server
 
     @commands.command(pass_context=True)
     @checks.is_owner()
@@ -139,7 +126,7 @@ class Owner:
             else:
                 await self.bot.say("Response timed out.")
 
-    @commands.command()
+    @commands.group(invoke_without_command=True)
     @checks.is_owner()
     async def load(self, *, module: str):
         """Loads a module
@@ -151,7 +138,7 @@ class Owner:
         try:
             self._load_cog(module)
         except CogNotFoundError:
-            await self.bot.say("That module could not be found.")
+            await self.bot.say(":bangbang: **That module could not be found.** :x:")
         except CogLoadError as e:
             log.exception(e)
             traceback.print_exc()
@@ -220,6 +207,29 @@ class Owner:
         else:
             await self.bot.say(":ballot_box_with_check: ***All cogs are now unloaded.*** :ballot_box_with_check:")
 
+    @load.command(name="all")
+    @checks.is_owner()
+    async def load_all(self):
+        """loads all modules"""
+        cogs = self._list_cogs()
+        still_unloaded = []
+        for cog in cogs:
+            set_cog(cog, True)
+            try:
+                self._load_cog(cog)
+            except OwnerUnloadWithoutReloadError:
+                pass
+            except CogUnloadError as e:
+                log.exception(e)
+                traceback.print_exc()
+                still_loaded.append(cog)
+        if still_unloaded:
+            still_unloaded = ", ".join(still_unloaded)
+            await self.bot.say(":bangbang: **I was unable to load some cogs:**\n"
+                "***{}***".format(still_unloaded))
+        else:
+            await self.bot.say(":ballot_box_with_check: ***All cogs are now loaded.*** :ballot_box_with_check:")
+
 
     @checks.is_owner()
     @commands.command(name="reload")
@@ -238,9 +248,9 @@ class Owner:
         try:
             self._load_cog(module)
         except CogNotFoundError:
-            await self.bot.say("Module Not found 404 !!! PANICCC")
+            await self.bot.say("**Module** ***Not found 404 !!! PANICCC***")
         except NoSetupError:
-            await self.bot.say("Bruh No setup function.")
+            await self.bot.say("Bruh No setup function. :face_palm:")
         except CogLoadError as e:
             log.exception(e)
             traceback.print_exc()
@@ -386,7 +396,7 @@ class Owner:
                   "".format(self.bot.settings.prefixes))
 
         p = "prefixes" if len(prefixes) > 1 else "prefix"
-        await self.bot.say("Global {} set".format(p))
+        await self.bot.say("**Global** `{}` ***set***".format(p))
 
     @_set.command(pass_context=True, no_pm=True)
     @checks.serverowner_or_permissions(administrator=True)
@@ -413,9 +423,9 @@ class Owner:
         log.debug("Setting server's {} prefixes to:\n\t{}"
                   "".format(server.id, self.bot.settings.prefixes))
 
-        p = "Prefixes" if len(prefixes) > 1 else "Prefix"
-        await self.bot.say("{} set for this server.\n"
-                           "To go back to the global prefixes, do"
+        p = "Prefixes" if len(prefixes) > 1 else "**Prefix**"
+        await self.bot.say("`{}` **set for this server.\n"
+                           "To go back to the global prefixes, do**"
                            " `{}set serverprefix` "
                            "".format(p, prefixes[0]))
 
@@ -450,7 +460,7 @@ class Owner:
             nickname = None
         try:
             await self.bot.change_nickname(ctx.message.server.me, nickname)
-            await self.bot.say("Nickname changed to `{}`".format(nickname))
+            await self.bot.say(":thumbsup: Nickname changed to `{}`".format(nickname))
         except discord.Forbidden:
             await self.bot.say("I cannot do that, I lack the "
                 "\"Change Nickname\" permission.")
@@ -474,7 +484,7 @@ class Owner:
         else:
             await self.bot.change_presence(game=None, status=current_status)
             log.debug('status cleared by owner')
-        await self.bot.say("Game changed to `{}`".format(game))
+        await self.bot.say(":thumbsup: Game changed to `{}`".format(game))
 
     @_set.command(pass_context=True)
     @checks.is_owner()
@@ -501,13 +511,13 @@ class Owner:
         if status is None:
             await self.bot.change_presence(status=discord.Status.online,
                                            game=current_game)
-            await self.bot.say("Status reset.")
+            await self.bot.say(":no_good: Status reset.")
         else:
             status = statuses.get(status.lower(), None)
             if status:
                 await self.bot.change_presence(status=status,
                                                game=current_game)
-                await self.bot.say("Status changed to `{}`".format(status))
+                await self.bot.say(":thumbsup: Status changed to `{}`".format(status))
             else:
                 await self.bot.send_cmd_help(ctx)
 
@@ -535,7 +545,7 @@ class Owner:
         else:
             await self.bot.change_presence(game=None, status=current_status)
             log.debug('stream cleared by owner')
-        await self.bot.say("Done.")
+        await self.bot.say("***Done.***")
 
     @_set.command()
     @checks.is_owner()
@@ -573,7 +583,7 @@ class Owner:
         if os.path.exists(fp):
             await self.bot.send_file(ctx.message.channel, fp)
         else:
-            await self.bot.say("Cog not found!")
+            await self.bot.say(":x: **Cog** ***not found!***")
 
     @checks.is_owner()
     @commands.command(pass_context=True, no_pm=True)
@@ -610,14 +620,14 @@ class Owner:
                 perms_we_dont += ("-\t{0}\n".format(str(x).split('\'')[1]))
         await self.bot.say("{0}{1}```".format(perms_we_have, perms_we_dont))
 
-    @commands.command(alias="die")
+    @commands.command(aliases=["die"])
     @checks.is_owner()
     async def shutdown(self):
         """Shuts down DMX"""
         now = datetime.datetime.now()
         uptime = (now - self.bot.uptime).seconds
         uptime = datetime.timedelta(seconds=uptime)
-        await self.bot.say(" ** Successfully Shutdown at**  ***{}*** ".format(uptime))
+        await self.bot.say(" ** Successfully Shutdown at**  ***{}*** **of uptime.** ".format(uptime))
         await self.bot.logout()
 
     @commands.group(name="command", pass_context=True)
@@ -702,11 +712,11 @@ class Owner:
         response = await self.bot.wait_for_message(author=message.author)
 
         if response.content.lower().strip() == "yes":
-            await self.bot.say("Alright. Bye :wave:")
+            await self.bot.say(" :v: **Peace** :door: :wave: :walking: ")
             log.debug('Leaving "{}"'.format(message.server.name))
             await self.bot.leave_server(message.server)
         else:
-            await self.bot.say("Guess im staying on {} then.".format(server.name))
+            await self.bot.say("Guess im staying in {} then ¯\_(ツ)_/¯.".format(server.name))
 
     @commands.command(pass_context=True)
     @checks.is_owner()
@@ -743,9 +753,9 @@ class Owner:
         elif msg.content.lower().strip() in ("yes", "y"):
             await self.bot.leave_server(server)
             if server != ctx.message.server:
-                await self.bot.say("Done.")
+                await self.bot.say("I've Left.")
         else:
-            await self.bot.say("Alright then.")
+            await self.bot.say(":thinking: ")
 
     @commands.command()
     @checks.is_owner()
@@ -964,17 +974,6 @@ class Owner:
             + command
         await self.bot.process_commands(new_msg)
 
-    @commands.command()
-    async def version(self):
-        """Shows Red's current version"""
-        response = self.bot.loop.run_in_executor(None, self._get_version)
-        result = await asyncio.wait_for(response, timeout=10)
-        try:
-            await self.bot.say(embed=result)
-        except discord.HTTPException:
-            await self.bot.say("I need the `Embed links` permission "
-                               "to send this")
-
     def _load_cog(self, cogname):
         if not self._does_cogfile_exist(cogname):
             raise CogNotFoundError(cogname)
@@ -1028,57 +1027,6 @@ class Owner:
             print("The set owner request has been ignored.")
             self.setowner_lock = False
 
-    def _get_version(self):
-        url = os.popen(r'git config --get remote.origin.url')
-        url = url.read().strip()[:-4]
-        repo_name = url.split("/")[-1]
-        commits = os.popen(r'git show -s -n 3 HEAD --format="%cr|%s|%H"')
-        ncommits = os.popen(r'git rev-list --count HEAD').read()
-
-        lines = commits.read().split('\n')
-        embed = discord.Embed(title="Updates of " + repo_name,
-                              description="Last three updates",
-                              colour=discord.Colour.red(),
-                              url=url)
-        for line in lines:
-            if not line:
-                continue
-            when, commit, chash = line.split("|")
-            commit_url = url + "/commit/" + chash
-            content = "[{}]({}) - {} ".format(chash[:6], commit_url, commit)
-            embed.add_field(name=when, value=content, inline=False)
-        embed.set_footer(text="Total commits: " + ncommits)
-
-        return embed
-
-    async def announcer(self, msg):
-        server_ids = map(lambda s: s.id, self.bot.servers)
-        for server_id in server_ids:
-            if self != self.bot.get_cog('Admin'):
-                break
-            server = self.bot.get_server(server_id)
-            if server is None:
-                continue
-            if server == self._announce_server:
-                continue
-            chan = server.default_channel
-            log.debug("Looking to announce to {} on {}".format(chan.name,
-                                                               server.name))
-            me = server.me
-            if chan.permissions_for(me).send_messages:
-                log.debug("I can send messages to {} on {}, sending".format(
-                    server.name, chan.name))
-                await self.bot.send_message(chan, msg)
-            await asyncio.sleep(1)
-
-    async def announce_manager(self):
-        while self == self.bot.get_cog('Admin'):
-            if self._announce_msg is not None:
-                log.debug("Found new announce message, announcing")
-                await self.announcer(self._announce_msg)
-                self._announce_msg = None
-            await asyncio.sleep(1)
-
     async def server_locker(self, server):
         if self._is_server_locked():
             await self.bot.leave_server(server)
@@ -1107,4 +1055,3 @@ def setup(bot):
     n = Owner(bot)
     bot.add_cog(n)
     bot.add_listener(n.server_locker, "on_server_join")
-    bot.loop.create_task(n.announce_manager())
