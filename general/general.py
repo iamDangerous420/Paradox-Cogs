@@ -146,7 +146,7 @@ class General:
                 fileIO("data/remind/reminders.json", "save", self.reminders)
             await asyncio.sleep(5)
 
-    @commands.command(pass_context=True, name="away")
+    @commands.command(pass_context=True, name="away", aliases=["afk"])
     async def _away(self, context, *message: str):
         """Tell the bot you're away or back."""
         author = context.message.author
