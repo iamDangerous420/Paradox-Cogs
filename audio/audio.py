@@ -1138,7 +1138,7 @@ class Audio:
         await self.bot.say("Cache is currently at {:.3f} MB.".format(
             self._cache_size()))
 
-    @commands.command(pass_context=True, aliases=["dc"], no_pm=True)
+    @commands.command(pass_context=True, aliases=["dc"], no_pm=True, hidden=True)
     @checks.is_owner()
     async def disconnect(self, ctx):
         """Disconnects from voice channel in current server. only disconnect if vc is empty in or if a user is in it"""
@@ -1159,15 +1159,14 @@ class Audio:
             await self._stop_and_disconnect(server)
             await self.bot.say(" :outbox_tray:  **I've Disconnected from** ***{0}***  :wave:".format(str(ctx.message.author.voice_channel)))
         return
+
     @commands.command(pass_context=True, name="dcall", hidden=True, no_pm=True)
     @checks.is_owner()
     async def disconnect_all(self, ctx):
         """Disconnects from all voice channels."""
-        author = ctx.message.author
         channel = ctx.message.channel
         voice_channel = author.voice_channel
         server = ctx.message.server
-        user = ctx.message.channel
 
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
