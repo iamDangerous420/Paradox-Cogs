@@ -977,8 +977,8 @@ class Audio:
             await send_cmd_help(ctx)
             return
 
-    @commands.command(pass_context=True, aliases=["volume"], no_pm=True)
-    async def _vol(self, ctx, percent: int=None):
+    @commands.command(pass_context=True, aliases=["vol"], no_pm=True)
+    async def volume(self, ctx, percent: int=None):
         """Sets the volume (0 - 100)
         Note: volume may be set up to 200 but you may experience clipping."""
         server = ctx.message.server
