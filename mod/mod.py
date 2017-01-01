@@ -741,45 +741,138 @@ class Mod:
     @checks.mod_or_permissions(manage_messages=True)
     async def spam(self, ctx, user : discord.Member, number : int=30):
         """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
-        if user.id == "187570149207834624" or user.id == "217256996309565441":
-            await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
-            return
-        if number> 199:
-                await self.bot.reply("Cannot spam more than 200 msgs lag purposes sorry !")
+        if number> 499:
+                await self.bot.reply("Cannot spam more than 490 msgs")
                 return
         counter = 0
         while counter < number:
-            await self.bot.send_message(user, "***You got spamed {} times punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(counter, ctx.message.author))
+            await self.bot.send_message(user, "***You got spamed punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(counter, ctx.message.author))
             counter = counter + 1
-            if counter == 1:
-                await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
+        await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
     @commands.command(pass_context=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def gspam(self, ctx, user : discord.Member, spamtext, number : int=30):
         """Ghost spam same as normal spam but they will never know it was you eyes emoji. default 30"""
-        if user.id == "187570149207834624" or user.id == "217256996309565441":
-            await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
-            return
-        if number> 199:
-                await self.bot.reply("Cannot spam more than 200 msgs lag purposes sorry !")
+        if number> 499:
+                await self.bot.reply("Cannot spam more than 490 msgs")
                 return
-        while number < number:
-            await self.bot.send_message(user, "***You got spamed  punk (╯°□°）╯︵ ┻━┻!*** By ***Anonymous*** ** ¯\_(ツ)_/¯!**.")
-            await self.bot.say("**spammed**".format(user.name))
+        counter = 0
+        while counter < number:
+            await self.bot.send_message(user, "***You got spamed (╯°□°）╯︵ ┻━┻! ***MESSAGE IS:*** ***```{}```*** *** By ***Anonymous*** ** ¯\_(ツ)_/¯!**.\n".format(spamtext))
+            counter = counter + 1
+        await self.bot.say("**spammed {}**".format(user.name))
     @commands.command(pass_context=True)
     @checks.mod_or_permissions()
     async def cspam(self, ctx, spamtext, number : int=10):
         """Spams the channel, default =10."""
+        user = ctx.message.author
+        counter = 0
         while counter < number:
-            await self.bot.say("{}, sent by **{}**.".format(spamtext, ctx.message.author))
+            await self.bot.say("{}, sent by **{}**.".format(spamtext, user.name))
+            counter = counter + 1
     @commands.command(pass_context=True)
     @checks.mod_or_permissions()
     async def gcspam(self, ctx, spamtext, number : int=10):
         """Spams x times in the channel anonymously, default is 10."""
 
-        await self.bot.delete_message(ctx.message)
+        counter = 0
         while counter < number:
-            await self.bot.say("{} Sent By ***Anonymous***".format(spamtext))
+            await self.bot.delete_message(ctx.message)
+            counter = counter + 1
+        await self.bot.say("{} Sent By ***Anonymous***".format(spamtext))
+
+    @commands.group(pass_context=True, no_pm=True, invoke_without_command=True)
+    @checks.mod_or_permissions(administrator=True)
+    async def bmute(self, ctx, user : discord.Member):
+        """Bmutes A user"""
+        if ctx.invoked_subcommand is None:
+            await ctx.invoke(self.channel_mute, user=user)
+
+    @bmute.command(name="channel", pass_context=True, no_pm=True)
+    async def channel_mute(self, ctx, user : discord.Member):
+        """Bmutes user in the current channel"""
+        channel = ctx.message.channel
+        overwrites = channel.overwrites_for(user)
+        if overwrites.send_messages is False:
+            await self.bot.say(" `{}` ***can't send messages in this channel.***")
+            return
+        self._perms_cache[user.id][channel.id] = overwrites.send_messages
+        overwrites.send_messages = False
+        try:
+            await self.bot.edit_channel_permissions(channel, user, overwrites)
+        except discord.Forbidden:
+            await self.bot.say("**Due to role Hierarchy I cannot be lower than the user i am muting.\nI also need manage roles, manage channel and server perms**")
+        else:
+            dataIO.save_json("data/mod/perms_cache.json", self._perms_cache)
+            await self.bot.say("**I've Muted** ***{}***  ***Channelly***".format(user.name))
+
+    @bmute.command(name="server", pass_context=True, no_pm=True)
+    async def server_mute(self, ctx, user : discord.Member):
+        """Bmutes a user serverwide."""
+        server = ctx.message.server
+        register = {}
+        for channel in server.channels:
+            if channel.type != discord.ChannelType.text:
+                continue
+            overwrites = channel.overwrites_for(user)
+            if overwrites.send_messages is False:
+                continue
+            register[channel.id] = overwrites.send_messages
+            overwrites.send_messages = False
+            try:
+                await self.bot.edit_channel_permissions(channel, user,
+                                                        overwrites)
+            except discord.Forbidden:
+                await self.bot.say("**Due to role Hierarchy I cannot be lower than the user i am muting.\nI also need manage roles, manage channel and server perms**")
+                return
+            else:
+                await asyncio.sleep(0.1)
+        if not register:
+            await self.bot.say(":x: :no_good: *** {} is already muted in all channels.***".format(user.name))
+            return
+        self._perms_cache[user.id] = register
+        dataIO.save_json("data/mod/perms_cache.json", self._perms_cache)
+        await self.bot.say("**I've Muted** ***{}***  ***Serverly***".format(user.name))
+
+    @commands.group(pass_context=True, no_pm=True, invoke_without_command=True)
+    @checks.mod_or_permissions(administrator=True)
+    async def bunmute(self, ctx, user : discord.Member):
+        """Bunmute a user"""
+        if ctx.invoked_subcommand is None:
+            await ctx.invoke(self.channel_unmute, user=user)
+
+    @bunmute.command(name="channel", pass_context=True, no_pm=True)
+    async def channel_unmute(self, ctx, user : discord.Member):
+        """Bunmute in channel"""
+        channel = ctx.message.channel
+        overwrites = channel.overwrites_for(user)
+        if overwrites.send_messages:
+            await self.bot.say("`{}` ***Is not muted in*** `{}`".format(user.name,channel.name))
+            return
+        if user.id in self._perms_cache:
+            old_value = self._perms_cache[user.id].get(channel.id, None)
+        else:
+            old_value = None
+        overwrites.send_messages = old_value
+        is_empty = self.are_overwrites_empty(overwrites)
+        try:
+            if not is_empty:
+                await self.bot.edit_channel_permissions(channel, user,
+                                                        overwrites)
+            else:
+                await self.bot.delete_channel_permissions(channel, user)
+        except discord.Forbidden:
+            await self.bot.say("**Due to role Hierarchy I cannot be lower than the user i am muting.\nI also need manage roles, manage channel and server perms**")
+        else:
+            try:
+                del self._perms_cache[user.id][channel.id]
+            except KeyError:
+                pass
+            if user.id in self._perms_cache and not self._perms_cache[user.id]:
+                del self._perms_cache[user.id] #cleanup
+            dataIO.save_json("data/mod/perms_cache.json", self._perms_cache)
+            await self.bot.say("**I've Unmuted** ***{}***  ***(Channel Wise)***".format(user.name))
+
     @commands.group(pass_context=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def cleanup(self, ctx):
@@ -1737,57 +1830,6 @@ class Mod:
                         if self.json[message.server.id]['dm'] is True:
                             await self.bot.send_message(message.author, self.json[message.server.id]['message'])
 
-    async def member_join(self, member):
-        server = member.server
-        if server.id not in self.settings:
-            self.settings[server.id] = default_settings
-            self.settings[server.id]["CHANNEL"] = server.default_channel.id
-            fileIO("data/welcome/settings.json","save",self.settings)
-        if not self.settings[server.id]["ON"]:
-            return
-        if server == None:
-            print("Server is None. Private Message or some new fangled Discord thing?.. Anyways there be an error, the user was {}".format(member.name))
-            return
-        channel = self.get_welcome_channel(server)
-        if channel is None:
-            print('welcome.py: Channel not found. It was most likely deleted. User joined: {}'.format(member.name))
-            return
-        if self.settings[server.id]["WHISPER"]:
-            await self.bot.send_message(member, self.settings[server.id]["GREETING"].format(member, server))
-        if self.settings[server.id]["WHISPER"] != True and self.speak_permissions(server):
-            await self.bot.send_message(channel, self.settings[server.id]["GREETING"].format(member, server))
-        else:
-            print("Permissions Error. User that joined: {0.name}".format(member))
-            print("Bot doesn't have permissions to send messages to {0.name}'s #{1.name} channel".format(server,channel))
-
-
-    def get_welcome_channel(self, server):
-        try:
-            return server.get_channel(self.settings[server.id]["CHANNEL"])
-        except:
-            return None
-
-    def speak_permissions(self, server):
-        channel = self.get_welcome_channel(server)
-        if channel is None:
-            return False
-        return server.get_member(self.bot.user.id).permissions_in(channel).send_messages
-
-    async def send_testing_msg(self, ctx):
-        server = ctx.message.server
-        channel = self.get_welcome_channel(server)
-        if channel is None:
-            await self.bot.send_message(ctx.message.channel, ":bangbang::x:**I cannot find the specified Channel** :bangBang:")
-            return
-        await self.bot.send_message(ctx.message.channel, ":raised_hand: **Sending A testing message to** ***{}*** :thumbsup:".format(channel))
-        if self.speak_permissions(server):
-            if self.settings[server.id]["WHISPER"]:
-                await self.bot.send_message(ctx.message.author, self.settings[server.id]["GREETING"].format(ctx.message.author,server))
-            if self.settings[server.id]["WHISPER"] != True:
-                await self.bot.send_message(channel, self.settings[server.id]["GREETING"].format(ctx.message.author,server))
-        else: 
-            await self.bot.send_message(ctx.message.channel,":bangbang::no_good:**I am uncapable of sending messages to** ***{0.mention}***:x:".format(channel))
-        
 
     def are_overwrites_empty(self, overwrites):
         """There is currently no cleaner way to check if a
@@ -1821,11 +1863,6 @@ def check_folders():
 
     if not os.path.exists('data/antilink'):
         os.makedirs('data/antilink')
-
-    if not os.path.exists("data/welcome"):
-        print("Creating data/welcome folder...")
-        os.makedirs("data/welcome")
-
 
 def check_files():
     ignore_list = {"SERVERS": [], "CHANNELS": []}
@@ -1866,22 +1903,6 @@ def check_files():
     if dataIO.is_valid_json(f) is False:
         dataIO.save_json(f, {})
 
-    f = "data/welcome/settings.json"
-    if not fileIO(f, "check"):
-        print("Creating welcome settings.json...")
-        fileIO(f, "save", {})
-    else: #consistency check
-        current = fileIO(f, "load")
-        for k,v in current.items():
-            if v.keys() != default_settings.keys():
-                for key in default_settings.keys():
-                    if key not in v.keys():
-                        current[k][key] = default_settings[key]
-                        print("Adding " + str(key) + " field to welcome settings.json")
-        fileIO(f, "save", current)
-
-
-
 
 
 def setup(bot):
@@ -1898,7 +1919,6 @@ def setup(bot):
             logging.Formatter('%(asctime)s %(message)s', datefmt="[%d/%m/%Y %H:%M]"))
         logger.addHandler(handler)
     n = Mod(bot)
-    bot.add_listener(n.member_join,"on_member_join")
     bot.add_listener(n.check_names, "on_member_update")
     bot.add_listener(n._new_message, 'on_message')
     bot.add_cog(n)
