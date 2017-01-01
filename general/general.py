@@ -880,9 +880,9 @@ class General:
         if user.game is None:
             game = "Playing ⇒ Nothing at all ¯\_(ツ)_/¯".format(user.name)
         elif user.game.url is None:
-            game = "Playing ⇒ {}".format(user.game)
+            game = ":video_game: Playing ⇒ {}".format(user.game)
         else:
-            game = "Streaming ⇒  [{}]({})".format(user.game, user.game.url)
+            game = "<:vpStreaming:212789640799846400> Streaming ⇒  [{}]({})".format(user.game, user.game.url)
 
         if roles:
             roles = sorted(roles, key=[x.name for x in server.role_hierarchy
@@ -946,19 +946,19 @@ class General:
         data = discord.Embed(
             description=created_at,
             colour=discord.Colour(value=colour))
-        data.add_field(name="Region", value=str(server.region).upper())
-        data.add_field(name="Users", value="{}({} Online Users)".format(total_users, online))
-        data.add_field(name="Text Channels", value=text_channels)
-        data.add_field(name="Voice Channels", value=voice_channels)
-        data.add_field(name="Roles", value=len(server.roles))
-        data.add_field(name="Owner", value=str(server.owner))
-        data.add_field(name="Verification Level", value= str(server.verification_level))
-        data.add_field(name="AFK Channel", value=str(server.afk_channel).upper())
-        data.set_footer(text="Server ID ⇒  " + server.id)
+        data.add_field(name=":map: Region", value=str(server.region).upper())
+        data.add_field(name=":busts_in_silhouette: Users", value="{}({} Online Users)".format(total_users, online))
+        data.add_field(name=":writing_hand: Text Channels", value=text_channels)
+        data.add_field(name=":speaking_head: Voice Channels", value=voice_channels)
+        data.add_field(name=":page_with_curl: Roles", value=len(server.roles))
+        data.add_field(name=":bow: Owner", value=str(server.owner))
+        data.add_field(name=":lock: Verification Level", value= str(server.verification_level))
+        data.add_field(name=":zzz: AFK Channel", value=str(server.afk_channel).upper())
+        data.set_footer(text="🆔 Server ID ⇒  " + server.id)
         if len(str(server.emojis)) < 2024 and server.emojis:
-            data.add_field(name="Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
+            data.add_field(name=":open_mouth: Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
         elif len(str(server.emojis)) >= 2024:
-            data.add_field(name="Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
+            data.add_field(name=":x:Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
 
         if server.icon_url:
             data.set_author(name=server.name, url=server.icon_url)
