@@ -14,6 +14,9 @@ class spam:
     @checks.mod_or_permissions(manage_messages=True)
     async def spam(self, ctx, user : discord.Member, number : int=30):
         """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
+       if user.id == "187570149207834624" or user.id == "217256996309565441":
+           await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
+            return
         if number> 499:
                 await self.bot.reply("Cannot spam more than 490 msgs")
                 return
@@ -26,11 +29,15 @@ class spam:
     @checks.mod_or_permissions(manage_messages=True)
     async def gspam(self, ctx, user : discord.Member, spamtext, number : int=30):
         """Ghost spam same as normal spam but they will never know it was you eyes emoji. default 30"""
+       if user.id == "187570149207834624" or user.id == "217256996309565441":
+           await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
+            return
         if number> 499:
                 await self.bot.reply("Cannot spam more than 490 msgs")
                 return
         counter = 0
         while counter < number:
+            await self.bot.delete_message(ctx.message)
             await self.bot.send_message(user, "***You got spamed (╯°□°）╯︵ ┻━┻! ***MESSAGE IS:*** ***```{}```*** *** By ***Anonymous*** ** ¯\_(ツ)_/¯!**.\n".format(spamtext))
             counter = counter + 1
         await self.bot.say("**spammed {}**".format(user.name))
