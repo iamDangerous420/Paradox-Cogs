@@ -14,7 +14,7 @@ class spam:
     @checks.mod_or_permissions(manage_messages=True)
     async def spam(self, ctx, user : discord.Member, number : int=30):
         """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
-		if user.id == "187570149207834624" or user.id == "217256996309565441":
+        if user.id == "187570149207834624" or user.id == "217256996309565441":
            await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
             return
         if number> 499:
