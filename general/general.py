@@ -857,7 +857,16 @@ class General:
 
         roles = [x.name for x in user.roles if x.name != "@everyone"]
 
-        status = user.status
+        if user.status == discord.Status.dnd:
+            m = "<:vpDnD:236744731088912384> {} Is Dnd".format(user.name)
+        if user.status == discord.Status.offline:
+            m = "<:vpOffline:212790005943369728> {} Is  Offline".format(user.name)
+        if user.status == discord.Status.online:
+            m = "<:vpOnline:212789758110334977> {} Is  Online".format(user.name)
+        if user.status == discord.Status.idle:
+            m = "<:vpAway:212789859071426561> {} Is Idle".format(user.name)
+        elif user.game is not None and user.game.url is True:
+            m = "<:vpStreaming:212789640799846400> {} Is streaming !!".format(user.name)
 
         joined_at = self.fetch_joined_at(user, server)
         since_created = (ctx.message.timestamp - user.created_at).days
@@ -869,7 +878,7 @@ class General:
         joined_on = "{}\n({} days ago)".format(user_joined, since_joined)
 
         if user.game is None:
-            game = "Playing ⇒ Bruh He aint playing shit"
+            game = "Playing ⇒ Nothing at all ¯\_(ツ)_/¯".format(user.name)
         elif user.game.url is None:
             game = "Playing ⇒ {}".format(user.game)
         else:
@@ -880,25 +889,16 @@ class General:
                                        if x.name != "@everyone"].index)
             roles = ", ".join(roles)
         else:
-            roles = "Nothing to see here ¯\_(ツ)_/¯\n\n"
+            roles = ":walking: Nothing to see here ¯\_(ツ)_/¯\n\n"
 
         if user.nick is None:
-            user.nick = "No Nick :|"
+            user.nick = "No NickName Found\n(╯°□°）╯︵ ┻━┻"
 
         if roles is None:
             user.colour = discord.Colour(value=colour)
 
-        if user.status == discord.Status.dnd:
-            status == ":vpDnD: Dnd"
-        if user.status == discord.Status.invisible:
-            status == ":vpOffline: Dnd" 
-        if user.status == discord.Status.online:
-            status == ":vpOnline: Dnd"
-        if user.status == discord.Status.idle:
-            status == ":VPAway: Idle"
-
         data = discord.Embed(description=game, colour=user.colour)
-        data.add_field(name="Status", value= " {} Is Currently {}".format(user.name, user.status))
+        data.add_field(name="Status", value=m)
         data.add_field(name="Joined Discord on", value=created_on)
         data.add_field(name="Nickname", value=user.nick)
         data.add_field(name="Joined this server on", value=joined_on)
