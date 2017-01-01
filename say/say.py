@@ -70,7 +70,7 @@ class say:
     @checks.mod_or_permissions(manage_messages=True)
     @commands.command(pass_context = True)
     async def monkeysee(self, ctx):
-		"""Bot repeats :P"""
+        """Bot repeats :P"""
         channel = ctx.message.channel
         author = ctx.message.author
         await self.bot.send_message(channel, "***OOH OHH AH AH Monkey See*** Monkey **Do**\nType `exit` to quit")
