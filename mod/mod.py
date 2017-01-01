@@ -604,7 +604,7 @@ class Mod:
                 await self.bot.say('A error occured. Please try again')
             else:
                 await self.bot.say(" :thumbsup: I am done moving Everyone in **{} to {}** :D".format(from_channel.name, to_channel.name))
-    @commands.command(no_pm=True, pass_context=True)
+    @commands.command(no_pm=True, pass_context=True, aliases=["k"])
     @checks.admin_or_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason: str=None):
         """Kicks user."""
@@ -625,7 +625,7 @@ class Mod:
         except Exception as e:
             print(e)
 
-    @commands.command(no_pm=True, pass_context=True)
+    @commands.command(no_pm=True, pass_context=True, aliases=["b"])
     @checks.admin_or_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason: str=None):
         """Bans user does not log like red i broke it """
@@ -666,7 +666,7 @@ class Mod:
             await self.bot.say('Unbanning failed.')
         else:
             await self.bot.say('{0} has been Unbanned from this server.'.format(member.name))
-    @commands.command(no_pm=True, pass_context=True)
+    @commands.command(no_pm=True, pass_context=True, aliases=["sb"])
     @checks.admin_or_permissions(ban_members=True)
     async def softban(self, ctx, user: discord.Member):
         """Kicks the user, deleting 1 day worth of messages."""
