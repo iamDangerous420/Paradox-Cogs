@@ -56,7 +56,7 @@ class say:
             reply = await self.bot.say("Whisper Mcfucking *** Delivered***  https://goo.gl/3qCxR4 ")
             await asyncio.sleep(5)
             await self.bot.delete_message(reply)
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["esay"])
     async def embed(self, ctx, *, content):
         """Embed text"""
         channel = ctx.message.channel
@@ -70,6 +70,7 @@ class say:
     @checks.mod_or_permissions(manage_messages=True)
     @commands.command(pass_context = True)
     async def monkeysee(self, ctx):
+		"""Bot repeats :P"""
         channel = ctx.message.channel
         author = ctx.message.author
         await self.bot.send_message(channel, "***OOH OHH AH AH Monkey See*** Monkey **Do**\nType `exit` to quit")
