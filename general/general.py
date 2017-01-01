@@ -843,7 +843,7 @@ class General:
         await self.bot.say("http://lmgtfy.com/?q={}".format(search_terms))
 
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["uinfo"])
     async def userinfo(self, ctx, *, user: discord.Member=None):
         """Shows users's informations"""
         author = ctx.message.author
@@ -921,7 +921,7 @@ class General:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["sinfo"])
     async def serverinfo(self, ctx):
         """Shows server's informations"""
         server = ctx.message.server
