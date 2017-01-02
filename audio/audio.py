@@ -1100,12 +1100,6 @@ class Audio:
     @commands.command(pass_context=True)
     async def audioservers(self, ctx):
         """Number of servers currently playing."""
-        author = ctx.message.author
-        channel = ctx.message.channel
-        voice_channel = author.voice_channel
-        server = ctx.message.server
-        user = ctx.message.channel
-        vc = list(self.bot.voice_clients)[0]
 
         count = self._player_count()
 
