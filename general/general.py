@@ -38,10 +38,10 @@ class General:
           '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
 
         self.settings_file = 'data/weather/weather.json'
-        self.ball = ["As I see it, yes", "It is certain", "It is decidedly so", "Most likely", "Outlook good",
-                     "Signs point to yes", "Without a doubt", "Yes", "Yes – definitely", "You may rely on it", "Reply hazy, try again",
-                     "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
-                     "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful"]
+        self.ball = ["Rn, yes", "It is certain", "It is decidedly so🤔", "Most likely👍", "Outlook good👍",
+                     "Signs point to yes👍", "Without a doubt👍", "Yes👍", "Yes – definitely :P", "You may rely on it👍", "❌Reply hazy, try again❌",
+                     "Ask again later🤔", "Better not tell you now", "Cannot predict now🤔", "Concentrate and ask again🤔",
+                     "Don't count on it🤔", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful🤔"]
         self.poll_sessions = []
 
     async def listener(self, message):
@@ -845,7 +845,7 @@ class General:
 
     @commands.command(pass_context=True, no_pm=True, aliases=["uinfo"])
     async def userinfo(self, ctx, *, user: discord.Member=None):
-        """Shows users's informations"""
+        """Check your userinfo or someone elses :P"""
         author = ctx.message.author
         server = ctx.message.server
     
@@ -858,13 +858,13 @@ class General:
         roles = [x.name for x in user.roles if x.name != "@everyone"]
 
         if user.status == discord.Status.dnd:
-            m = "<:vpDnD:236744731088912384> {} Is Dnd".format(user.name)
+            m = "<:vpDnD:236744731088912384>DND"
         if user.status == discord.Status.offline:
-            m = "<:vpOffline:212790005943369728> {} Is  Offline".format(user.name)
+            m = "<:vpOffline:212790005943369728>Offline/Invisible"
         if user.status == discord.Status.online:
-            m = "<:vpOnline:212789758110334977> {} Is  Online".format(user.name)
+            m = "<:vpOnline:212789758110334977>Online"
         if user.status == discord.Status.idle:
-            m = "<:vpAway:212789859071426561> {} Is Idle".format(user.name)
+            m = "<:vpAway:212789859071426561>Idle"
         elif user.game is not None and user.game.url is True:
             m = "<:vpStreaming:212789640799846400> {} Is streaming !!".format(user.name)
 
@@ -924,7 +924,7 @@ class General:
 
     @commands.command(pass_context=True, no_pm=True, aliases=["sinfo"])
     async def serverinfo(self, ctx):
-        """Shows server's informations"""
+        """Shows server's info"""
         server = ctx.message.server
         online = len([m.status for m in server.members
                       if m.status == discord.Status.online])
@@ -973,7 +973,7 @@ class General:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
 
-    @commands.command()
+    @commands.command(aliases=["ud"])
     async def urban(self, *, search_terms : str, definition_number : int=1):
         """Urban Dictionary search
 
@@ -1008,11 +1008,13 @@ class General:
                 msg = pagify(msg, ["\n"])
                 for page in msg:
                     em = discord.Embed(description=page, colour=discord.Colour(value=colour))
-                    em.set_footer(text="Your Urban", icon_url='https://cdn.discordapp.com/attachments/256904218571571200/257261567941410816/urban_sexy.jpg')
+                    em.set_footer(text="Urban Dictionary", icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwczovL2kuaW1ndXIuY29tL3dxZFF3U0suanBnIn0.MVrzfDg61z-6jQ2guGiijCVYs9Q?width=80&height=80')
+                    em.set_author(name="Definition For {}".format(search_terms), icon_url='https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQjaR3MhX7A7YtV08NVATNK5XjGQIH95cHpVZGOfBeEgMqT5dyNjg')
+                    em.set_thumbnail(url="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTKnTyIjfRPfIe1JN9Sd3rfbg-Sw-hRag8EjGFVX_uLo2vKELGYzQ")
                     await self.bot.say(embed=em)
                 
             else:
-                await self.bot.say("Your search terms gave no results.")
+                await self.bot.say(":x: **Your** ***search terms gave no results.*** :no_good:")
         except IndexError:
             await self.bot.say("There is no definition #{}".format(pos+1))
         except:
