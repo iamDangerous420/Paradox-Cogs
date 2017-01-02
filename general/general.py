@@ -890,9 +890,10 @@ class General:
             roles = ", ".join(roles)
         else:
             roles = ":walking: Nothing to see here ¯\_(ツ)_/¯\n\n"
-
+        if user.nick is not None:
+            ggez = "{}".format(user.nick)
         if user.nick is None:
-            user.nick = "No NickName Found\n(╯°□°）╯︵ ┻━┻"
+            ggez = "No NickName Found\n(╯°□°）╯︵ ┻━┻"
 
         if roles is None:
             user.colour = discord.Colour(value=colour)
@@ -900,7 +901,7 @@ class General:
         data = discord.Embed(description=game, colour=user.colour)
         data.add_field(name="Status", value=m)
         data.add_field(name="Joined Discord on", value=created_on)
-        data.add_field(name="Nickname", value=user.nick)
+        data.add_field(name="Nickname", value=ggez)
         data.add_field(name="Joined this server on", value=joined_on)
         data.add_field(name="Roles", value=roles, inline=False)
         data.set_footer(text="Userinfo | User ID ⇒  " + user.id)
