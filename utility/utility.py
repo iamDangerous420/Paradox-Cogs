@@ -174,6 +174,59 @@ class Utility:
         await self.bot.edit_message(fuckmyass699696, embed=data)
 
     @commands.command(pass_context=True)
+    async def mods(self, ctx):
+        """Lists mods Based on manage roles"""
+        colour = "".join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        server = ctx.message.server
+        online = [e.name for e in server.members if e.permissions_in(ctx.message.channel).manage_roles and not e.bot and e.status == discord.Status.online]
+        away = [e.name for e in server.members if e.permissions_in(ctx.message.channel).manage_roles and not e.bot and e.status == discord.Status.idle]
+        dnd = [e.name for e in server.members if e.permissions_in(ctx.message.channel).manage_roles and not e.bot and e.status == discord.Status.dnd]
+        offline = [e.name for e in server.members if e.permissions_in(ctx.message.channel).manage_roles and not e.bot and e.status == discord.Status.offline]
+        stream = [e.name for e in server.members if e.permissions_in(ctx.message.channel).manage_roles and not e.bot and e.game is not None and e.game.url is True]
+        em = discord.Embed(description="Listing mods for "+server.name, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        if online:
+            em.add_field(name="<:vpOnline:212789758110334977>Online Mods", value="<:vpOnline:212789758110334977>{0}".format((" \n<:vpOnline:212789758110334977> ".join(online)).replace("`", "")), inline=False)
+        if away:
+            em.add_field(name="<:vpAway:212789859071426561> IDLE Mods", value="<:vpAway:212789859071426561>{0}".format((" \n:<:vpAway:212789859071426561>Idle ".join(away)).replace("`", "")), inline=False)
+        if dnd:
+            em.add_field(name="<:vpDnD:236744731088912384>DND Mods", value="<:vpDnD:236744731088912384>{0}".format((" \n<:vpDnD:236744731088912384> ".join(dnd)).replace("`", "")), inline=False)
+        if offline:
+            em.add_field(name="<:vpOffline:212790005943369728>Offline/Invisible Mods", value="<:vpOffline:212790005943369728>{0}".format((" \n<:vpOffline:212790005943369728>".join(offline)).replace("`", "")), inline=False)
+        if stream:
+            em.add_field(name="<:vpStreaming:212789640799846400>Streaming Mods", value="<:vpStreaming:212789640799846400>{0}".format((" \n<:vpStreaming:212789640799846400> ".join(streaming)).replace("`", "")), inline=False)
+        if server.icon_url:
+            em.set_thumbnail(url=server.icon_url)
+        em.set_footer(text="ModList As of ==>")
+        await self.bot.say(embed=em)
+    @commands.command(pass_context=True)
+    async def admins(self, ctx):
+        """Lists admins based on administratior perms"""
+        colour = "".join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        server = ctx.message.server
+        online = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.online]
+        away = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.idle]
+        dnd = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.dnd]
+        offline = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.offline]
+        stream = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.game is not None and e.game.url is True]
+        em = discord.Embed(description="Listing mods for "+server.name, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        if online:
+            em.add_field(name="<:vpOnline:212789758110334977>Online Admins", value="<:vpOnline:212789758110334977>{0}".format((" \n<:vpOnline:212789758110334977> ".join(online)).replace("`", "")), inline=False)
+        if away:
+            em.add_field(name="<:vpAway:212789859071426561> IDLE Admins", value="<:vpAway:212789859071426561>{0}".format((" \n:<:vpAway:212789859071426561>Idle ".join(away)).replace("`", "")), inline=False)
+        if dnd:
+            em.add_field(name="<:vpDnD:236744731088912384> DND Admins", value="<:vpDnD:236744731088912384>{0}".format((" \n<:vpDnD:236744731088912384> ".join(dnd)).replace("`", "")), inline=False)
+        if offline:
+            em.add_field(name="<:vpOffline:212790005943369728>Offline/Invisible Admins", value="<:vpOffline:212790005943369728>{0}".format((" \n<:vpOffline:212790005943369728>".join(offline)).replace("`", "")), inline=False)
+        if stream:
+            em.add_field(name="<:vpStreaming:212789640799846400>Streaming Admins", value="<:vpStreaming:212789640799846400>{0}".format((" \n<:vpStreaming:212789640799846400> ".join(streaming)).replace("`", "")), inline=False)
+        if server.icon_url:
+            em.set_thumbnail(url=server.icon_url)
+        em.set_footer(text="AdminList As of ==>")
+        await self.bot.say(embed=em)
+
+    @commands.command(pass_context=True)
     async def bots(self, ctx):
         """Lists teh bots"""
         channel = ctx.message.channel
