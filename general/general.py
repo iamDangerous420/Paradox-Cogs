@@ -902,6 +902,8 @@ class General:
         data.add_field(name="Status", value=m)
         data.add_field(name="Joined Discord on", value=created_on)
         data.add_field(name="Nickname", value=ggez)
+        data.add_field(name="Discriminator", value="#{}".format(user.discriminator))
+        data.add_field(name="Highest role Colour", value="{}".format(user.colour))
         data.add_field(name="Joined this server on", value=joined_on)
         data.add_field(name="Roles", value=roles, inline=False)
         data.set_footer(text="Userinfo | User ID ⇒  " + user.id)
@@ -910,7 +912,7 @@ class General:
         if user.avatar_url:
             name = str(user)
             name = (name) if user.nick else name
-            data.set_author(name=name, url=user.avatar_url)
+            data.set_author(name=user.name, url=user.avatar_url)
             data.set_thumbnail(url=user.avatar_url)
 
         else:
