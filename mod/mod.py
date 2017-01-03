@@ -764,8 +764,8 @@ class Mod:
                 return
         counter = 0
         while counter < number:
-            await self.bot.delete_message(ctx.message)
             await self.bot.send_message(user, "***You got spamed (╯°□°）╯︵ ┻━┻! ***MESSAGE IS:*** ***```{}```*** *** By ***Anonymous*** ** ¯\_(ツ)_/¯!**.\n".format(spamtext))
+            await self.bot.delete_message(ctx.message)
             counter = counter + 1
         await self.bot.say("**spammed {}**".format(user.name))
     @commands.command(pass_context=True)
