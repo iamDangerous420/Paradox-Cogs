@@ -251,11 +251,31 @@ class Mod:
                         if self.json[message.server.id]['dm'] is True:
                             await self.bot.send_message(message.author, self.json[message.server.id]['message'])
 
+    @commands.command(no_pm=True, pass_context=True, aliases=["rar"])
+    @checks.admin_or_permissions(manage_roles=True)
+    async def removeallroles(self, ctx, user: discord.Member=None):
+        """removes all roles from a user bot must be above the user and have manage roles perms
+        This will always return it removed shit cuz of @everyone role """
+        author = ctx.message.author
+        server = ctx.message.server
+        channel = ctx.message.channel
+        if not channel.permissions_for(server.me).manage_roles:
+            await self.bot.say(' :bangbang: **Do you read ? I don\'t have manage_roles and it\'s a necessity for** ***ALL***  **role related operations.** :neutralFace: ')
+            return
+        try:
+            await self.bot.replace_roles(user)
+            await self.bot.say(":bangbang: **I've** ***Succesfully***  **Removed** ***All roles from***  `{}` :thumbsup: :stuck_out_tongue_closed_eyes: ".format(user.name).replace("`", ""))
+            return
+            # This will always return ^ cuz of @everyone role
+        except discord.HTTPException:
+            await self.bot.say(" :bangbang:  Removing roles failed! Possibly due to role hierachy, or the bot not having perms:bangbang: ")
+            return
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
-    async def addrole(self, ctx, rolename, user: discord.Member=None):
+    async def addrole(self, ctx, rolename, member: discord.Member=None):
         """Adds a role to a user, defaults to author
-        Role name must be in quotes if there are spaces."""
+        Role name must be in quotes if there are spaces.
+        if the user is not speciffied it will remove the role from the invoker if present"""
         author = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -274,7 +294,7 @@ class Mod:
             return
 
         await self.bot.add_roles(user, role)
-        await self.bot.say(':bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name))
+        await self.bot.say(':bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name).replace("`", ""))
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_roles=True)
@@ -346,7 +366,8 @@ class Mod:
     @checks.admin_or_permissions(manage_roles=True)
     async def removerole(self, ctx, rolename, user: discord.Member=None):
         """Removes a role from user, defaults to author
-        Role name must be in quotes if there are spaces."""
+        Role name must be in quotes if there are spaces.
+        if the user is not speciffied it will remove the role from the invoker if present"""
         server = ctx.message.server
         author = ctx.message.author
 
@@ -361,7 +382,7 @@ class Mod:
         if role in user.roles:
             try:
                 await self.bot.remove_roles(user, role)
-                await self.bot.say(":thumbsup: Role `{}` **Successfully** removed From ***{}*** :bangbang:".format(rolename, user.name))
+                await self.bot.say(":thumbsup: Role `{}` **Successfully** removed From ***{}*** :bangbang:".format(rolename, user.name).replace("`", ""))
             except discord.Forbidden:
                 await self.bot.say(" :bangbang: I don't have permissions to manage roles!:bangbang: ")
         else:
@@ -619,7 +640,7 @@ class Mod:
                                 action="Kick\N{WOMANS BOOTS}",
                                 mod=author,
                                 user=user)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: I've kicked {} outta Here :thumbsup: ".format(user.name))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: I've kicked `{}` outta Here :thumbsup: ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
         except Exception as e:
@@ -639,7 +660,7 @@ class Mod:
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned**:heavy_check_mark: ***{}*** :hammer: The Fok outta {} :heavy_check_mark:".format(user.name, server.name))
+                await self.bot.say(" :punch: I've **Succesfully Banned**:heavy_check_mark: ***{}*** :hammer: The Fok outta **{}** :heavy_check_mark:".format(user.name, server.name))
             except discord.errors.Forbidden:
                 await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
             except Exception as e:
@@ -987,7 +1008,7 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
-        reply = await self.bot.say("I've **Succesfully** pruned **{}** of `{}` Messages".format(number, user.name))
+        reply = await self.bot.say("I've **Succesfully** pruned **{}** of `{}` Messages".format(number, user.name).replace("`", ""))
         await asyncio.sleep(3)
         await self.bot.delete_message(reply)
     @cleanup.command(pass_context=True, no_pm=True)
