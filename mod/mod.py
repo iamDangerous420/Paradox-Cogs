@@ -64,7 +64,6 @@ class Mod:
         self.base_api_url = "https://discordapp.com/api/oauth2/authorize?"
         self.enabled = fileIO('data/autoapprove/enabled.json', 'load')
         self.session = aiohttp.ClientSession()
-        self.json = dataIO.load_json(self.location)
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
 
