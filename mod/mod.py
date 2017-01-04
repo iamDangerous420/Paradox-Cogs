@@ -64,12 +64,9 @@ class Mod:
         self.base_api_url = "https://discordapp.com/api/oauth2/authorize?"
         self.enabled = fileIO('data/autoapprove/enabled.json', 'load')
         self.session = aiohttp.ClientSession()
-        self.location = 'data/antilink/settings.json'
         self.json = dataIO.load_json(self.location)
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
-        self.regex = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.gg|discordapp\.com\/invite)\b([-a-zA-Z0-9/]*)>?")
-        self.regex_discordme = re.compile(r"<?(https?:\/\/)?(www\.)?(discord\.me\/)\b([-a-zA-Z0-9/]*)>?")
 
     def __unload(self):
         self.session.close()
@@ -180,76 +177,6 @@ class Mod:
         else:
             await self.bot.say("Failed, error code {}. ".format(status))
 
-
-    @commands.group(pass_context=True, no_pm=True)
-    async def antilink(self, ctx):
-        """Manages the settings for antilink."""
-        serverid = ctx.message.server.id
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
-        if serverid not in self.json:
-            self.json[serverid] = {'toggle': False, 'message': '', 'dm': False}
-
-    @antilink.command(pass_context=True, no_pm=True)
-    @checks.admin_or_permissions(administrator=True)
-    async def toggle(self, ctx):
-        """Enable/disables antilink in the server"""
-        serverid = ctx.message.server.id
-        if self.json[serverid]['toggle'] is True:
-            self.json[serverid]['toggle'] = False
-            await self.bot.say(':no_good: ***Anti Invite DISABLED*** :x: ')
-        elif self.json[serverid]['toggle'] is False:
-            self.json[serverid]['toggle'] = True
-            await self.bot.reply(':bangbang: ***Antiinvite SET*** :bangbang: :punch:')
-        dataIO.save_json(self.location, self.json)
-
-    @antilink.command(pass_context=True, no_pm=True)
-    @checks.admin_or_permissions(administrator=True)
-    async def message(self, ctx, *, text):
-        """Set the message for when the user sends a illegal discord link"""
-        serverid = ctx.message.server.id
-        self.json[serverid]['message'] = text
-        dataIO.save_json(self.location, self.json)
-        await self.bot.say(':heavy_check_mark: ***Message Successfully set*** :thumbsup:')
-        if self.json[serverid]['dm'] is False:
-            await self.bot.say(':bangbang:**Please Remember** Direct Messages on removal is **disabled!**\nEnable it with ==> ``antilink toggledm``')
-
-    @antilink.command(pass_context=True, no_pm=True)
-    @checks.admin_or_permissions(administrator=True)
-    async def toggledm(self, ctx):
-        serverid = ctx.message.server.id
-        if self.json[serverid]['dm'] is False:
-            self.json[serverid]['dm'] = True
-            await self.bot.say('**Enabled DMs on removal of invite links** :thumbsup:')
-        elif self.json[serverid]['dm'] is True:
-            self.json[serverid]['dm'] = False
-            await self.bot.say('**Disabled DMs on removal of invite links** :thumbsup:')
-        dataIO.save_json(self.location, self.json)
-
-    async def _new_message(self, message):
-        """Finds the message and checks it for regex"""
-        user = message.author
-        if message.server is None:
-            pass
-        if message.server.id in self.json:
-            if self.json[message.server.id]['toggle'] is True:
-                if self.regex.search(message.content) is not None or self.regex_discordme.search(message.content) is not None:
-                    roles = [r.name for r in user.roles]
-                    bot_admin = settings.get_server_admin(message.server)
-                    bot_mod = settings.get_server_mod(message.server)
-                    if user.id == settings.owner:
-                        pass
-                    elif bot_admin in roles:
-                        pass
-                    elif bot_mod in roles:
-                        pass
-                    elif user.permissions_in(message.channel).manage_messages is True:
-                        pass
-                    else:
-                        asyncio.sleep(0.5)
-                        await self.bot.delete_message(message)
-                        if self.json[message.server.id]['dm'] is True:
-                            await self.bot.send_message(message.author, self.json[message.server.id]['message'])
 
     @commands.command(no_pm=True, pass_context=True, aliases=["rar"])
     @checks.admin_or_permissions(manage_roles=True)
@@ -1785,32 +1712,6 @@ class Mod:
         await asyncio.sleep(delay)
         await _delete_helper(self.bot, message)
 
-    async def _new_message(self, message):
-        """Finds the message and checks it for regex"""
-        user = message.author
-        server = message.server
-        if message.server is None:
-            pass
-        if message.server.id in self.json:
-            if self.json[message.server.id]['toggle'] is True:
-                if self.regex.search(message.content) is not None or self.regex_discordme.search(message.content) is not None:
-                    roles = [r.name for r in user.roles]
-                    bot_admin = settings.get_server_admin(message.server)
-                    bot_mod = settings.get_server_mod(message.server)
-                    if user.id == settings.owner:
-                        pass
-                    elif bot_admin in roles:
-                        pass
-                    elif bot_mod in roles:
-                        pass
-                    elif user.permissions_in(message.channel).manage_messages is True:
-                        pass
-                    else:
-                        asyncio.sleep(0.5)
-                        await self.bot.delete_message(message)
-                        if self.json[message.server.id]['dm'] is True:
-                            await self.bot.send_message(message.author, self.json[message.server.id]['message'])
-
 
     async def on_message(self, message):
         if message.channel.is_private or self.bot.user == message.author \
@@ -1921,8 +1822,6 @@ def check_folders():
         print("Creating data/autoapprove folder...")
         os.makedirs("data/autoapprove")
 
-    if not os.path.exists('data/antilink'):
-        os.makedirs('data/antilink')
 
 def check_files():
     ignore_list = {"SERVERS": [], "CHANNELS": []}
@@ -1958,10 +1857,6 @@ def check_files():
     if not fileIO(f, "check"):
         print("Creating default autoapprove's enabled.json...")
         fileIO(f, "save", enabled)
-
-    f = 'data/antilink/settings.json'
-    if dataIO.is_valid_json(f) is False:
-        dataIO.save_json(f, {})
 
 
 
