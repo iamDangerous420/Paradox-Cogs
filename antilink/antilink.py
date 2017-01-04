@@ -28,7 +28,7 @@ class Antilink:
         if serverid not in self.json:
             self.json[serverid] = {'toggle': False, 'message': '', 'dm': False}
 
-    @antilinkset.command(pass_context=True, no_pm=True)
+    @antilink.command(pass_context=True, no_pm=True)
     @checks.admin_or_permissions(administrator=True)
     async def toggle(self, ctx):
         """Enable/disables antilink in the server"""
@@ -41,7 +41,7 @@ class Antilink:
             await self.bot.reply(':bangbang: ***Antiinvite SET*** :bangbang: :punch:')
         dataIO.save_json(self.location, self.json)
 
-    @antilinkset.command(pass_context=True, no_pm=True)
+    @antilink.command(pass_context=True, no_pm=True)
     @checks.admin_or_permissions(administrator=True)
     async def message(self, ctx, *, text):
         """Set the message for when the user sends a illegal discord link"""
@@ -52,7 +52,7 @@ class Antilink:
         if self.json[serverid]['dm'] is False:
             await self.bot.say(':bangbang:**Please Remember** Direct Messages on removal is **disabled!**\nEnable it with ==> ``antilink toggledm``')
 
-    @antilinkset.command(pass_context=True, no_pm=True)
+    @antilink.command(pass_context=True, no_pm=True)
     @checks.admin_or_permissions(administrator=True)
     async def toggledm(self, ctx):
         serverid = ctx.message.server.id
