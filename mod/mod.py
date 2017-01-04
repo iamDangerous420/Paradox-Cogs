@@ -1466,7 +1466,7 @@ class Mod:
     @commands.group(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
     async def editrole(self, ctx):
-        """Edits roles settings"""
+        """Edits A role & it's settings"""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
@@ -1811,6 +1811,14 @@ class Mod:
                 self.past_nicknames[server.id][before.id] = list(nicks)
                 dataIO.save_json("data/mod/past_nicknames.json",
                                  self.past_nicknames)
+
+    async def get_bot_api_response(self, url, key, serverid):
+        data = {"guild_id": serverid, "permissions": 0, "authorize": True}
+        data = json.dumps(data).encode('utf-8')
+        headers = {'authorization': key, 'content-type': 'application/json'}
+        async with self.session.post(url, data=data, headers=headers) as r:
+            status = r.status
+        return status
 
     async def _new_message(self, message):
         """Finds the message and checks it for regex"""
