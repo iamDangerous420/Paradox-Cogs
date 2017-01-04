@@ -1477,29 +1477,52 @@ class Mod:
         Colour must be in hexadecimal format.
         \"http://www.w3schools.com/colors/colors_picker.asp\"
         Examples:
-        !editrole colour \"The Transistor\" #ff0000
+        !editrole colour \"gay\" #ff0000
         !editrole colour Test #ff9900"""
         author = ctx.message.author
         try:
             await self.bot.edit_role(ctx.message.server, role, color=value)
             logger.info("{}({}) changed the colour of role '{}'".format(
                 author.name, author.id, role.name))
-            await self.bot.say("Done.")
+            await self.bot.say("***Successfully***  **Changed the colour of `{}` To `{}`:thumbsup:**".format(role.name, value))
         except discord.Forbidden:
-            await self.bot.say("I need permissions to manage roles first.")
+            await self.bot.say(":bangbang: **I need permissions to manage roles first.** :x:")
         except Exception as e:
             print(e)
-            await self.bot.say("Something went wrong.")
+            await self.bot.say(":bangbang: **Something went wrong.** :x:")
+
+    @editrole.command(name="position", aliases=["pos"], pass_context=True)
+    @checks.admin_or_permissions(manage_roles=True)
+    async def edit_role_position(self, ctx, role: discord.Role, position : int):
+        """Edits the roles position in the servers role hierachy
+        The way this works the bot has to be higher than the role you're moving
+        It also needs manage roles
+        Where 1 = the lowest area aka the bottom next to @everyone because you can't do 0 cause fuck logic idk """
+        server = ctx.message.server
+        if role.name is "@everyone":
+            message = ":neutralFace: I can't move the servers default role :face_palm:"
+            return
+        if position is "0":
+            await self.bot.say("you can't do 0 cause fuck logic idk Probs cause 0 is under the server default role aka `@everyone`")
+            return
+        try:
+            await self.bot.move_role(server, role, position)
+            message = ":bangbang: I've **Succesfully** moved the role `{}` :thumbsup:".format(role.name)
+            await self.bot.say(message)
+        except discord.Forbidden:
+            await self.bot.say(":x: ***I have no permission to move members.***:neutralFace:")  
+        except discord.HTTPException:
+            await self.bot.say(":neutralFace: **Moving the role failed, or you are of too low rank to move the role.** :neutralFace:")
 
     @editrole.command(name="name", pass_context=True)
-    @checks.admin_or_permissions(administrator=True)
+    @checks.admin_or_permissions(manage_roles=True)
     async def edit_role_name(self, ctx, role: discord.Role, name: str):
         """Edits a role's name
         Use double quotes if the role or the name contain spaces.
         Examples:
-        !editrole name \"The Transistor\" Test"""
+        !editrole name \"Tdangerous\" gay"""
         if name == "":
-            await self.bot.say("Name cannot be empty.")
+            await self.bot.say(":bangbang: **Name cannot be empty.**")
             return
         try:
             author = ctx.message.author
@@ -1507,12 +1530,13 @@ class Mod:
             await self.bot.edit_role(ctx.message.server, role, name=name)
             logger.info("{}({}) changed the name of role '{}' to '{}'".format(
                 author.name, author.id, old_name, name))
-            await self.bot.say("Done.")
+            await self.bot.say("***Successfully***  **Changed the Name of `{}` To `{}`:thumbsup:**".format(role.name, name))
         except discord.Forbidden:
-            await self.bot.say("I need permissions to manage roles first.")
+            await self.bot.say(":bangbang: **I need permissions to manage roles first.** :x:")
         except Exception as e:
             print(e)
-            await self.bot.say("Something went wrong.")
+            await self.bot.say(":bangbang: **Something went wrong.** :x:")
+
 
     @commands.command()
     async def names(self, user : discord.Member):
