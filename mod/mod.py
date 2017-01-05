@@ -212,6 +212,9 @@ class Mod:
             await self.bot.say('That role cannot be found.')
             return
 
+        if user is None:
+            user = author
+
         if not channel.permissions_for(server.me).manage_roles:
             await self.bot.say('I don\'t have manage_roles.')
             return
