@@ -866,7 +866,7 @@ class General:
         if user.status == discord.Status.idle:
             m = "<:vpAway:212789859071426561>Idle"
         else:
-            m = "<:vpStreaming:212789640799846400>Streaming")
+            m = "<:vpStreaming:212789640799846400>Streaming"
 
         joined_at = self.fetch_joined_at(user, server)
         since_created = (ctx.message.timestamp - user.created_at).days
