@@ -198,7 +198,7 @@ class Mod:
             return
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
-    async def addrole(self, ctx, rolename, member: discord.Member=None):
+    async def addrole(self, ctx, rolename, user: discord.Member=None):
         """Adds a role to a user, defaults to author
         Role name must be in quotes if there are spaces.
         if the user is not speciffied it will remove the role from the invoker if present"""
@@ -206,21 +206,18 @@ class Mod:
         channel = ctx.message.channel
         server = ctx.message.server
 
-        if user is None:
-            user = author
-
         role = self._role_from_string(server, rolename)
 
         if role is None:
-            await self.bot.say(':no_good: Cannot find the role {} :thinking:'.format(rolename))
+            await self.bot.say('That role cannot be found.')
             return
 
         if not channel.permissions_for(server.me).manage_roles:
-            await self.bot.say('I don\'t have manage_roles. :| ')
+            await self.bot.say('I don\'t have manage_roles.')
             return
 
         await self.bot.add_roles(user, role)
-        await self.bot.say(':bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:'.format(role.name, user.name).replace("`", ""))
+        await self.bot.say(":bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:".format(role.name, user.name).replace("`", ""))
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_roles=True)
@@ -1765,32 +1762,6 @@ class Mod:
             status = r.status
         return status
 
-    async def _new_message(self, message):
-        """Finds the message and checks it for regex"""
-        user = message.author
-        if message.server is None:
-            pass
-        if message.server.id in self.json:
-            if self.json[message.server.id]['toggle'] is True:
-                if self.regex.search(message.content) is not None or self.regex_discordme.search(message.content) is not None:
-                    roles = [r.name for r in user.roles]
-                    bot_admin = settings.get_server_admin(message.server)
-                    bot_mod = settings.get_server_mod(message.server)
-                    if user.id == settings.owner:
-                        pass
-                    elif bot_admin in roles:
-                        pass
-                    elif bot_mod in roles:
-                        pass
-                    elif user.permissions_in(message.channel).manage_messages is True:
-                        pass
-                    else:
-                        asyncio.sleep(0.5)
-                        await self.bot.delete_message(message)
-                        if self.json[message.server.id]['dm'] is True:
-                            await self.bot.send_message(message.author, self.json[message.server.id]['message'])
-
-
     def are_overwrites_empty(self, overwrites):
         """There is currently no cleaner way to check if a
         PermissionOverwrite object is empty"""
@@ -1874,5 +1845,4 @@ def setup(bot):
         logger.addHandler(handler)
     n = Mod(bot)
     bot.add_listener(n.check_names, "on_member_update")
-    bot.add_listener(n._new_message, 'on_message')
     bot.add_cog(n)
