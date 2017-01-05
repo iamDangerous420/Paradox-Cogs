@@ -958,9 +958,9 @@ class General:
         data.add_field(name=":lock: Verification Level", value= str(server.verification_level))
         data.add_field(name=":zzz: AFK Channel", value=str(server.afk_channel).upper())
         data.set_footer(text="🆔 Server ID ⇒  " + server.id)
-        if len(str(server.emojis)) < 2024 and server.emojis:
+        if len(str(server.emojis)) < 3028 and server.emojis:
             data.add_field(name=":open_mouth: Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
-        elif len(str(server.emojis)) >= 2024:
+        elif len(str(server.emojis)) >= 3028:
             data.add_field(name=":x:Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
 
         if server.icon_url:
