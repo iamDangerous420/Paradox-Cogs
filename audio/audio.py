@@ -1809,8 +1809,8 @@ class Audio:
                     await self.bot.edit_message(d, ':boom: ***Cleared...*** :stop_button:')
                     await asyncio.sleep(1.2)
                     await self.bot.edit_message(d, ':thumbsup:')
-					await asyncio.sleep(1)
-					await self.bot.delete_message(d)
+                    await asyncio.sleep(1)
+                    await self.bot.delete_message(d)
             else:
                 await self.bot.say(":no_good: **You need to be in the voice channel to clear the playlist** :x: ")
         else:
