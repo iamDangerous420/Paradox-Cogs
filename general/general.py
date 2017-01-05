@@ -950,17 +950,20 @@ class General:
             description=created_at,
             colour=discord.Colour(value=colour))
         data.add_field(name=":map: Region", value=str(server.region).upper())
-        data.add_field(name=":busts_in_silhouette: Users", value="{}({} Online Users)".format(total_users, online))
+        data.add_field(name=":busts_in_silhouette: Users", value="{} (<:vpOnline:212789758110334977>{} Online Users)".format(total_users, online))
         data.add_field(name=":writing_hand: Text Channels", value=text_channels)
         data.add_field(name=":speaking_head: Voice Channels", value=voice_channels)
         data.add_field(name=":page_with_curl: Roles", value=len(server.roles))
         data.add_field(name=":bow: Owner", value=str(server.owner))
         data.add_field(name=":lock: Verification Level", value= str(server.verification_level))
-        data.add_field(name=":zzz: AFK Channel", value=str(server.afk_channel).upper())
+        data.add_field(name=":zzz:AFK Channel", value=str(server.afk_channel).upper())
+        data.add_field(name=":sleeping: Afk Timeout", value="{}M".format(server.afk_timeout/60))
+        data.add_field(name=":call_me:Total emojis", value="{} ".format(len(server.emojis)))
+
         data.set_footer(text="🆔 Server ID ⇒  " + server.id)
-        if len(str(server.emojis)) < 3028 and server.emojis:
-            data.add_field(name=":open_mouth: Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
-        elif len(str(server.emojis)) >= 3028:
+        if len(str(server.emojis)) < 4024 and server.emojis:
+            data.add_field(name=":open_mouth:Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
+        elif len(str(server.emojis)) >= 4024:
             data.add_field(name=":x:Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
 
         if server.icon_url:
