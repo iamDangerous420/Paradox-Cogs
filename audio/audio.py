@@ -1159,6 +1159,7 @@ class Audio:
     async def disconnect_all(self, ctx):
         """Disconnects from all voice channels."""
         channel = ctx.message.channel
+        author = ctx.message.channel
         voice_channel = author.voice_channel
         server = ctx.message.server
 
