@@ -1561,7 +1561,7 @@ class Audio:
         tempqueue_url_list = self._get_queue_tempqueue(server, 5)
 
         lol = await self.bot.say(":raised_hand: **Wait Up Getting Queue** :raised_hand: ")
-        await asyncio.sleep(1.2)
+        await asyncio.sleep(1.7)
         await self.bot.delete_message(lol)
 
         queue_song_list = await self._download_all(queue_url_list)
@@ -1660,10 +1660,12 @@ class Audio:
         await self.bot.edit_message(d, ":headphones:  :notes: :loud_sound:  :musical_note: ")
         await asyncio.sleep(1)
         await self.bot.edit_message(d, ":level_slider:  :musical_note:  :loud_sound:  :notes: ")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.9)
         await self.bot.edit_message(d, ":notes:  :musical_note:  :headphones:  :microphone: ")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.9)
         await self.bot.edit_message(d, ":ok_hand: **Shuffled** :thumbsup: ")
+        await asyncio.sleep(0.5)
+        await self.bot.edit_message(d, ":thumbsup: ")
         return
 
     @commands.command(pass_context=True, aliases=["next","n"], no_pm=True)
@@ -1737,7 +1739,7 @@ class Audio:
     async def tunes(self, ctx):
         """Make Danger MX Play a dank song WARNING CONTAINS EAR RAPE"""
         ids = ("KT7W9oJP6BI", "1b2we5jOKXA", "5m5q8BiqrlQ", "rL11QgXr2Ug",
-               "ntLop32pYd0", "oWPXdDMkRF0", "1-xGerv5FOk", "u73uM1_Dor0", "MimslO4g2yE")
+               "ntLop32pYd0", "oWPXdDMkRF0", "1-xGerv5FOk", "u73uM1_Dor0", "MimslO4g2yE", "LHvYrn3FAgI", "KigDHPPEhMs", "zSeHbIhwkXU", "Ccsdsy0FL9o")
         url = "https://www.youtube.com/watch?v={}".format(choice(ids))
         await ctx.invoke(self.play, url_or_search_terms=url)
 
@@ -1777,8 +1779,8 @@ class Audio:
                     dur = "{0}:{1:0>2}".format(m, s)
             else:
                 dur = None
-            msg = ("\n:notes: **Song:** {}\n:microphone: **Author:** {}\n :bust_in_silhouette:**Uploader:** {}\n"
-                   ":busts_in_silhouette:**Views:** {}\n :stopwatch:**Duration:** {}\n\n<:link:{}>".format(
+            msg = ("\n:notes:**Song:** {}\n:microphone:**Author:** {}\n:bust_in_silhouette:**Uploader:** {}\n"
+                   ":busts_in_silhouette:**Views:** {}\n :stopwatch:**Duration:** {}\n\n:link:<{}>".format(
                        song.title, song.creator, song.uploader,
                        song.view_count, dur, song.webpage_url))
             await self.bot.say(msg.replace("**Author:** None\n", "")
@@ -1790,22 +1792,25 @@ class Audio:
 
     @commands.command(pass_context=True, no_pm=True, aliases=["cl"])
     async def clear(self, ctx):
-        """Stops AND CLEARS QUEUE."""
+        """CLEARS QUEUE."""
         server = ctx.message.server
         channel = ctx.message.channel
         if self.is_playing(server):
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
-                    d = await self.bot.send_message(channel, ':raised_hand: **clearing** ::wastebasket:')
+                    d = await self.bot.send_message(channel, ':raised_hand: **clearing** :wastebasket:')
                     await asyncio.sleep(1)
                     await self.bot.edit_message(d, ':put_litter_in_its_place: **clearing.** :raised_hand:')
                     await asyncio.sleep(1.1)
                     await self.bot.edit_message(d, ':no_good: **clearing..** :stop_button:')
                     await asyncio.sleep(1.2)
-                    await self.bot.edit_message(d, ':boom: ***Cleared...*** :stop_button:')
-                    await asyncio.sleep(2)
-                    await self.bot.edit_message(d, '¯\_(ツ)_/¯ Im jk i cleared the queue since the first msg ¯\_(ツ)_/¯')
+                    self._stop_downloader(server)
                     self._clear_queue(server)
+                    await self.bot.edit_message(d, ':boom: ***Cleared...*** :stop_button:')
+                    await asyncio.sleep(1.2)
+                    await self.bot.edit_message(d, ':thumbsup:')
+					await asyncio.sleep(1)
+					await self.bot.delete_message(d)
             else:
                 await self.bot.say(":no_good: **You need to be in the voice channel to clear the playlist** :x: ")
         else:
