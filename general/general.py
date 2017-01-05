@@ -865,8 +865,8 @@ class General:
             m = "<:vpOnline:212789758110334977>Online"
         if user.status == discord.Status.idle:
             m = "<:vpAway:212789859071426561>Idle"
-        elif user.game is not None and user.game.url is True:
-            m = "<:vpStreaming:212789640799846400> {} Is streaming !!".format(user.name)
+        else:
+            m = "<:vpStreaming:212789640799846400> Streaming ⇒  [{}]({})".format(user.game, user.game.url)
 
         joined_at = self.fetch_joined_at(user, server)
         since_created = (ctx.message.timestamp - user.created_at).days
