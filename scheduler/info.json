@@ -3,9 +3,9 @@
 
 {
     "AUTHOR" : "Dangerous",
-    "SHORT" : "Home made say cog",
-    "DESCRIPTION" : "Selfmade say Cog",
+    "SHORT" : "Home made scheduler cog",
+    "DESCRIPTION" : "Selfmade schedulerscheduler Cog",
     "DISABLED" : false,
-    "NAME" : "Say",
+    "NAME" : "scheduler",
     "INSTALL_MSG" : "Thanks for installing my Say cog It may includes some other sources like bursting but edited. !"
 }
