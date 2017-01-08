@@ -1182,10 +1182,11 @@ class Audio:
                                " **VOICE CHANNEL** :rage:")
             return
 
-        await self._join_voice_channel(voice_channel)
-        await self.bot.say(":inbox_tray: **I've joined** ***{0} successfully!*** :thumbsup:".format(str(ctx.message.author.voice_channel)))
+        if not self.voice_connected(server):
+            await self._join_voice_channel(voice_channel)
+            await self.bot.say(":inbox_tray: **I've joined** ***{0} successfully!*** :thumbsup:".format(str(ctx.message.author.voice_channel)))
 
-    @commands.command(pass_context=True, no_pm=True, aliases=["p"])
+    @commands.command(pass_context=True, no_pm=True, aliases=["pa"])
     async def pause(self, ctx):
         """Pauses the current song, `[p]resume` to continue."""
         server = ctx.message.server
