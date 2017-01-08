@@ -152,7 +152,7 @@ class Scheduler:
         log.info('add {} "{}" to {} on {} in {}s'.format(
             name, command, channel.name, server.name, s))
         await self._add_event(name, command, server, channel, author, s, True)
-        await self.bot.say('***Gotcha*** :thumbsup: I will run : __***```"{}" in {}s```***__'.format(command, s))
+        await self.bot.say('***Gotcha*** :thumbsup: I will run : __***```"{}" every {}s```***__'.format(command, s))
 
     @scheduler.command(pass_context=True, name="repeat")
     async def _scheduler_repeat(self, ctx, name, time_interval, *, command):
@@ -178,7 +178,7 @@ class Scheduler:
         log.info('add {} "{}" to {} on {} every {}s'.format(
             name, command, channel.name, server.name, s))
         await self._add_event(name, command, server, channel, author, s, True)
-        await self.bot.say('***Gotcha*** :thumbsup: I will run : __***```"{}" in {}s```***__'.format(command, s))
+        await self.bot.say('***Gotcha*** :thumbsup: I will run : __***```"{}" every {}s```***__'.format(command, s))
 
     @scheduler.command(pass_context=True, name="remove")
     async def _scheduler_remove(self, ctx, name):
