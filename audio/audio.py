@@ -1818,13 +1818,13 @@ class Audio:
 
     @commands.command(pass_context=True, no_pm=True, aliases=["s"])
     async def stop(self, ctx):
-        """Stops a currently playing song or playlist. CLEARS QUEUE."""
+        """Stops a currently playing music and disconnects from vc"""
         server = ctx.message.server
         if self.is_playing(server):
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
                     await self.bot.say(':raised_hand: ***Stopping*** :stop_button:')
-                    self._stop(server)
+                    await self._stop_and_disconnect(server)
                 else:
                     await self.bot.say(":bangbang: :x: **You can't stop music when there are other"
                                        " people in the channel!** ***Vote to skip"
