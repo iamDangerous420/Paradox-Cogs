@@ -352,6 +352,10 @@ class mute:
 
     async def _unmute(self, member, reason):
         """Remove mute role, delete record and task handle"""
+        server = ctx.message.server
+        role = await self.setup_role(server)
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         role = discord.utils.get(member.server.roles, name=self.role_name)
         if role:
             # Has to be done first to prevent triggering on_member_update listener
@@ -414,7 +418,7 @@ class mute:
             duration = self.json[sid][member.id]['until'] - time.time()
             if duration > 0:
                 await self.bot.add_roles(member, role)
-                reason = 'mute re-added on rejoin ***Baba BITTCCHH***. '
+                reason = 'Re-Muted For rejoin ***Baba BITTCCHH***. '
                 if self.json[sid][member.id]['reason']:
                     reason += self.json[sid][member.id]['reason']
                 if member.id not in self.handles[sid]:
