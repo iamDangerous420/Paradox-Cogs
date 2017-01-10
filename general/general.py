@@ -119,7 +119,7 @@ class General:
                     avatar = author.avatar_url if author.avatar else author.default_avatar_url
                     if self.data[author.id]['MESSAGE']:
                         em = discord.Embed(description=self.data[author.id]['MESSAGE'], color=discord.Color.orange())
-                        em.set_author(name='{} s currently away And Says ↓⇓⟱'.format(author.display_name), icon_url=avatar)
+                        em.set_author(name='{}\'s currently away And Says ↓⇓⟱'.format(author.display_name), icon_url=avatar)
                     else:
                         em = discord.Embed(color=discord.Color.purple())
                         em.set_author(name='{} is currently away'.format(author.display_name), icon_url=avatar)
@@ -407,9 +407,14 @@ class General:
         """Detects user's penis length
 
         This is 100% accurate."""
+        if user.id == "187570149207834624":
+            await self.bot.say("Dis penis too long 2 measure ( ͡° ͜ʖ ͡°)\n\nJk he has a micro pp")
+            return
+
         random.seed(user.id)
         p = "8" + "="*random.randint(0, 50) + "D"
         await self.bot.say("Size: " + p)
+
 
     @commands.command(pass_context=True)
     async def quote(self, ctx, message_id = None):
@@ -421,11 +426,12 @@ class General:
             msg = await self.bot.get_message(ctx.message.channel, id = str(message_id))
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16) 
-        owner = msg.author.name+"#"+msg.author.discriminator
+        owner = msg.author.name+"#"+msg.author.discriminator+" ("+msg.id+")" 
         a = discord.Embed()
         a.description = msg.content
         avatar = msg.author.default_avatar_url if not msg.author.avatar else msg.author.avatar_url
         a.set_author(name=owner, icon_url=avatar)
+        a.set_footer(text="Msg sent at ")
         a.timestamp = msg.timestamp
         a.colour = colour
         await self.bot.send_message(msg.channel, embed = a)
@@ -582,7 +588,7 @@ class General:
         else:
             await self.bot.reply(":x: Sorry i only Reply to my master waifu goddess Pwincess :stuck_out_tongue:")
 
-    @commands.command(name = "google", pass_context=True, no_pm=True)
+    @commands.command(name = "google", aliases=["g"], pass_context=True, no_pm=True)
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def _google(self, ctx, text):
         """Its google, you search with it.
