@@ -196,8 +196,8 @@ class Scheduler:
         del self.events[server.id][name]
         await self._remove_event(name, server)
         self.save_events()
-        await self.bot.say(':vpGreenTick: "{}" ***has successfully been removed but'
-                           ' it may run once more.***'.format(name))
+        await self.bot.say(":vpGreenTick: "{}" ***has successfully been removed but"
+                           " it may run once more.***".format(name))
 
     @scheduler.command(pass_context=True, name="list")
     async def _scheduler_list(self, ctx):
