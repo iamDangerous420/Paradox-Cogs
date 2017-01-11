@@ -232,7 +232,8 @@ class Downloader(threading.Thread):
 
 
 class Audio:
-    """Music Streaming."""
+    """Danger MX custom music :O Enjoy :D report all errors to this server : https://goo.gl/MTIKpK 
+	Does not support spotify And radio  do ~playlist for playlist management"""
 
     def __init__(self, bot, player):
         self.bot = bot
@@ -786,16 +787,6 @@ class Audio:
         self._set_queue_repeat(server, True)
         self._set_queue(server, songlist)
 
-    def _play_local_playlist(self, server, name):
-        songlist = self._local_playlist_songlist(name)
-
-        ret = []
-        for song in songlist:
-            ret.append(os.path.join(name, song))
-
-        ret_playlist = Playlist(server=server, name=name, playlist=ret)
-        self._play_playlist(server, ret_playlist)
-
     def _player_count(self):
         count = 0
         queue = copy.deepcopy(self.queue)
@@ -816,18 +807,6 @@ class Audio:
     def _playlist_exists_global(self, name):
         f = "data/audio/playlists"
         f = os.path.join(f, name + ".txt")
-        log.debug('checking for {}'.format(f))
-
-        return dataIO.is_valid_json(f)
-
-    def _playlist_exists_local(self, server, name):
-        try:
-            server = server.id
-        except AttributeError:
-            pass
-
-        f = "data/audio/playlists"
-        f = os.path.join(f, server, name + ".txt")
         log.debug('checking for {}'.format(f))
 
         return dataIO.is_valid_json(f)
@@ -1270,8 +1249,8 @@ class Audio:
         self._clear_queue(server)
         self._add_to_queue(server, url)
         await self.bot.send_typing(ctx.message.channel)
-        await self.bot.say("**:play_pause: Im Playing your song fam** :thumbsup:".format(song))
-
+        await asyncio.sleep(3)
+        await self.bot.say("**:play_pause: Im Playing your song fam** :thumbsup:")
     @commands.command(pass_context=True, no_pm=True)
     async def prev(self, ctx):
         """Goes back to the last song."""
@@ -1617,7 +1596,7 @@ class Audio:
         else:
             await self.bot.say(":twisted_rightwards_arrows:**I've UnToggled repeat** :thumbsup:")
 
-    @commands.command(pass_context=True, no_pm=True, aliases=['re'])
+    @commands.command(pass_context=True, no_pm=True, aliases=["re","unpause"])
     async def resume(self, ctx):
         """Resumes a paused song or playlist"""
         server = ctx.message.server
