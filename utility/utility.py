@@ -210,7 +210,7 @@ class Utility:
         dnd = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.dnd]
         offline = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.status == discord.Status.offline]
         stream = [e.name for e in server.members if e.permissions_in(ctx.message.channel).administrator and not e.bot and e.game is not None and e.game.url is True]
-        em = discord.Embed(description="Listing mods for "+server.name, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        em = discord.Embed(description="Listing admins for "+server.name, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         if online:
             em.add_field(name="<:vpOnline:212789758110334977>Online Admins", value="<:vpOnline:212789758110334977>{0}".format((" \n<:vpOnline:212789758110334977> ".join(online)).replace("`", "")), inline=False)
         if away:
