@@ -1137,14 +1137,23 @@ class Audio:
     @checks.is_owner()
     async def disconnect_all(self, ctx):
         """Disconnects from all voice channels."""
-        channel = ctx.message.channel
+        channell = ctx.message.channel
         server = ctx.message.server
 
         while len(list(self.bot.voice_clients)) != 0:
             vc = list(self.bot.voice_clients)[0]
             await self._stop_and_disconnect(vc.server)
-        await self.bot.send_message(vc.server, "**My owner has disconnected me from all Channels probably for an** ***Audio related update***  **or shutdown please be patient.**")
-        await self.bot.send_message(channel, "**Done!**")
+
+        for e in self.bot.servers:
+            try:
+                if e.me.voice_channel is not None:
+                    await self.bot.send_message(e.default_channel, "**My owner has disconnected me from all Channels probably for an** ***Audio related update***  **or shutdown please be patient.**")
+                    await asyncio.sleep(1)
+                    continue
+            except:
+                await self.bot.send_message(channell, "Failed to send to {}".format(e.name))
+                pass
+        await self.bot.send_message(channell, "**Done!**")
 
     @commands.command( pass_context=True, no_pm=True)
     async def summon(self, ctx):
