@@ -113,7 +113,7 @@ class Utility:
             await self.bot.say(emoji)
         except:
             await self.bot.say("**This server has no facking emotes what is this a ghost town ???**")
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["mcount"])
     async def membercount(self, ctx):
         """member number count."""
         server = ctx.message.server
