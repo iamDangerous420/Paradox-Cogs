@@ -233,7 +233,7 @@ class Downloader(threading.Thread):
 
 class Audio:
     """Danger MX custom music :O Enjoy :D report all errors to this server : https://goo.gl/MTIKpK 
-	Does not support spotify And radio  do ~playlist for playlist management"""
+    Does not support spotify And radio  do ~playlist for playlist management"""
 
     def __init__(self, bot, player):
         self.bot = bot
@@ -1060,14 +1060,14 @@ class Audio:
         server = ctx.message.server
 
         if percent < 0:
-            await self.bot.say("Can't be less than zero.")
+            await self.bot.say(":neutralFace: :neutralFace: :neutralFace: ***Can't be less than zero.*** :neutralFace: :neutralFace: :neutralFace: ")
             return
         elif percent > 100:
             percent = 100
 
         if percent == 0:
             enabled = False
-            await self.bot.say("Voting disabled. All users can stop or skip.")
+            await self.bot.say("**Voting disabled. All users can stop or skip.**")
         else:
             enabled = True
             await self.bot.say("Vote percentage set to {}%".format(percent))
@@ -1082,7 +1082,7 @@ class Audio:
 
         count = self._player_count()
 
-        await self.bot.say("Currently playing music in {} servers.".format(
+        await self.bot.say("Currently playing music in ***{} servers.***".format(
             count))
 
     @commands.group(pass_context=True)
@@ -1212,7 +1212,7 @@ class Audio:
                                " How am i gonna play for you :neutral_face:")
             return
         except UnauthorizedConnect:
-            await self.bot.say(":neutral_face I can't join your"
+            await self.bot.say(":neutralFace: I can't join your"
                                " voice channel. D:")
             return
         except UnauthorizedSpeak:
