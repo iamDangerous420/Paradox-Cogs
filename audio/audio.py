@@ -811,6 +811,18 @@ class Audio:
 
         return dataIO.is_valid_json(f)
 
+    def _playlist_exists_local(self, server, name):
+        try:
+            server = server.id
+        except AttributeError:
+            pass
+
+        f = "data/audio/playlists"
+        f = os.path.join(f, server, name + ".txt")
+        log.debug('checking for {}'.format(f))
+
+        return dataIO.is_valid_json(f)
+
     def _remove_queue(self, server):
         if server.id in self.queue:
             del self.queue[server.id]
