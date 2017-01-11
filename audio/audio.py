@@ -1258,7 +1258,6 @@ class Audio:
         self._clear_queue(server)
         self._add_to_queue(server, url)
         await self.bot.send_typing(ctx.message.channel)
-        await asyncio.sleep(3)
         await self.bot.say("**:play_pause: Im Playing your song fam** :thumbsup:")
     @commands.command(pass_context=True, no_pm=True)
     async def prev(self, ctx):
