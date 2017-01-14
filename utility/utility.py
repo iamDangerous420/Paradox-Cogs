@@ -43,6 +43,35 @@ class Utility:
         return role
 
     @commands.command(pass_context=True)
+    @checks.serverowner_or_permissions(administrator=True)
+    async def serverprefix(self, ctx, *prefixes):
+        """Sets Dmx's prefixes for this server
+
+        Accepts multiple prefixes separated by a space. Enclose in double
+        quotes if a prefix contains spaces.
+        Example: set serverprefix ! $ ? "two words"
+
+        Issuing this command with no parameters will reset the server
+        prefixes and the global ones will be used instead."""
+        server = ctx.message.server
+
+        if prefixes == ():
+            self.bot.settings.set_server_prefixes(server, [])
+            current_p = ", ".join(self.bot.settings.prefixes)
+            await self.bot.say("**Server prefixes reset. Current prefixes:** "
+                               "`{}`".format(current_p))
+            return
+
+        prefixes = sorted(prefixes, reverse=True)
+        self.bot.settings.set_server_prefixes(server, prefixes)
+        log.debug("Setting server's {} prefixes to:\n\t{}"
+                  "".format(server.id, self.bot.settings.prefixes))
+
+        await self.bot.say("**I set the prefixes to** :`{}`  **for this server.\n"
+                           "To go back to the global prefixes, do**"
+                           " `{}set serverprefix` ".format(prefixes, prefixes[0]))
+
+    @commands.command(pass_context=True)
     async def inrole(self, ctx, *, rolename):
         """Check members in the role totally didn't copy dex's eye emoji"""
         server = ctx.message.server
