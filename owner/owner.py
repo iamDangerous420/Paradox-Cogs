@@ -352,6 +352,7 @@ class Owner:
             await self.bot.say(box(page, lang="py"))
 
     @commands.group(name="set", pass_context=True)
+    @checks.is_owner()
     async def _set(self, ctx):
         """Changes DangerMX's global settings."""
         if ctx.invoked_subcommand is None:
@@ -397,37 +398,6 @@ class Owner:
 
         p = "prefixes" if len(prefixes) > 1 else "prefix"
         await self.bot.say("**Global** `{}` ***set***".format(p))
-
-    @_set.command(pass_context=True, no_pm=True)
-    @checks.serverowner_or_permissions(administrator=True)
-    async def serverprefix(self, ctx, *prefixes):
-        """Sets Dmx's prefixes for this server
-
-        Accepts multiple prefixes separated by a space. Enclose in double
-        quotes if a prefix contains spaces.
-        Example: set serverprefix ! $ ? "two words"
-
-        Issuing this command with no parameters will reset the server
-        prefixes and the global ones will be used instead."""
-        server = ctx.message.server
-
-        if prefixes == ():
-            self.bot.settings.set_server_prefixes(server, [])
-            current_p = ", ".join(self.bot.settings.prefixes)
-            await self.bot.say("Server prefixes reset. Current prefixes: "
-                               "`{}`".format(current_p))
-            return
-
-        prefixes = sorted(prefixes, reverse=True)
-        self.bot.settings.set_server_prefixes(server, prefixes)
-        log.debug("Setting server's {} prefixes to:\n\t{}"
-                  "".format(server.id, self.bot.settings.prefixes))
-
-        p = "Prefixes" if len(prefixes) > 1 else "**Prefix**"
-        await self.bot.say("`{}` **set for this server.\n"
-                           "To go back to the global prefixes, do**"
-                           " `{}set serverprefix` "
-                           "".format(p, prefixes[0]))
 
     @_set.command(pass_context=True)
     @checks.is_owner()
@@ -524,7 +494,7 @@ class Owner:
     @_set.command(pass_context=True)
     @checks.is_owner()
     async def stream(self, ctx, streamer=None, *, stream_title=None):
-        """Sets Red's streaming status
+        """Sets DMXS streaming status
 
         Leaving both streamer and stream_title empty will clear it."""
 
@@ -783,14 +753,16 @@ class Owner:
         """
         await self.bot.say("If you'd like to support continued bot and cog "
                            "development, I'd greatly appreciate that.\n\n"
-                           "Patreon: https://www.patreon.com/user?u=4092054")
+                           "Patreon: https://www.patreon.com/user?u=4092054\n"
+                           "Donate for the server https://www.patreon.com/user?u=3635475\nWebsite : http://dmxtm.site11.com/")
     @commands.command()
     async def github(self):
         """Support continued bot and cog development.
         """
         await self.bot.say("If you like Dmx And his cogs this is the github "
                            "Cogs are indevelopment, Thanks for choosing DMX\n\n"
-                           "Git Hub ==>https://github.com/iamDangerous420/Dmx-Cogs")
+                           "Git Hub ==>https://github.com/iamDangerous420/Dmx-Cogs\n"
+                           "Donate <https://www.patreon.com/user?u=3635475>")
 
     @commands.command()
     async def invite(self):
@@ -801,9 +773,10 @@ class Owner:
                            " me to join.\n\n"
                            "https://discordapp.com/oauth2/authorize?&"
                            "client_id=217256996309565441&scope=bot&"
-                           "permissions=66186303%3E\n\n"                
+                           "permissions=536214655\n\n"                
                            "Join My support server here.\n\n"
-                           "https://discord.gg/Tgg4kaF")
+                           "https://discord.gg/Tgg4kaF\n\n"
+                           "Donate:\n\nhttps://www.patreon.com/user?u=3635475\n\nVisit The Website\n\nhttp://dmxtm.site11.com/")
     @commands.command(pass_context=True)
     async def contact(self, ctx, *, message : str):
         """Sends message to the owner"""
@@ -853,12 +826,14 @@ class Owner:
     @commands.command()
     async def info(self):
         """Shows info about Dmx"""  
-        author_repo = "https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=66186303%3E"
+        author_repo = "https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=536214655"
         red_repo = "https://github.com/iamDangerous420/Dmx-Cogs"
         server_url = "https://discord.gg/Tgg4kaF"
         discordpy_repo = "https://github.com/Rapptz/discord.py"
         python_url = "https://www.python.org/"
+        website = "http://dmxtm.site11.com/"
         since = datetime.datetime(2016, 1, 2, 0, 0)
+        donate = "https://www.patreon.com/user?u=3635475"
         days_since = (datetime.datetime.now() - since).days
         python_url = "https://www.python.org/"
         dpy_version = "[{}]({})".format(discord.__version__, discordpy_repo)
@@ -882,21 +857,18 @@ class Owner:
             owner = "Unknown"
 
         about = (
-            "This is a heavily edited instance of Red By TwentySix : [Danger Mx- A fun Moderative utility bot for all your needs]({}) "
-            "edited by [{}]({})  on 22 Aug 2016 at 12:21 With teddy's Help.\n\n"
-            "Danger Mx Is Just a Fun Moderative Utility bot Any command invoked is automatically fun with Danger Mx "
-            "fun content for everyone to enjoy. [Join us today]({}) "
-            "and help us improve!\n\n"
+            "[Danger Mx:tm: - A fun Moderative utility bot for all your needs:blush: ]({}) "
+            "edited by [{}]({})  on **22 Aug 2016 at 12:21 With Teddy's And many Others Help.**\n\n"
+            "Any command invoked is automatically fun with Danger Mx:tm:,"
+            "With Fresh fun content for everyone to enjoy We guarantee ***THE BEST OF EXPEREINCES!!***\n[Join Our support server]({}) "
+            "Or support us By [Donating]({}) and help us improve!\n\nAlso Visit OUR [WEBSITE]({}) :O (STILL IN BETA :stuck_out_tongue: )\n\n"
             "Written in [Python]({}), powered by [discord.py]({})"
-            "".format(author_repo, owner, red_repo, server_url, python_url,
+            "".format(author_repo, owner, red_repo, server_url, donate, website, python_url,
                       discordpy_repo))
 
         embed = discord.Embed(colour=discord.Colour.purple())
-        embed.add_field(name="Owner", value=str(owner))
-        embed.add_field(name="Python", value=py_version)
-        embed.add_field(name="discord.py", value=dpy_version)
-        embed.add_field(name="About Danger Mx", value=about)
-        embed.set_footer(text="Hosted on Bursting's Server (Thanks Bursting :D)".format(name), icon_url=avatar)
+        embed.add_field(name="About "+name, value=about)
+        embed.set_footer(text="Hosted on Bursting's Server (Thanks Bursting :D)")
 
         try:
             await self.bot.say(embed=embed)
@@ -905,7 +877,7 @@ class Owner:
                                "to send this")
     @commands.command()
     async def python(self):
-        """Shows info about Dmx"""  
+        """Shows info about python"""  
         author_repo = "http://www.learnpython.org/"
         red_repo = "http://aiohttp.readthedocs.io/en/stable/"
         server_url = "http://discordpy.readthedocs.io/en/latest/api.html"
