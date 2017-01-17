@@ -546,50 +546,6 @@ class Owner:
             await self.bot.say("Token set. Restart me.")
             log.debug("Token changed.")
 
-    @checks.is_owner()
-    @commands.command(pass_context=True, no_pm=True)
-    async def sendcog(self, ctx, filepath: str):
-        fp = "cogs/{0}.py".format(filepath)
-        if os.path.exists(fp):
-            await self.bot.send_file(ctx.message.channel, fp)
-        else:
-            await self.bot.say(":x: **Cog** ***not found!***")
-
-    @checks.is_owner()
-    @commands.command(pass_context=True, no_pm=True)
-    async def listcogs(self, ctx):
-        """Shows the status of cogs.
-        + means the cog is loaded
-        - means the cog is unloaded
-        ? means the cog couldn't be found(it was probably removed manually)"""
-
-        all_cogs = dataIO.load_json("data/red/cogs.json")
-        loaded, unloaded, other = ("",)*3
-        cogs = self.bot.cogs['Owner']._list_cogs()
-
-        for x in all_cogs:
-            if all_cogs.get(x):
-                if x in cogs:
-                    loaded += "+\t{0}\n".format(x.split('.')[1])
-                else:
-                    other += "?\t{0}\n".format(x.split('.')[1])
-            elif x in cogs:
-                unloaded += "-\t{0}\n".format(x.split('.')[1])
-        await self.bot.say("```diff\n{0}{1}{2}```".format(loaded, unloaded, other))
-
-    @checks.is_owner()
-    @commands.command(pass_context=True, no_pm=True)
-    async def perms(self, ctx, user: discord.Member):
-        perms = iter(ctx.message.channel.permissions_for(user))
-        perms_we_have = "```diff\n"
-        perms_we_dont = ""
-        for x in perms:
-            if "True" in str(x):
-                perms_we_have += "+\t{0}\n".format(str(x).split('\'')[1])
-            else:
-                perms_we_dont += ("-\t{0}\n".format(str(x).split('\'')[1]))
-        await self.bot.say("{0}{1}```".format(perms_we_have, perms_we_dont))
-
     @commands.command(aliases=["die"])
     @checks.is_owner()
     async def shutdown(self):
