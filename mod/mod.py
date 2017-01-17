@@ -567,7 +567,7 @@ class Mod:
                                 action="Kick\N{WOMANS BOOTS}",
                                 mod=author,
                                 user=user)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: I've kicked `{}` outta Here :thumbsup: ".format(user.name).replace("`", ""))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** `{}` ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
         except Exception as e:
@@ -576,7 +576,7 @@ class Mod:
     @commands.command(no_pm=True, pass_context=True, aliases=["b"])
     @checks.admin_or_permissions(ban_members=True)
     async def ban(self, ctx, user: discord.Member, *, reason: str=None):
-        """Bans user does not log like red i broke it """
+        """Bans users does not log broken """
         author = ctx.message.author
         server = author.server
         channel = ctx.message.channel
@@ -587,9 +587,9 @@ class Mod:
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned**:heavy_check_mark: ***{}*** :hammer: The Fok outta **{}** :heavy_check_mark:".format(user.name, server.name))
+                await self.bot.say(" :punch: I've **Succesfully Banned** ***{}*** :hammer::white_check_mark:".format(user.name, server.name))
             except discord.errors.Forbidden:
-                await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :x: ")
+                await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user ¯\_(ツ)_/¯ :x: ")
             except Exception as e:
                 print(e)
             finally:
