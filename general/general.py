@@ -696,7 +696,7 @@ class General:
             msg = sub
         return msg
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,aliases=["av"])
     async def avatar(self, ctx, user : discord.Member = None):
         """Check out someones avatar !
         Or just cheack out your own by simply doing avatar.
@@ -706,8 +706,8 @@ class General:
         if user is None:
             user = ctx.message.author
         if user.avatar_url is None:
-            await self.bot.reply("User has no avatar")
-        em = discord.Embed(description="{0.name}'s avatar ==> Look at dat sexy avatar ;) ".format(user), colour=discord.Colour(value=colour))
+            await self.bot.reply(":x: **User has no avatar**")
+        em = discord.Embed(description="{0.name}'s avatar ↓ Sexy avatar ;)".format(user), colour=discord.Colour(value=colour))
         em.set_image(url=user.avatar_url)
         await self.bot.say(embed=em)
 
