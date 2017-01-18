@@ -71,15 +71,16 @@ class Utility:
                            "To go back to the global prefixes, do**"
                            " `{}set serverprefix` ".format(prefixes, prefixes[0]))
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["nick","setnick","setnickname"])
+    @checks.admin_or_permissions(manage_nicknames=True)
     async def nickname(self, ctx, *, nickname=""):
-        """Sets dmx's nickname
+        """Sets dmx's nickname (serverwise)
 
         Leaving this empty will remove it."""
         nickname = nickname.strip()
         if nickname == "":
-            nickname = self.bot.user.name
-            await self.bot.say(":thumbsup: Nickname **reverted** to ***`{}`***  :white_check_mark: ".format(nickname))
+            await self.bot.change_nickname(ctx.message.server.me, self.bot.user.name)
+            await self.bot.say(":thumbsup: Nickname **reverted** to ***`{}`***  :white_check_mark: ".format(self.bot.user.name))
             return
         try:
             await self.bot.change_nickname(ctx.message.server.me, nickname)
