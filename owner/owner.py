@@ -44,9 +44,8 @@ class OwnerUnloadWithoutReloadError(CogUnloadError):
     pass
 
 
-class Owner:
-    """All owner-only commands that relate to debug bot operations.
-    """
+class OwnerRelatedShitz:
+    """All owner-related commands"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -419,22 +418,6 @@ class Owner:
         else:
             await self.bot.send_cmd_help(ctx)
 
-    @_set.command(pass_context=True, no_pm=True)
-    @checks.is_owner()
-    async def nickname(self, ctx, *, nickname=""):
-        """Sets dmx's nickname
-
-        Leaving this empty will remove it."""
-        nickname = nickname.strip()
-        if nickname == "":
-            nickname = None
-        try:
-            await self.bot.change_nickname(ctx.message.server.me, nickname)
-            await self.bot.say(":thumbsup: Nickname changed to `{}`".format(nickname))
-        except discord.Forbidden:
-            await self.bot.say("I cannot do that, I lack the "
-                "\"Change Nickname\" permission.")
-
     @_set.command(pass_context=True)
     @checks.is_owner()
     async def game(self, ctx, *, game=None):
@@ -757,9 +740,9 @@ class Owner:
         except discord.errors.HTTPException:
             await self.bot.say("**Fam fam fam** ***FAMM*** :raised_hand: That message is ***WAAYY*** Too long.")
         except:
-            await self.bot.say("I'm unable to deliver your message. Sorry.")
+            await self.bot.say("I'm unable to deliver your message. Sorry. Join teh support server boi https://discord.io/dmxsupport U ken tell hem det dere am es speaking slang k tenks bai")
         else:
-            await self.bot.say("**Your message has been sent.** :ok_hand:")
+            await self.bot.say("**Your message has been sent.** :ok_hand:\nJoin our support server https://discord.io/dmxsupport")
 
     async def leave_confirmation(self, server, owner, ctx):
         if not ctx.message.channel.is_private:
@@ -980,6 +963,6 @@ def check_files():
 
 def setup(bot):
     check_files()
-    n = Owner(bot)
+    n = OwnerRelatedShitz(bot)
     bot.add_cog(n)
     bot.add_listener(n.server_locker, "on_server_join")
