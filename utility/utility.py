@@ -71,6 +71,23 @@ class Utility:
                            "To go back to the global prefixes, do**"
                            " `{}set serverprefix` ".format(prefixes, prefixes[0]))
 
+    @commands.command(pass_context=True, no_pm=True)
+    async def nickname(self, ctx, *, nickname=""):
+        """Sets dmx's nickname
+
+        Leaving this empty will remove it."""
+        nickname = nickname.strip()
+        if nickname == "":
+            nickname = self.bot.user.name
+            await self.bot.say(":thumbsup: Nickname **reverted** to ***`{}`***  :white_check_mark: ".format(nickname))
+            return
+        try:
+            await self.bot.change_nickname(ctx.message.server.me, nickname)
+            await self.bot.say(":thumbsup: Nickname changed to ***`{}`***  :white_check_mark: \n:bangbang:Please Note this change is only Serverwise and the bots default name is ***{}***".format(nickname, self.bot.user.name))
+        except discord.Forbidden:
+            await self.bot.say(":x:***I cannot do that, I lack the "
+                "\"Change Nickname\" permission.***:no_good:")
+
     @commands.command(pass_context=True)
     async def inrole(self, ctx, *, rolename):
         """Check members in the role totally didn't copy dex's eye emoji"""
