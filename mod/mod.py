@@ -668,7 +668,7 @@ class Mod:
             nickname = None
         try:
             await self.bot.change_nickname(user, nickname)
-            await self.bot.say("***Done.*** I've renamed **{}** to ***{)***".format(user.name, nickname))
+            await self.bot.say("***Done.*** I've renamed **{}** to ***{}***".format(user.name, nickname))
         except discord.Forbidden:
             await self.bot.say("I cannot do that, I lack the "
                 "\"Manage Nicknames\" permission.")
