@@ -523,7 +523,8 @@ class Mod:
     @commands.command(pass_context=True)
     @checks.admin_or_permissions(move_members=True)
     async def massmove(self, ctx, from_channel: discord.Channel, to_channel: discord.Channel):
-        """Massmove users to another voice channel"""
+        """Massmove users to another voice channel
+        Channel id's can also be used"""
         await self._massmove(ctx, from_channel, to_channel)
 
     async def _massmove(self, ctx, from_channel, to_channel):
@@ -667,7 +668,7 @@ class Mod:
             nickname = None
         try:
             await self.bot.change_nickname(user, nickname)
-            await self.bot.say("Done.")
+            await self.bot.say("***Done.*** I've renamed **{}** to ***{)***".format(user.name, nickname))
         except discord.Forbidden:
             await self.bot.say("I cannot do that, I lack the "
                 "\"Manage Nicknames\" permission.")
@@ -841,6 +842,7 @@ class Mod:
 
         Example:
         cleanup text \"test\" 5
+        cleant texthere 59
 
         Remember to use double quotes."""
 
@@ -892,8 +894,9 @@ class Mod:
         """Deletes last X messages from specified user.
 
         Examples:
-        cleanup user @\u200bTwentysix 2
-        cleanup user Red 6"""
+        cleanup user @\u200bfag 2
+        cleanup user gayboy 6
+        cleanu @dangermx 100"""
 
         channel = ctx.message.channel
         author = ctx.message.author
@@ -947,6 +950,7 @@ class Mod:
         and copy its id.
 
         This command only works on bots running as bot accounts.
+        alias is cleana 
         """
 
         channel = ctx.message.channel
@@ -986,7 +990,8 @@ class Mod:
         """Deletes last X messages.
 
         Example:
-        cleanup messages 26"""
+        cleanup messages 26
+        Cleanu 10"""
 
         channel = ctx.message.channel
         author = ctx.message.author
@@ -1017,7 +1022,8 @@ class Mod:
 
     @cleanup.command(pass_context=True, no_pm=True, name='bot')
     async def cleanup_bot(self, ctx, number: int):
-        """Cleans up command messages and messages from the bot"""
+        """Cleans up command messages and messages from the bot
+        an alias is prune"""
 
         channel = ctx.message.channel
         author = ctx.message.author
