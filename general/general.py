@@ -436,16 +436,19 @@ class General:
         a.colour = colour
         await self.bot.send_message(msg.channel, embed = a)
 
-    @commands.command()
-    async def choose(self, *choices):
+    @commands.command(pass_context=True)
+    async def choose(self, ctx, *choices):
         """Chooses between multiple choices.
         To denote multiple choices, you should use double quotes.
         """
+        channel = ctx.message.channel
         choices = [escape_mass_mentions(choice) for choice in choices]
         if len(choices) < 2:
-            await self.bot.say('Not enough choices to pick from.')
+            em = discord.Embed(description=':no_good: ***Not enough choices to pick from.***', color=discord.Color.purple())
         else:
-            await self.bot.say(randchoice(choices))
+            await self.bot.send_typing(channel)
+            em = discord.Embed(description=(randchoice(choices)), color=discord.Color.purple())
+        await self.bot.send_message(channel, embed = em)
 
     @commands.command(pass_context=True)
     async def ping(self,ctx):
@@ -468,18 +471,6 @@ class General:
         pingms = await self.bot.say("pinging server...")
         ping = time.time() - pingtime
         await self.bot.edit_message(pingms, "It took **%.01f** secs" % (ping) + " to ping.")
-
-    @commands.command(pass_context=True)
-    async def roll(self, ctx, number : int = 100):
-        """Rolls random number (between 1 and user choice)
-        Defaults to 100.
-        """
-        author = ctx.message.author
-        if number > 1:
-            n = randint(1, number)
-            await self.bot.say("{} :game_die: {} :game_die:".format(author.mention, n))
-        else:
-            await self.bot.say("{} Maybe higher than 1? ;P".format(author.mention))
 
     @commands.command(pass_context=True)
     async def flip(self, ctx, user : discord.Member=None):
@@ -529,7 +520,8 @@ class General:
                     title = result['query']['pages'][page]['title']
                     description = result['query']['pages'][page]['extract'].replace('\n', '\n\n')
                 em = discord.Embed(title='Wikipedia: {}'.format(title), description='\a\n{}...\n\a'.format(description[:-3]), color=discord.Color.blue(), url='https://en.wikipedia.org/wiki/{}'.format(title.replace(' ', '_')))
-                em.set_footer(text='Information provided by Wikimedia', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Wikimedia-logo.png/600px-Wikimedia-logo.png')
+                em.set_footer(text='Information provided by Wikpedia', icon_url='https://cdn.discordapp.com/attachments/269293047962009602/271785805020659713/1122px-Wikipedia-logo-v2.png')
+                em.set_thumbnail(url='https://cdn.discordapp.com/attachments/269293047962009602/271785829142102017/250px-Wikipedia-logo-v2-en.png')
                 await self.bot.say(embed=em)
             else:
                 message = 'I\'m sorry, I can\'t find {}'.format(''.join(query))
