@@ -1,3 +1,4 @@
+
 import discord
 from discord.ext import commands
 from cogs.utils import checks
@@ -44,7 +45,7 @@ class OwnerUnloadWithoutReloadError(CogUnloadError):
     pass
 
 
-class OwnerRelatedShitz:
+class Owner:
     """All owner-related commands"""
 
     def __init__(self, bot):
@@ -287,7 +288,7 @@ class OwnerRelatedShitz:
         for page in pagify(msg, [" "], shorten_by=16):
             await self.bot.say(box(page.lstrip(" "), lang="diff"))
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(pass_context=True, hidden=True, aliases=["d"])
     @checks.is_owner()
     async def debug(self, ctx, *, code):
         """Evaluates code"""
@@ -625,7 +626,7 @@ class OwnerRelatedShitz:
             log.debug('Leaving "{}"'.format(message.server.name))
             await self.bot.leave_server(message.server)
         else:
-            await self.bot.say("Guess im staying in {} then ¯\_(ツ)_/¯.".format(server.name))
+            await self.bot.say("Guess im staying in {} then ¯\_(ツ)_/¯.".format(ctx.message.server.name))
 
     @commands.command(pass_context=True)
     @checks.is_owner()
@@ -686,36 +687,50 @@ class OwnerRelatedShitz:
         ret += " members.\n"
         await self.bot.say(ret)
 
-    @commands.command()
-    async def support(self):
+    @commands.command(pass_context=True)
+    async def support(self, ctx):
         """Support continued bot and cog development.
         """
-        await self.bot.say("If you'd like to support continued bot and cog "
-                           "development, I'd greatly appreciate that.\n\n"
-                           "Patreon: https://www.patreon.com/user?u=4092054\n"
-                           "Donate for the server https://www.patreon.com/user?u=3635475\nWebsite : http://dmxtm.site11.com/")
-    @commands.command()
-    async def github(self):
+        donate = "https://www.patreon.com/user?u=3635475"
+        donate2 = "https://www.patreon.com/user?u=4092054"
+        msg = "If you'd like to support continued bot and cog development, I'd greatly appreciate that.\n\n"
+        em = discord.Embed(description=msg, color=discord.Color.purple())
+        if self.bot.user.avatar_url:
+            em.add_field(name="Donate", value="[Click Here to support the Bot hosting server]({})".format(donate))
+            em.add_field(name="Donate To Dangerous", value="[Click Here to support the cause]({})".format(donate2))
+        await self.bot.send_message(ctx.message.channel, embed=em)
+    @commands.command(pass_context=True)
+    async def github(self, ctx):
         """Support continued bot and cog development.
         """
-        await self.bot.say("If you like Dmx And his cogs this is the github "
-                           "Cogs are indevelopment, Thanks for choosing DMX\n\n"
-                           "Git Hub ==>https://github.com/iamDangerous420/Dmx-Cogs\n"
-                           "Donate <https://www.patreon.com/user?u=3635475>")
+        donate = "https://www.patreon.com/user?u=3635475"
+        git = "https://github.com/iamDangerous420/Dmx-Cogs/"
+        inv ="https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=536214655"
+        msg = "***If you like Dmx And his cogs this is the github Cogs are indevelopment, Thanks for choosing DMX:thumbsup:***"
+        em = discord.Embed(description=msg, color=discord.Color.purple())
+        if self.bot.user.avatar_url:
+            em.add_field(name="Invite Link", value="[Invite me mate]({})".format(inv))
+            em.add_field(name="Github", value="[All Code on the bot ]({})".format(git))
+            em.add_field(name="Donate", value="[Support the Bot hosting server]({})".format(donate))
+        await self.bot.send_message(ctx.message.channel, embed=em)
 
-    @commands.command()
-    async def invite(self):
+    @commands.command(pass_context=True)
+    async def invite(self, ctx):
         """Invite me to a new server"""
-        await self.bot.whisper("You must have manage server permissions in order"
-                           " to add me to a new server. If you do, just click"
-                           " the link below and select the server you wish for"
-                           " me to join.\n\n"
-                           "https://discordapp.com/oauth2/authorize?&"
-                           "client_id=217256996309565441&scope=bot&"
-                           "permissions=536214655\n\n"                
-                           "Join My support server here.\n\n"
-                           "https://discord.gg/Tgg4kaF\n\n"
-                           "Donate:\n\nhttps://www.patreon.com/user?u=3635475\n\nVisit The Website\n\nhttp://dmxtm.site11.com/")
+        donate = "https://www.patreon.com/user?u=3635475"
+        donate2 = "https://www.patreon.com/user?u=4092054"
+        sinv = "https://discord.gg/Tgg4kaF"
+        inv ="https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=536214655"
+        msg = "***You must have manage server permissions in order to add me to a new server. If you do, just click the link below and select the server you wish for me to join.***"
+        em = discord.Embed(description=msg, color=discord.Color.purple(), timestamp=__import__('datetime').datetime.utcnow())
+        if self.bot.user.avatar_url:
+            em.set_author(name="", url=self.bot.user.avatar_url)
+            em.set_footer(text="Currently in {} Servers 🎇".format(len(self.bot.servers)), icon_url=self.bot.user.avatar_url)
+            em.add_field(name="Invite Link", value="[Invite me mate]({})".format(inv))
+            em.add_field(name="Support Server", value="[Join Here For Support]({})".format(sinv))
+            em.add_field(name="Donate", value="[Support the Bots hosting server]({})".format(donate))
+        await self.bot.send_message(ctx.message.channel, embed=em)
+
     @commands.command(pass_context=True)
     async def contact(self, ctx, *, message : str):
         """Sends message to the owner"""
@@ -963,6 +978,6 @@ def check_files():
 
 def setup(bot):
     check_files()
-    n = OwnerRelatedShitz(bot)
+    n = Owner(bot)
     bot.add_cog(n)
     bot.add_listener(n.server_locker, "on_server_join")
