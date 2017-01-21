@@ -237,6 +237,7 @@ class Audio:
 
     def __init__(self, bot, player):
         self.bot = bot
+        self.players = {}
         self.queue = {}  # add deque's, repeat
         self.downloaders = {}  # sid: object
         self.settings = dataIO.load_json("data/audio/settings.json")
@@ -1167,7 +1168,7 @@ class Audio:
                 pass
         await self.bot.send_message(channell, "**Done!**")
 
-    @commands.command( pass_context=True, no_pm=True)
+    @commands.command( pass_context=True, no_pm=True,aliases=["joinme","connect"])
     async def summon(self, ctx):
         """Joins your voice channel"""
         author = ctx.message.author
@@ -1600,6 +1601,21 @@ class Audio:
             else:
                 await self.bot.say(":play_pause: **Play something to see this setting.**")
 
+    @repeat.command(pass_context=True, no_pm=True, name="song")
+    async def repeat_song(self, ctx):
+        """repeats one song"""
+        server = ctx.message.server
+        if not self.is_playing(server):
+            await self.bot.say(":anger: **I'm Not playing how am i going to** ***repeat*** "
+                               " **Try playing something first.*** :thumbsup:")
+            return
+
+        self._set_song_repeat(server, not self.song[server.id]["REPEAT"])
+        repeat = self.song[server.id]["REPEAT"]
+        if repeat:
+            await self.bot.say(":arrows_clockwise: **I've Toggled repeat for this song** :arrows_counterclockwise: :thumbsup:")
+        else:
+            await self.bot.say(":twisted_rightwards_arrows:**I've UnToggled repeat for this song** :thumbsup:")
     @repeat.command(pass_context=True, no_pm=True, name="toggle")
     async def repeat_toggle(self, ctx):
         """Flips repeat setting."""
@@ -1735,6 +1751,15 @@ class Audio:
         return is_owner or is_server_owner or is_admin or is_mod or alone
 
     @commands.command(pass_context=True, no_pm=True)
+    async def playingwhere(self):
+        server = []
+        avcs = []
+        for vc in self.bot.voice_clients:
+            if hasattr(vc, 'audio_player') and not vc.audio_player.is_done():
+                avcs.append(vcserver.name)
+        await self.bot.say("**↓Im currently playing in:↓**\n" + "\n".join(avcs))
+
+    @commands.command(pass_context=True, no_pm=True)
     async def tunes(self, ctx):
         """Make Danger MX Play a dank song WARNING CONTAINS EAR RAPE"""
         ids = ("KT7W9oJP6BI", "1b2we5jOKXA", "5m5q8BiqrlQ", "rL11QgXr2Ug",
@@ -1823,7 +1848,7 @@ class Audio:
             if ctx.message.author.voice_channel == server.me.voice_channel:
                 if self.can_instaskip(ctx.message.author):
                     await self.bot.say(':raised_hand: ***Stopping*** :stop_button:')
-                    await self._stop_and_disconnect(server)
+                    self._stop(server)
                 else:
                     await self.bot.say(":bangbang: :x: **You can't stop music when there are other"
                                        " people in the channel!** ***Vote to skip"
