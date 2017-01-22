@@ -46,13 +46,12 @@ class AntiLink:
             if len(db["Blacklisted"]) != 0:
                 words = "- {}".format("\n-".join(["{}".format(x) for x in db["Blacklisted"]]))
             else:
-                words = "No Links/Words blacklisted for this server"
-            colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
-            colour = int(colour, 16)
+                words = ":x:***No Links/Words blacklisted for this server***"
+            colour = discord.Color.purple()
             status = (str(db["Toggle"]).replace("True", "Enabled")).replace("False", "Disabled")
             e = discord.Embed()
             e.colour = colour
-            e.description = "Showing AntiLink Settings For {0}\nDo {1.prefix}help {1.command.qualified_name} for more info".format(server.name, ctx)
+            e.description = "**Showing AntiLink Settings For** **{0}**\n**Do** *`{1.prefix}help {1.command.qualified_name}`* ***for more info***".format(server.name, ctx)
             e.set_author(name = "AntiLink Settings")
             e.add_field(name = "AntiLink Status", value = status)
             e.add_field(name = "AntiInvite Enabled", value = db["No Invite"])
@@ -73,9 +72,9 @@ class AntiLink:
         db = fileIO(self.link_data, "load")
         db[server.id]["Toggle"] = not db[server.id]["Toggle"]
         if db[server.id]["Toggle"] is True:
-            msg = "Successfully Enabled the Antilinks System\nNote: I need the \"Manage Messages\" Permission to delete messages"
+            msg = ":bangbang:***Successfully Enabled the `Antilinks System`***\n**Note:** ***I need the \"Manage Messages\" Permission to delete messages\nTo enable antilinks and antiinvite do***  ***`{1.prefix}antilink antiinvite/ antilink links /addword`\n or Just do {1.prefix}help Antilink***".format(ctx, ctx)
         else:
-            msg = "I have successfully disabled the Antilinks System."
+            msg = ":bangbang:**I have successfully disabled the Antilinks System.** :thumbsup:"
         await self.bot.reply(msg)
         fileIO(self.link_data, "save", db)
 
@@ -86,9 +85,9 @@ class AntiLink:
         db = fileIO(self.link_data, "load")
         db[server.id]["No Invite"] = not db[server.id]["No Invite"]
         if db[server.id]["No Invite"] is True:
-            msg = "Successfully Enabled AntiInvite\nI will delete all invite links from now on\nNote: I need the \"Manage Messages\" Permission to delete messages"
+            msg = ":bangbang:***Successfully Enabled AntiInvite\nI will delete all invite links from now on\nNote: I need the `\"Manage Messages\"` Permission to delete messages***"
         else:
-            msg = "I have successfully disabled antiinvite."
+            msg = ":bangbang:**I have successfully disabled antiinvite.** :wave:"
         await self.bot.reply(msg)
         fileIO(self.link_data, "save", db)
         
@@ -99,9 +98,9 @@ class AntiLink:
         db = fileIO(self.link_data, "load")
         db[server.id]["Toggle Blacklist"] = not db[server.id]["Toggle Blacklist"]
         if db[server.id]["Toggle Blacklist"] is True:
-            msg = "Successfully Enabled Antilinks\nI will delete all blacklisted links/words from now on\nNote: I need the \"Manage Messages\" Permission to delete messages"
+            msg = ":bangbang:***Successfully Enabled Antilinks\nI will delete all blacklisted links/words from now on\nNote: I need the `\"Manage Messages\"` Permission to delete messages***"
         else:
-            msg = "I have successfully disabled Antilinks and will not delete blacklisted links/words from now on."
+            msg = ":bangbang:***I have successfully disabled Antilinks and will not delete blacklisted links/words from now on.***:thumbsup:"
         await self.bot.reply(msg)
         fileIO(self.link_data, "save", db)
 
@@ -110,18 +109,18 @@ class AntiLink:
         """Adds word to the blacklist
         Note: You can add mutiple words to the blacklist
         Usage:
-        =antilink adword \"This is taken as a word\" linka linkb linkc
-        =antilink addword linka linkb linkc
-        =antilink addword \"blacklisted word\""""
+        ~antilink adword \"This is taken as a word\" linka linkb linkc
+        ~antilink addword linka linkb linkc
+        ~antilink addword \"blacklisted word\""""
         server = ctx.message.server
         data = fileIO(self.link_data, "load")
         if not words:
-            await self.bot.reply("Please pass the words/links you want me to blacklist")
+            await self.bot.reply(":bangbang:**Please pass the** ***`words/links`*** **you want me to** ***blacklist***")
             return
         for word in words:
             data[server.id]["Blacklisted"][word] = True
         wordlist = " , ".join(["\"{}\"".format(e) for e in words])
-        fmt = "Successfully added these words to the list.\n{}".format(wordlist)
+        fmt = ":bangbang:**Successfully** added these words to the list.\n***{}***".format(wordlist)
         await self.bot.reply(fmt)
         fileIO(self.link_data, "save", data)
 
@@ -130,13 +129,13 @@ class AntiLink:
         """Adds word to the blacklist
         Note: You can add mutiple words to the blacklist
         Usage:
-        =antilink add \"This is taken as a word\" linka linkb linkc
-        =antilink add linka linkb linkc
-        =antilink add \"blacklisted word\""""
+        ~antilink add \"This is taken as a word\" linka linkb linkc
+        ~antilink add linka linkb linkc
+        ~antilink add \"blacklisted word\""""
         server = ctx.message.server
         data = fileIO(self.link_data, "load")
         if not words:
-            await self.bot.reply("Please pass the words/links you want me to blacklist")
+            await self.bot.reply(":bangbang:**Please pass the** ***`words/links`*** **you want me to** ***blacklist***")
             return
         in_word = []
         for word in words:
@@ -144,7 +143,7 @@ class AntiLink:
                 in_word.append(word)
                 del data[server.id]["Blacklisted"][word]
         wordlist = " , ".join(["\"{}\"".format(e) for e in in_word])
-        fmt = "Successfully removed these words from the list.\n{}".format(wordlist)
+        fmt = ":bangbang:**Successfully** removed these words from the list.\n***{}***".format(wordlist)
         await self.bot.reply(fmt)
         fileIO(self.link_data, "save", data)
 
@@ -200,7 +199,7 @@ class AntiLink:
                 except discord.Forbidden:
                     pass
                 except discord.NotFound:
-                    fmt = "{0.author.mention}, **Please do not send invite links in this server**".format(message)
+                    fmt = "{0.author.mention},:x: **Please do not send invite links in this server**:thumbsdown:".format(message)
                     try: 
                         await self.bot.send_message(channel, fmt)
                     except discord.Forbidden:
@@ -209,7 +208,7 @@ class AntiLink:
                         except discord.Forbidden:
                             pass
                 else:
-                    fmt = "{0.author.mention}, **Please do not send invite links in this server**".format(message)
+                    fmt = "{0.author.mention},:x: **Please do not send invite links in this server**:thumbsdown:".format(message)
                     try: 
                         await self.bot.send_message(channel, fmt)
                     except discord.Forbidden:
@@ -304,7 +303,7 @@ class AntiLink:
                     except discord.Forbidden:
                         pass
                     except discord.NotFound:
-                        fmt = "{0.author.mention}, **Please do not send invite links in this server**".format(message)
+                        fmt = "{0.author.mention},:x: **Please do not send invite links in this server**:thumbsdown:".format(message)
                         try: 
                             await self.bot.send_message(channel, fmt)
                         except discord.Forbidden:
@@ -313,7 +312,7 @@ class AntiLink:
                             except discord.Forbidden:
                                 pass
                     else:
-                        fmt = "{0.author.mention}, **Please do not send invite links in this server**".format(message)
+                        fmt = "{0.author.mention},:x: **Please do not send invite links in this server**:thumbsdown:".format(message)
                         try: 
                             await self.bot.send_message(channel, fmt)
                         except discord.Forbidden:
