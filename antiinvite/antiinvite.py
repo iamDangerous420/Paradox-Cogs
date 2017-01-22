@@ -72,7 +72,7 @@ class AntiLink:
         db = fileIO(self.link_data, "load")
         db[server.id]["Toggle"] = not db[server.id]["Toggle"]
         if db[server.id]["Toggle"] is True:
-            msg = ":bangbang:***Successfully Enabled the `Antilinks System`***\n**Note:** ***I need the \"Manage Messages\" Permission to delete messages\nTo enable antilinks and antiinvite do***  ***`{1.prefix}antilink antiinvite/ antilink links /addword`\n or Just do {1.prefix}help Antilink***".format(ctx, ctx)
+            msg = ":bangbang:***Successfully Enabled the `Antilinks System`***\n**Note:** ***I need the \"Manage Messages\" Permission to delete messages\nTo enable antilinks and antiinvite do***  ***`{1.prefix}antilink antiinvite/ antilink links /addword`\n or Just do {1.prefix}help antilink***".format(ctx, ctx)
         else:
             msg = ":bangbang:**I have successfully disabled the Antilinks System.** :thumbsup:"
         await self.bot.reply(msg)
