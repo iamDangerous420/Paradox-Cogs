@@ -55,7 +55,7 @@ class AntiLink:
             e.set_author(name = "AntiLink Settings")
             e.add_field(name = "AntiLink Status", value = status)
             e.add_field(name = "AntiInvite Enabled", value = db["No Invite"])
-            e.add_field(name = "AntiLinks Enabled", value = db["Toggle Blacklist"])
+            e.add_field(name = "AntiLinks/Words Enabled", value = db["Toggle Blacklist"])
             e.add_field(name = "Blacklisted Words", value = words, inline = False)
             e.set_footer(text = "AntiLink Settings", icon_url = server.icon_url)
             e.timestamp = ctx.message.timestamp
@@ -91,7 +91,7 @@ class AntiLink:
         await self.bot.reply(msg)
         fileIO(self.link_data, "save", db)
         
-    @antilink.command(pass_context = True)
+    @antilink.command(pass_context = True, aliases=["words"])
     async def links(self, ctx):
         """Enables or Disables the Antilink by alan"""
         server = ctx.message.server
