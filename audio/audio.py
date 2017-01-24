@@ -1752,13 +1752,12 @@ class Audio:
 
     @commands.command(pass_context=True, no_pm=True)
     async def playingwhere(self):
-        server = []
-        avcs = []
-        for vc in self.bot.voice_clients:
-            if hasattr(vc, 'audio_player') and not vc.audio_player.is_done():
-                avcs.append(vcserver.name)
-        await self.bot.say("**↓Im currently playing in:↓**\n" + "\n".join(avcs))
-
+        """Lists the servers it's playing in"""
+        list = []
+        for e in self.bot.servers:
+            if e.me.voice_channel is not None:
+                list.append(e.name)
+        await self.bot.say(list)
     @commands.command(pass_context=True, no_pm=True)
     async def tunes(self, ctx):
         """Make Danger MX Play a dank song WARNING CONTAINS EAR RAPE"""
