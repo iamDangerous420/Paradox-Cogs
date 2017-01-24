@@ -1750,7 +1750,7 @@ class Audio:
 
         return is_owner or is_server_owner or is_admin or is_mod or alone
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["pw"])
     async def playingwhere(self):
         """Lists the servers it's playing in"""
         list = []
