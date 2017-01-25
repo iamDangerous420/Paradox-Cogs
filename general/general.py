@@ -424,8 +424,6 @@ class General:
                 msg = m
         else:
             msg = await self.bot.get_message(ctx.message.channel, id = str(message_id))
-        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
-        colour = int(colour, 16) 
         owner = msg.author.name+"#"+msg.author.discriminator+" ("+msg.id+")" 
         a = discord.Embed()
         a.description = msg.content
@@ -433,7 +431,7 @@ class General:
         a.set_author(name=owner, icon_url=avatar)
         a.set_footer(text="Msg sent at ")
         a.timestamp = msg.timestamp
-        a.colour = colour
+        a.colour = discord.Color.purple()
         await self.bot.send_message(msg.channel, embed = a)
 
     @commands.command(pass_context=True)
@@ -462,7 +460,8 @@ class General:
         t2 = time.perf_counter()
         if user.nick is None:
             user.nick=user.name
-        em = discord.Embed(description="Hey _{}!!_  the bloody ping is ==> _{}ms_ Das a mad ting rite!?!".format(user.nick, round((t2-t1)*1000)), colour=discord.Colour(value=colour))
+        em = discord.Embed(description=":ping_pong:\n\n***{}ms Latency Detected :robot:***".format(round((t2-t1)*1000)), color=discord.Color.purple())
+        em.set_thumbnail(url=self.bot.user.avatar_url)
 
         await self.bot.say(embed=em)
     @commands.command(pass_context=True)
@@ -537,7 +536,7 @@ class General:
         em.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar_url)
         em.set_footer(text=randchoice(self.ball), icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwOi8vY29jaGlzZWJpbGxpYXJkcy5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTUvMTAvOGJhbGwucG5nIn0.Zd5xXVHeFbamUjFRxvcv1yAJ9pM')
         await self.bot.say(embed=em)
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["gsinv"])
     async def gsinvite(self, ctx):
         """Get a invite to the current server"""
 
@@ -595,7 +594,7 @@ class General:
         if search_type[0] == "image":
             search_valid = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+1:].lower())
             if search_valid == "image":
-                await self.bot.say("Please actually search something")
+                await self.bot.say(":neutralFace: Please ***actually search something*** :/")
             else:
                 uri = "https://www.google.com/search?tbm=isch&tbs=isz:m&q="
                 quary = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+7:].lower())
@@ -610,13 +609,13 @@ class General:
                         url = query_find[0]
                         await self.bot.say(url)
                     except IndexError:
-                        await self.bot.say("Your search yielded no results.")
+                        await self.bot.say(":interrobang: Your search yielded no results.")
             #End of Image
         #Start of Image random
         elif search_type[0] == "images":
             search_valid = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+1:].lower())
             if search_valid == "image":
-                await self.bot.say("Please actually search something")
+                await self.bot.say(":neutralFace: Please ***actually search something*** :/")
             else:
                 uri = "https://www.google.com/search?tbm=isch&tbs=isz:m&q="
                 quary = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+7:].lower())
@@ -627,16 +626,16 @@ class General:
                     unicoded = test.decode("unicode_escape")
                     query_find = re.findall(regex[0], unicoded)
                     try:
-                        url = choice(query_find)
+                        url = query_find[0]
                         await self.bot.say(url)
                     except IndexError:
-                        await self.bot.say("Your search yielded no results.")
+                        await self.bot.say(":interrobang: Your search yielded no results.")
             #End of Image random
         #Start of Maps
         elif search_type[0] == "maps":
             search_valid = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+1:].lower())
             if search_valid == "maps":
-                await self.bot.say("Please actually search something")
+                await self.bot.say(":neutralFace: Please ***actually search something*** :/")
             else:
                 uri = "https://www.google.com/maps/search/"
                 quary = str(ctx.message.content[len(ctx.prefix+ctx.command.name)+6:].lower())
@@ -872,7 +871,7 @@ class General:
         data.add_field(name="Total emojis", value="{} ".format(len(server.emojis)))
 
         data.set_footer(text="🆔 Server ID ⇒  " + server.id)
-        if len(str(server.emojis)) < 4024 and server.emojis:
+        if len(str(server.emojis)) < 6024 and server.emojis:
             data.add_field(name="Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
         elif len(str(server.emojis)) >= 4024:
             data.add_field(name=":x:Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
