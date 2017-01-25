@@ -10,6 +10,7 @@ from collections import deque, defaultdict
 from cogs.utils.chat_formatting import escape_mass_mentions, box
 import os
 import re
+import urllib
 import logging
 import asyncio
 import json
@@ -197,7 +198,7 @@ class Mod:
             await self.bot.say(" :bangbang:  Removing roles failed! Possibly due to role hierachy, or the bot not having perms:bangbang: ")
             return
 
-    @commands.command(no_pm=True, pass_context=True)
+    @commands.command(no_pm=True, pass_context=True, aliases=["ar"])
     @checks.admin_or_permissions(manage_roles=True)
     async def addrole(self, ctx, rolename, user: discord.Member=None):
         """Adds a role to a user, defaults to author
@@ -223,8 +224,8 @@ class Mod:
         await self.bot.add_roles(user, role)
         await self.bot.say(":bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:".format(role.name, user.name).replace("`", ""))
 
-    @commands.command(pass_context=True, no_pm=True)
-    @checks.mod_or_permissions(manage_roles=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=["cr"])
+    @checks.admin_or_permissions(manage_roles=True)
     async def createrole(self, ctx, *, rolename: str = None):
         """Create a role using the bot The role will be listed at the bottom of role list."""
         if rolename is None:
@@ -236,7 +237,8 @@ class Mod:
         message = ":bangbang: I've **Succesfully** created the role `{}` :thumbsup:".format(name)
         await self.bot.say(message)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["dr"])
+    @checks.admin_or_permissions(manage_roles=True)
     async def deleterole(self, ctx, rolename):
         """Deletes an existing role. Bot must be above the role "Role hierachy" mate"""
         channel = ctx.message.channel
@@ -687,7 +689,7 @@ class Mod:
         await self.bot.delete_message(reply)
 
     @commands.command(pass_context=True)
-    @checks.mod_or_permissions(manage_messages=True)
+    @checks.admin_or_permissions(manage_messages=True)
     async def spam(self, ctx, user : discord.Member, number : int=30):
         """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
         if user.id == "187570149207834624" or user.id == "217256996309565441":
@@ -701,8 +703,9 @@ class Mod:
             await self.bot.send_message(user, "***You got spamed punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(counter, ctx.message.author))
             counter = counter + 1
         await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
+
     @commands.command(pass_context=True)
-    @checks.mod_or_permissions(manage_messages=True)
+    @checks.admin_or_permissions(manage_messages=True)
     async def tspam(self, ctx, user : discord.Member, spamtext, number : int=30):
         """same as normal spam but with text default 30
         If it doesn't work first try probs cause yo message to long so use ==> "" """
@@ -718,7 +721,7 @@ class Mod:
             counter = counter + 1
         await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
     @commands.command(pass_context=True)
-    @checks.mod_or_permissions()
+    @checks.admin_or_permissions(manage_messages=True)
     async def cspam(self, ctx, spamtext, number : int=10):
         """Spams the channel, default =10."""
         user = ctx.message.author
@@ -727,7 +730,7 @@ class Mod:
             await self.bot.say("{}, sent by **{}**.".format(spamtext, user.name))
             counter = counter + 1
     @commands.command(pass_context=True)
-    @checks.mod_or_permissions()
+    @checks.admin_or_permissions(manage_messages=True)
     async def gcspam(self, ctx, spamtext, number : int=10):
         """Spams x times in the channel anonymously, default is 10."""
 
