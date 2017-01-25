@@ -5,6 +5,8 @@ import os
 from random import shuffle, choice
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
+from cogs.utils.chat_formatting import pagify
+from urllib.parse import urlparse
 from __main__ import send_cmd_help, settings
 from json import JSONDecodeError
 import re
@@ -129,9 +131,12 @@ class Song:
 class Playlist:
     def __init__(self, server=None, sid=None, name=None, author=None, url=None,
                  playlist=None, path=None, main_class=None, **kwargs):
+        # when is this used? idk
+        # what is server when it's global? None? idk
         self.server = server
         self._sid = sid
         self.name = name
+        # this is an id......
         self.author = author
         self.url = url
         self.main_class = main_class  # reference to Audio
@@ -152,8 +157,45 @@ class Playlist:
                "link": self.url}
         return ret
 
+    def is_author(self, user):
+        """checks if the user is the author of this playlist
+        Returns True/False"""
+        return user.id == self.author
+
+    def can_edit(self, user):
+        """right now checks if user is mod or higher including server owner
+        global playlists are uneditable atm
+        dev notes:
+        should probably be defined elsewhere later or be dynamic"""
+
+        # I don't know how global playlists are handled.
+        # Not sure if the framework is there for them to be editable.
+        # Don't know how they are handled by Playlist
+        # Don't know how they are handled by Audio
+        # so let's make sure it's not global at all.
+        if self.main_class._playlist_exists_global(self.name):
+            return False
+
+        admin_role = settings.get_server_admin(self.server)
+        mod_role = settings.get_server_mod(self.server)
+
+        is_playlist_author = self.is_author(user)
+        is_bot_owner = user.id == settings.owner
+        is_server_owner = self.server.owner.id == self.author
+        is_admin = discord.utils.get(user.roles, name=admin_role) is not None
+        is_mod = discord.utils.get(user.roles, name=mod_role) is not None
+
+        return any((is_playlist_author,
+                    is_bot_owner,
+                    is_server_owner,
+                    is_admin,
+                    is_mod))
+
+
+    # def __del__() ?
+
     def append_song(self, author, url):
-        if author.id != self.author:
+        if not self.can_edit(author):
             raise UnauthorizedSave
         elif not self.main_class._valid_playable_url(url):
             raise InvalidURL
@@ -237,7 +279,6 @@ class Audio:
 
     def __init__(self, bot, player):
         self.bot = bot
-        self.players = {}
         self.queue = {}  # add deque's, repeat
         self.downloaders = {}  # sid: object
         self.settings = dataIO.load_json("data/audio/settings.json")
@@ -593,14 +634,6 @@ class Audio:
             log.exception(e)
             raise ConnectTimeout("We timed out connecting to a voice channel")
 
-    def _list_local_playlists(self):
-        ret = []
-        for thing in os.listdir(self.local_playlist_path):
-            if os.path.isdir(os.path.join(self.local_playlist_path, thing)):
-                ret.append(thing)
-        log.debug("local playlists:\n\t{}".format(ret))
-        return ret
-
     def _list_playlists(self, server):
         try:
             server = server.id
@@ -616,36 +649,6 @@ class Audio:
         else:
             new_playlists = []
         return list(set(old_playlists + new_playlists))
-
-    def _load_playlist(self, server, name, local=True):
-        try:
-            server = server.id
-        except:
-            pass
-
-        f = "data/audio/playlists"
-        if local:
-            f = os.path.join(f, server, name + ".txt")
-        else:
-            f = os.path.join(f, name + ".txt")
-        kwargs = dataIO.load_json(f)
-
-        kwargs['path'] = f
-        kwargs['main_class'] = self
-        kwargs['name'] = name
-        kwargs['sid'] = server
-
-        return Playlist(**kwargs)
-
-    def _local_playlist_songlist(self, name):
-        dirpath = os.path.join(self.local_playlist_path, name)
-        return sorted(os.listdir(dirpath))
-
-    def _make_local_song(self, filename):
-        # filename should be playlist_folder/file_name
-        folder, song = os.path.split(filename)
-        return Song(name=song, id=filename, title=song, url=filename,
-                    webpage_url=filename)
 
     def _make_playlist(self, author, url, songlist):
         try:
@@ -680,6 +683,12 @@ class Audio:
         yt_link = re.compile(
             r'^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.?be)\/.+$')
         if yt_link.match(url):
+            return True
+        return False
+
+    def _match_any_url(self, url):
+        url = urlparse(url)
+        if url.scheme and url.netloc and url.path:
             return True
         return False
 
@@ -787,6 +796,16 @@ class Audio:
         self._set_queue_playlist(server, name)
         self._set_queue_repeat(server, True)
         self._set_queue(server, songlist)
+
+    def _play_local_playlist(self, server, name):
+        songlist = self._local_playlist_songlist(name)
+
+        ret = []
+        for song in songlist:
+            ret.append(os.path.join(name, song))
+
+        ret_playlist = Playlist(server=server, name=name, playlist=ret)
+        self._play_playlist(server, ret_playlist)
 
     def _player_count(self):
         count = 0
@@ -1217,8 +1236,7 @@ class Audio:
         server = ctx.message.server
         author = ctx.message.author
         voice_channel = author.voice_channel
-        song =  self._get_queue_nowplaying(server)
-        
+
         # Checking if playing in current server
 
         if self.is_playing(server):
@@ -1253,12 +1271,14 @@ class Audio:
         #   downloading the next song
 
         if self.currently_downloading(server):
-            await self.bot.say(":raised_hand: **Im already Downloading a file WAIT UP**")
+            await self.bot.say("I'm already downloading a file!")
             return
 
-        if "." in url:
+        url = url.strip("<>")
+
+        if self._match_any_url(url):
             if not self._valid_playable_url(url):
-                await self.bot.say(":x: That's not a **valid URL.** :no_good:")
+                await self.bot.say("That's not a valid URL.")
                 return
         else:
             url = url.replace("/", "&#47")
