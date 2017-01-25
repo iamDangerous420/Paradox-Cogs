@@ -61,7 +61,7 @@ class AntiLink:
             e.timestamp = ctx.message.timestamp
             try:
                 await self.bot.send_message(channel, embed = e)
-            except discord.Forbidden:
+            except discord.HTTPException:
                 msg = "```css\nAntiLink Settings for {0.name}.\nDo {1.prefix}help {1.command.qualified_name} for more info\n".format(server, ctx)
                 msg += "AntiLink Status : {0}\nAntiInvite Enabled : {1}\nAntilinks Enabled : {2}\nBlacklisted Words: {3}\n```".format(status, db["No Invite"], db["Toggle Blacklist"], words)
                 await self.bot.send_message(channel, msg)
