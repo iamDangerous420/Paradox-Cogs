@@ -30,7 +30,7 @@ class AntiLink:
         self.link_data = "data/antilink/antilink.json"
     
     @commands.group(pass_context = True, no_pm = True)
-    @checks.admin_or_permissions(manage_messaages = True)
+    @checks.admin_or_permissions(manage_messages=True)
     async def antilink(self, ctx):
         """this will enable antiinvite made by alan"""
         channel = ctx.message.channel
