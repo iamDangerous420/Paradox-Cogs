@@ -980,6 +980,25 @@ class Audio:
         if yt or sc:  # TODO: Add sc check
             return True
         return False
+    def _load_playlist(self, server, name, local=True):
+        try:
+            server = server.id
+        except:
+            pass
+
+        f = "data/audio/playlists"
+        if local:
+            f = os.path.join(f, server, name + ".txt")
+        else:
+            f = os.path.join(f, name + ".txt")
+        kwargs = dataIO.load_json(f)
+
+        kwargs['path'] = f
+        kwargs['main_class'] = self
+        kwargs['name'] = name
+        kwargs['sid'] = server
+
+        return Playlist(**kwargs)
 
     @commands.group(pass_context=True)
     async def audioset(self, ctx):
