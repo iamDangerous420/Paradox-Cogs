@@ -45,8 +45,10 @@ class AntiLink:
             db = directory[server.id]
             if len(db["Blacklisted"]) != 0:
                 words = "- {}".format("\n-".join(["{}".format(x) for x in db["Blacklisted"]]))
+                words2 = "- {}".format("\n-".join(["{}".format(x) for x in db["Blacklisted"]]))
             else:
                 words = ":x:***No Links/Words blacklisted for this server***"
+                words2 = "No Links/Words blacklisted for this server"
             colour = discord.Color.purple()
             status = (str(db["Toggle"]).replace("True", "Enabled")).replace("False", "Disabled")
             e = discord.Embed()
@@ -63,7 +65,7 @@ class AntiLink:
                 await self.bot.send_message(channel, embed = e)
             except discord.HTTPException:
                 msg = "```css\nAntiLink Settings for {0.name}.\nDo {1.prefix}help {1.command.qualified_name} for more info\n".format(server, ctx)
-                msg += "AntiLink Status : {0}\nAntiInvite Enabled : {1}\nAntilinks Enabled : {2}\nBlacklisted Words: {3}\n```".format(status, db["No Invite"], db["Toggle Blacklist"], words)
+                msg += "AntiLink Status : {0}\nAntiInvite Enabled : {1}\nAntilinks Enabled : {2}\nBlacklisted Words: {3}\n```".format(status, db["No Invite"], db["Toggle Blacklist"], words2)
                 await self.bot.send_message(channel, msg)
     @antilink.command(pass_context = True)
     async def toggle(self, ctx):
