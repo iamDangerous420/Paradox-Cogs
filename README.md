@@ -1,5 +1,5 @@
 
-[![intro]http://i.imgur.com/Vmf1qDS.png)
+![intro](http://i.imgur.com/Vmf1qDS.png)
 
 #Danger MX™
 #### * Moderation, Utility, Music, Danger MX *
