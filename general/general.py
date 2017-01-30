@@ -180,7 +180,7 @@ class General:
             yt_find = re.findall(r'href=\"\/watch\?v=(.{11})', result)
             url = 'https://www.youtube.com/watch?v={}'.format(yt_find[0])
             metadata = await self.get_song_metadata(url)
-            em = discord.Embed(title=metadata['author_name'], color=discord.Color.red(), url=metadata['author_url'])
+            em = discord.Embed(title=metadata['author_name'], color=discord.Color.purple(), url=metadata['author_url'])
             em.set_author(name=metadata['title'], url=url)
             em.set_image(url=metadata['thumbnail_url'])
             # em.video.url = url
