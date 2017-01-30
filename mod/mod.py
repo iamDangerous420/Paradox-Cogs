@@ -518,9 +518,11 @@ class Mod:
 
         for user in users:
             await self.bot.move_member(user, channel)
-            await self.bot.say("Moved **{0}** to ***__{1}__*** :heavy_check_mark: ".format(user, channel))
-            await asyncio.sleep(0.1)
-        await self.bot.say("***:white_check_mark: Im done moving those fags to the vc *** :v: ")  
+            lul = await self.bot.say("Moved **`{0}`** to ***__`{1}`__*** :heavy_check_mark: ".format(user.name, channel))
+            await asyncio.sleep(0.5)
+            await self.bot.delete_message(lul)
+        await self.bot.say("***:white_check_mark: Im done moving everyone to `{}` *** :thumbsup: ".format(channel))
+
 
     @commands.command(pass_context=True)
     @checks.admin_or_permissions(move_members=True)
@@ -570,7 +572,7 @@ class Mod:
                                 action="Kick\N{WOMANS BOOTS}",
                                 mod=author,
                                 user=user)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** `{}` ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
         except Exception as e:
@@ -590,7 +592,7 @@ class Mod:
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned** ***{}*** :hammer::white_check_mark:".format(user.name, server.name))
+                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer::white_check_mark:".format(user.name, server.name).replace("`", ""))
             except discord.errors.Forbidden:
                 await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user ¯\_(ツ)_/¯ :x: ")
             except Exception as e:
