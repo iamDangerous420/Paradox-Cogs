@@ -811,18 +811,19 @@ class Owner:
             owner = "Unknown"
 
         about = (
-            "[Danger Mx:tm: - A fun Moderative utility bot for all your needs:blush: ]({}) "
-            "edited by [{}]({})  on **22 Aug 2016 at 12:21 With Teddy's And many Others Help.**\n\n"
+            "[Danger Mx A 🤖]({}) "
+            "edited by [Dangerous🐉]({})  on **22 Aug 2016 at 12:21 With Teddy's And many Others Help.**\n\n"
             "Any command invoked is automatically fun with Danger Mx:tm:,"
             "With Fresh fun content for everyone to enjoy We guarantee ***THE BEST OF EXPEREINCES!!***\n[Join Our support server]({}) "
-            "Or support us By [Donating]({}) and help us improve!\n\nAlso Visit OUR [WEBSITE]({}) :O (STILL IN BETA :stuck_out_tongue: )\n\n"
-            "Written in [Python]({}), powered by [discord.py]({})"
+            "Or support us By [Donating]({}) and help us improve!\n\n Wondering What Dmx Can Do? Well heres a few things```diff\nMODERATION 🔨\n-Antilink Filters remove(prune) And much much More !\nFun🎮\n+Too Much information to disclose in this tiny box..\nMOOSIC(music)🎶\n+Buncha Music Cmds streams from soundcloud aswell```\n\n"
+            "Written in [Python]({}), powered by [discord.py]({})***```This Bot is a proud variant of Red Discord Bot```***"
             "".format(author_repo, owner, red_repo, server_url, donate, website, python_url,
                       discordpy_repo))
 
         embed = discord.Embed(colour=discord.Colour.purple())
-        embed.add_field(name="About "+name, value=about)
-        embed.set_footer(text="Hosted on Bursting's Server (Thanks Bursting :D)")
+        embed.add_field(name="Music 🎶, Moderation ⚖, utility 💻  Fun 👍 "+name+" 🤖", value=about)
+        embed.set_footer(text="Hosted on Bursting's Server (Thanks Bursting :D)", icon_url = "https://goo.gl/6V8BrU")
+        embed.set_thumbnail(url=self.bot.user.avatar_url)
 
         try:
             await self.bot.say(embed=embed)
