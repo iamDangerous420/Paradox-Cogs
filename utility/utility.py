@@ -182,9 +182,9 @@ class Utility:
             perms_we_dont = ""
             for x in perms:
                 if "True" in str(x):
-                    perms_we_have += "☑{0}\n".format(str(x).split('\'')[1])
+                    perms_we_have += ":vpGreenTick: {0}\n".format(str(x).split('\'')[1])
                 else:
-                    perms_we_dont += ("🇽{0}\n".format(str(x).split('\'')[1]))
+                    perms_we_dont += (':vpRedTick: {0}\n'.format(str(x).split('\'')[1]))
             msg = discord.Embed(description=":raised_hand:***`Collecting Role Stats`*** :raised_hand:",
             colour=therole.color)
             if therole.color is None:
