@@ -143,7 +143,7 @@ class Utility:
         role = self._role_from_string(server, rolename)
 
         if role is None:
-            await self.bot.say('That role cannot be found.')
+            await self.bot.say(':no_good: That role cannot be found. :no_good:')
             return
 
         await self.bot.say(':regional_indicator_r: :regional_indicator_o: :regional_indicator_l: :regional_indicator_e:  :id:  of **{}** ==> ***__{}__***'.format(rolename, role.id))
@@ -160,6 +160,67 @@ class Utility:
             await self.bot.say(emoji)
         except:
             await self.bot.say("**This server has no facking emotes what is this a ghost town ???**")
+
+    @commands.command(pass_context=True, aliases=["ri"])
+    async def roleinfo(self, ctx, rolename):
+        """Get your role info !!!
+        If dis dun work first trry use "" quotes on te role"""
+        channel = ctx.message.channel
+        server = ctx.message.server
+        colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        await self.bot.send_typing(ctx.message.channel)
+        therole = discord.utils.find(lambda r: r.name.lower() == rolename.lower(), ctx.message.server.roles)
+        since_created = (ctx.message.timestamp - therole.created_at).days
+        created_on = "{} days ago".format(since_created)
+        if therole is None:
+            await bot.say(':no_good: That role cannot be found. :no_good:')
+            return
+        if therole is not None:
+            perms = iter(therole.permissions)
+            perms_we_have = ""
+            perms_we_dont = ""
+            for x in perms:
+                if "True" in str(x):
+                    perms_we_have += "☑{0}\n".format(str(x).split('\'')[1])
+                else:
+                    perms_we_dont += ("🇽{0}\n".format(str(x).split('\'')[1]))
+            msg = discord.Embed(description=":raised_hand:***`Collecting Role Stats`*** :raised_hand:",
+            colour=therole.color)
+            if therole.color is None:
+                therole.color = discord.Colour(value=colour)
+            lolol = await self.bot.say(embed=msg)
+            em = discord.Embed(
+                description="***`{}'s`***  ***Role Stats***".format(therole.name),
+                colour=therole.colour,)
+            em.add_field(name="UsersinRole", value=len([m for m in server.members if therole in m.roles]))
+            em.add_field(name="Id", value=therole.id)
+            em.add_field(name="Color", value=therole.color)
+            em.add_field(name="Position", value=therole.position)
+            em.add_field(name="Valid Perms", value="{}".format(perms_we_have))
+            em.add_field(name="Invalid Perms", value="{}".format(perms_we_dont))
+            em.set_thumbnail(url="https://cdn.discordapp.com/attachments/269292528719626240/276485689887948800/unknown.png")
+            em.set_footer(text="{} Was created {}".format(therole.name, created_on), icon_url = self.bot.user.avatar_url)
+        try:    
+            await self.bot.edit_message(lolol, embed=em)
+        except discord.HTTPException:
+            permss = "```diff\n"
+            therole = discord.utils.find(lambda r: r.name.lower() == rolename.lower(), ctx.message.server.roles)
+            if therole is None:
+                await bot.say(':no_good: That role cannot be found. :no_good:')
+                return
+            if therole is not None:
+                perms = iter(therole.permissions)
+                perms_we_have2 = ""
+                perms_we_dont2 = ""
+                for x in perms:
+                    if "True" in str(x):
+                        perms_we_have2 += "+{0}\n".format(str(x).split('\'')[1])
+                    else:
+                        perms_we_dont2 += ("-{0}\n".format(str(x).split('\'')[1]))
+            await self.bot.say("{}{}'s Role Stats,\nUsersinRole : {}\nId : {}\nColor : {}\nPosition : {}\nValid Perms : \n{}\nInvalid Perms : \n{}\n{} Was created {}```".format(permss, therole.name, len([m for m in server.members if therole in m.roles]), therole.id, therole.color, therole.position, perms_we_have2, perms_we_dont2,therole.name, created_on))
+            await self.bot.delete_message(lolol)
+
     @commands.command(pass_context=True, aliases=["mcount"])
     async def membercount(self, ctx):
         """member number count."""
@@ -282,6 +343,15 @@ class Utility:
         list = "\n".join([m.name for m in ctx.message.server.members if m.bot])
         for page in pagify(list, ["\n"], shorten_by=7, page_length=2000):
             await self.bot.say(box(page))
+
+    @commands.command(pass_context=True, hidden=True)
+    async def roless(self, ctx):
+        """States roles from highest to lowest"""
+        colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        list=discord.Embed(description="**Role list for {}.**".format(ctx.message.server.name), colour=discord.Colour(value=colour))
+        list.add_field(name="JAJAJAJJAJ", value=", ".join([x.name for x in ctx.message.server.role_hierarchy if x.name != "@everyone"]))
+        await self.bot.say(embed=list)
 
     @commands.command(pass_context=True)
     async def roles(self, ctx):
