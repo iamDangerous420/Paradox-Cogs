@@ -434,7 +434,7 @@ class General:
         a.colour = discord.Color.purple()
         await self.bot.send_message(msg.channel, embed = a)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["pick"])
     async def choose(self, ctx, *choices):
         """Chooses between multiple choices.
         To denote multiple choices, you should use double quotes.
@@ -442,10 +442,10 @@ class General:
         channel = ctx.message.channel
         choices = [escape_mass_mentions(choice) for choice in choices]
         if len(choices) < 2:
-            em = discord.Embed(description=':no_good: ***Not enough choices to pick from.***', color=discord.Color.purple())
+            em = discord.Embed(title=':no_good: ***Not enough choices to pick from.***', color=discord.Color.purple())
         else:
             await self.bot.send_typing(channel)
-            em = discord.Embed(description=(randchoice(choices)), color=discord.Color.purple())
+            em = discord.Embed(title=(randchoice(choices)), color=discord.Color.purple())
         await self.bot.send_message(channel, embed = em)
 
     @commands.command(pass_context=True)
@@ -532,7 +532,7 @@ class General:
     @commands.command(name="8ball", aliases=["8"], pass_context=True)
     async def _8ball(self, ctx, *, question : str):
         """Ask DMX a question :P"""
-        em = discord.Embed(description=question, color=ctx.message.author.color)
+        em = discord.Embed(title=question, color=ctx.message.author.color)
         em.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar_url)
         em.set_footer(text=randchoice(self.ball), icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwOi8vY29jaGlzZWJpbGxpYXJkcy5jb20vd3AtY29udGVudC91cGxvYWRzLzIwMTUvMTAvOGJhbGwucG5nIn0.Zd5xXVHeFbamUjFRxvcv1yAJ9pM')
         await self.bot.say(embed=em)
@@ -698,7 +698,7 @@ class General:
             user = ctx.message.author
         if user.avatar_url is None:
             await self.bot.reply(":x: **User has no avatar**")
-        em = discord.Embed(description="{0.name}'s avatar ↓ Sexy avatar ;)".format(user), colour=discord.Colour(value=colour))
+        em = discord.Embed(titles="{0.name}'s avatar ↓ Sexy avatar ;)".format(user), colour=discord.Colour(value=colour))
         em.set_image(url=user.avatar_url)
         await self.bot.say(embed=em)
 
