@@ -118,7 +118,7 @@ class General:
                 if author.id in self.data:
                     avatar = author.avatar_url if author.avatar else author.default_avatar_url
                     if self.data[author.id]['MESSAGE']:
-                        em = discord.Embed(description=self.data[author.id]['MESSAGE'], color=discord.Color.orange())
+                        em = discord.Embed(title=self.data[author.id]['MESSAGE'], color=discord.Color.orange())
                         em.set_author(name='{}\'s currently away And Says ↓⇓⟱'.format(author.display_name), icon_url=avatar)
                     else:
                         em = discord.Embed(color=discord.Color.purple())
@@ -131,16 +131,16 @@ class General:
         author = context.message.author
         if author.id in self.data:
             del self.data[author.id]
-            msg = 'Welcome back :space_invader: :D.'
+            em = discord.Embed(title='Welcome back :space_invader: :D.', color=discord.Color.purple())
         else:
             self.data[context.message.author.id] = {}
             if len(str(message)) < 256:
                 self.data[context.message.author.id]['MESSAGE'] = ' '.join(context.message.clean_content.split()[1:])
             else:
                 self.data[context.message.author.id]['MESSAGE'] = True
-            msg = '__You\'re now set as away__ :wave: ,***Get out of here!*** :point_right:  :door: .'
+            em = discord.Embed(title='__You\'re now set as away__ :wave: ,***Get out of here!*** :point_right:  :door: .', color=discord.Color.purple())
         dataIO.save_json(JSON, self.data)
-        await self.bot.say(msg)
+        await self.bot.send_message(context.message.channel, embed=em)
 
     async def get_song_metadata(self, song_url):
         """
@@ -876,17 +876,15 @@ class General:
         data.add_field(name="Total emojis", value="{} ".format(len(server.emojis)))
 
         data.set_footer(text="🆔 Server ID ⇒  " + server.id)
-
-        if server.emojis:
-            emotes = discord.Embed(title="Emotes", description=" ".join(emojis), colour=discord.Colour(value=colour))
-        else:
-            emotes = discord.Embed(title="Emotes", description=":no_good: ", colour=discord.Colour(value=colour))
-
         if server.icon_url:
             data.set_author(name=server.name, url=server.icon_url)
             data.set_thumbnail(url=server.icon_url)
         else:
             data.set_author(name=server.name)
+        if server.emojis:
+            emotes = discord.Embed(title="Emotes", description=" ".join(emojis), colour=discord.Colour(value=colour))
+        else:
+            emotes = discord.Embed(title="Emotes", description=":no_good: ", colour=discord.Colour(value=colour))
 
         try:
             await self.bot.say(embed=data)
