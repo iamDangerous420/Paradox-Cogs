@@ -698,7 +698,7 @@ class General:
             user = ctx.message.author
         if user.avatar_url is None:
             await self.bot.reply(":x: **User has no avatar**")
-        em = discord.Embed(titles="{0.name}'s avatar ↓ Sexy avatar ;)".format(user), colour=discord.Colour(value=colour))
+        em = discord.Embed(title="{}'s avatar ↓".format(user.name), colour=discord.Colour(value=colour), url=user.avatar_url)
         em.set_image(url=user.avatar_url)
         await self.bot.say(embed=em)
 
