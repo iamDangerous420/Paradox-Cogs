@@ -849,12 +849,17 @@ class General:
                              if x.type == discord.ChannelType.text])
         voice_channels = len(server.channels) - text_channels
         passed = (ctx.message.timestamp - server.created_at).days
-        created_at = ("Since {}. That's over {} days ago!"
+        created_at = ("***Since***  ***`{}.`*** ***That's over***  ***`{}`***  ***days ago!***"
                       "".format(server.created_at.strftime("%d %b %Y %H:%M"),
                                 passed))
 
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
+        x = -1
+        emojis =  []
+        while x < len([r for r in ctx.message.server.emojis]) -1:
+            x = x + 1
+            emojis.append("<:{}:{}>".format([r.name for r in ctx.message.server.emojis][x], [r.id for r in ctx.message.server.emojis][x]))
 
         data = discord.Embed(
             description=created_at,
@@ -871,22 +876,58 @@ class General:
         data.add_field(name="Total emojis", value="{} ".format(len(server.emojis)))
 
         data.set_footer(text="🆔 Server ID ⇒  " + server.id)
-        if len(str(server.emojis)) < 6024 and server.emojis:
-            data.add_field(name="Emojis", value=" ".join([str(emoji) for emoji in server.emojis]), inline=False)
-        elif len(str(server.emojis)) >= 4024:
-            data.add_field(name=":x:Emojis", value="**Error**: _What the fuck Too many fucken emojis !!_", inline=False)
+
+        if server.emojis:
+            emotes = discord.Embed(title="Emotes", description=" ".join(emojis), colour=discord.Colour(value=colour))
+        else:
+            emotes = discord.Embed(title="Emotes", description=":no_good: ", colour=discord.Colour(value=colour))
 
         if server.icon_url:
             data.set_author(name=server.name, url=server.icon_url)
             data.set_thumbnail(url=server.icon_url)
         else:
-            data.set_author(icon=server.icon_url, name=server.name)
+            data.set_author(name=server.name)
 
         try:
             await self.bot.say(embed=data)
+            await self.bot.say(embed=emotes)
         except discord.HTTPException:
-            await self.bot.say("I need the `Embed links` permission "
-                               "to send this")
+            server = ctx.message.server
+            x = -1
+            emojis =  []
+            while x < len([r for r in ctx.message.server.emojis]) -1:
+                x = x + 1
+                emojis.append("<:{}:{}>".format([r.name for r in ctx.message.server.emojis][x], [r.id for r in ctx.message.server.emojis][x]))
+            online = str(len([m.status for m in server.members if str(m.status) == "online" or str(m.status) == "idle"]))
+            total_users = str(len(server.members))
+            text_channels = len([x for x in server.channels if str(x.type) == "text"])
+            voice_channels = len(server.channels) - text_channels
+
+            data = "```python\n"
+            data += "Server Name: {}\n".format(server.name)
+            data += "ID: {}\n".format(server.id)
+            data += "Region: {}\n".format(server.region)
+            data += "Users: {}/{}\n".format(online, total_users)
+            data += "Text channels: {}\n".format(text_channels)
+            data += "Voice channels: {}\n".format(voice_channels)
+            data += "Roles: {}\n".format(len(server.roles))
+            data += "Verification Level: {}\n".format(str(server.verification_level))
+            data += "Total emojis: {}\n".format(len(server.emojis))
+            passed = (ctx.message.timestamp - server.created_at).days
+            data += "Created: {} ({} days ago)\n".format(server.created_at, passed)
+            data += "Owner: {}\n".format(server.owner)
+
+            if server.icon_url != "":
+                data += "Icon&Emojis:"
+                data += "```"
+                data += "{}\n".format(server.icon_url)
+            if len(str(server.emojis)) < 6024 and server.emojis:
+                data += " ".join([str(emoji) for emoji in server.emojis])
+            else:
+                data += "```"
+            await self.bot.say(data)
+            await self.bot.say("***ATTENTION*** **I am sending in This format because embed_links are not apart of my permissions Please enable all permissions including admininstrator to witness the bots full potential.**\n***(Btw info is missing lul)***")
+
 
     @commands.command(aliases=["ud"])
     async def urban(self, *, search_terms : str, definition_number : int=1):
