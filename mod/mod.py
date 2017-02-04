@@ -564,7 +564,7 @@ class Mod:
         author = ctx.message.author
         server = author.server
         try:
-            await self.bot.send_message(user, ":tools: :bangbang:️**You have been** ***KICKED*** **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+            msg = await self.bot.send_message(user, ":tools: :bangbang:️**You have been** ***KICKED*** **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
             await self.bot.kick(user)
             logger.info("{}({}) kicked {}({})".format(
                 author.name, author.id, user.name, user.id))
@@ -575,6 +575,7 @@ class Mod:
             await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
+            await self.bot.delete_message(msg)
         except Exception as e:
             print(e)
 
@@ -588,13 +589,14 @@ class Mod:
         can_ban = channel.permissions_for(server.me).ban_members
         if can_ban:
             try:  # We don't want blocked DMs preventing us from banning
-                await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+                msg = await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
                 pass
                 self._tmp_banned_cache.append(user)
                 await self.bot.ban(user)
                 await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer::white_check_mark:".format(user.name, server.name).replace("`", ""))
             except discord.errors.Forbidden:
                 await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user ¯\_(ツ)_/¯ :x: ")
+                await self.bot.delete_message(msg)
             except Exception as e:
                 print(e)
             finally:
