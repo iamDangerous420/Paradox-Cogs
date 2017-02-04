@@ -9,6 +9,7 @@ from cogs.utils import checks
 from cogs.utils.chat_formatting import box
 from cogs.utils.chat_formatting import pagify
 from random import choice
+from cogs.utils.chat_formatting import box,  pagify, escape_mass_mentions
 import datetime
 import logging
 import os
@@ -26,10 +27,93 @@ class say:
         name = ctx.message.author.name
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
-        em = discord.Embed(description=content, colour=discord.Colour(value=colour))
+        em = discord.Embed(title=content, colour=discord.Colour(value=colour))
         await self.bot.send_message(channel, embed=em)
+
+    @commands.command(pass_context=True, no_pm=True)
+    async def sayto(self, ctx, channel: discord.Channel, *, text: str):
+        """Says Something as the bot in a embed to another text channel"""
+
+        colour = ''.join([choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+
+        randnum = randint(1, 10)
+        empty = u"\u2063"
+        emptyrand = empty * randnum
+
+        data = discord.Embed(title=str(
+            text), colour=discord.Colour(value=colour))
+
+        if ctx.message.author.avatar_url:
+            data.set_author(name=ctx.message.author.name,
+                            url=ctx.message.author.avatar_url, icon_url=ctx.message.author.avatar_url)
+        else:
+            data.set_author(name=ctx.message.author.name)
+
+        try:
+            await self.bot.send_message(channel, emptyrand, embed=data)
+        except:
+            await self.bot.say("I need the `Embed links` permission to send this")
+
+    @commands.command(pass_context=True, no_pm=True, aliases=["ghostsay"])
+    @checks.admin_or_permissions(administrator=True)
+    async def gsay(self, ctx, *, text: str):
+        """Says Something as the bot without any trace of the message author in a embed"""
+
+        if ctx.message.server.me.bot:
+            try:
+                await self.bot.delete_message(ctx.message)
+            except:
+                await self.bot.say("I do not have the `Manage Messages` permissions")
+                return
+
+        colour = ''.join([choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+
+        randnum = randint(1, 10)
+        empty = u"\u2063"
+        emptyrand = empty * randnum
+
+        data = discord.Embed(title=str(
+            text), colour=discord.Colour(value=colour))
+
+        try:
+            await self.bot.say(emptyrand, embed=data)
+        except:
+            await self.bot.say("I need the `Embed links` permission "
+                               "to send this")
+
+    @commands.command(pass_context=True, no_pm=True)
+    async def embedimage(self, ctx, *, image: str):
+        """Embed a image as the bot"""
+
+        colour = ''.join([choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+
+        randnum = randint(1, 10)
+        empty = u"\u2063"
+        emptyrand = empty * randnum
+
+        if image.lower().endswith(".gifv") or image.lower().endswith(".gif") or image.lower().endswith(".png") or image.lower().endswith(".jpeg") or image.lower().endswith(".jpg"):
+            data = discord.Embed(colour=discord.Colour(value=colour))
+            data.set_image(url=image)
+        else:
+            await self.bot.say("Not a Valid Link")
+            return
+
+        if ctx.message.author.avatar_url:
+            data.set_author(name=ctx.message.author.name,
+                            url=ctx.message.author.avatar_url, icon_url=ctx.message.author.avatar_url)
+        else:
+            data.set_author(name=ctx.message.author.name)
+
+        try:
+            await self.bot.say(emptyrand, embed=data)
+        except:
+            await self.bot.say("I need the `Embed links` permission to send this")
+
     @commands.command(pass_context=True)
-    async def whisper(self, ctx, user : discord.Member, text):
+    async def whisper(self, ctx, user : discord.User, text):
         """Whisper to someone using the bot
         Same as dming But you use the bot !"""
 
@@ -43,7 +127,7 @@ class say:
 
         prefix = "Ayoo Matey you Getting a Message from {} ({})".format(
             author.name, author.id)
-        payload = "{}\n\n{}".format(prefix, text)
+        payload = "{}\n\n``` ***```{}```***".format(prefix, text)
 
         try:
             for page in pagify(payload, delims=[" ", "\n"], shorten_by=10):
@@ -63,10 +147,11 @@ class say:
         name = ctx.message.author.name
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
-        em = discord.Embed(description=content, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        em = discord.Embed(title=content, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
         em.set_author(name='{}'.format(name), icon_url=ctx.message.author.avatar_url)
-        await self.bot.send_message(channel, embed=em)
+        await self.bot.say(embed=em)
+
     @checks.mod_or_permissions(manage_messages=True)
     @commands.command(pass_context = True)
     async def monkeysee(self, ctx):
@@ -79,31 +164,6 @@ class say:
             await self.bot.send_message(channel, torepeat.content)
             if torepeat.content == "exit":
                 break
-
-
-    @commands.command(pass_context=True, no_pm=True)
-    @checks.admin_or_permissions(administrator=True)
-    async def gsay(self, ctx, *, text):
-        """ Ghost say ==> Says Something as the bot without the needs special rights And no o ne gets to know who said it unless you have a handy logging bot """
-
-        try:
-            await self.bot.delete_message(ctx.message)
-        except:
-            raise Exception("I do not have the permissions needed")
-
-        colour = ''.join([choice('0123456789ABCDEF') for x in range(6)])
-        colour = int(colour, 16)
-
-        data = discord.Embed(description="", colour=discord.Colour(value=colour))
-        data.add_field(name=str(text), value=u"\u2063")
-
-        try:
-            await self.bot.say(embed=data)
-        except:
-            await self.bot.say("I need the `Embed links` permission "
-                               "to send this")
-
-
 
 def setup(bot):
     n = say(bot)
