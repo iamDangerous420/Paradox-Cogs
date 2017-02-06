@@ -405,7 +405,6 @@ class General:
     @commands.command()
     async def penis(self, user : discord.Member):
         """Detects user's penis length
-
         This is 100% accurate."""
         if user.id == "187570149207834624":
             await self.bot.say("Dis penis too long 2 measure ( ͡° ͜ʖ ͡°)\n\nJk he has a micro pp")
@@ -928,7 +927,7 @@ class General:
 
 
     @commands.command(aliases=["ud"])
-    async def urban(self, *, search_terms : str, definition_number : int=1):
+    async def urban(self, *, search_terms: str, definition_number: int = 1):
         """Urban Dictionary search
 
         Definition number must be between 1 and 10"""
@@ -943,8 +942,8 @@ class General:
                 search_terms = search_terms[:-1]
             else:
                 pos = 0
-            if pos not in range(0, 11): # API only provides the
-                pos = 0                 # top 10 definitions
+            if pos not in range(0, 11):  # API only provides the
+                pos = 0  # top 10 definitions
         except ValueError:
             pos = 0
         search_terms = "+".join(search_terms)
@@ -954,26 +953,32 @@ class General:
                 result = await r.json()
             if result["list"]:
                 definition = result['list'][pos]['definition']
+                likes = result['list'][pos]['thumbs_up']
+                da_link = result['list'][pos]['permalink']
                 example = result['list'][pos]['example']
+                dislikes = result['list'][pos]['thumbs_down']
+                author = result['list'][pos]['author']
+
                 defs = len(result['list'])
                 msg = ("***Definition #{} out of {}:\n***{}\n\n"
-                       "**Example:\n**{}".format(pos+1, defs, definition,
-                                                 example))
+                       "**Example:\n**{}".format(pos + 1, defs, definition, example))
                 msg = pagify(msg, ["\n"])
                 for page in msg:
                     em = discord.Embed(description=page, colour=discord.Colour(value=colour))
-                    em.set_footer(text="Urban Dictionary", icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwczovL2kuaW1ndXIuY29tL3dxZFF3U0suanBnIn0.MVrzfDg61z-6jQ2guGiijCVYs9Q?width=80&height=80')
-                    em.set_author(name="Definition For {}".format(search_terms), icon_url='https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQjaR3MhX7A7YtV08NVATNK5XjGQIH95cHpVZGOfBeEgMqT5dyNjg')
-                    em.set_thumbnail(url="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTKnTyIjfRPfIe1JN9Sd3rfbg-Sw-hRag8EjGFVX_uLo2vKELGYzQ")
+                    em.set_footer(text="Urban Dictionary | Likes 👍{} | Dislikes 👎{} | Creator {}".format(likes, dislikes, author),
+                                  icon_url='https://images-ext-1.discordapp.net/eyJ1cmwiOiJodHRwczovL2kuaW1ndXIuY29tL3dxZFF3U0suanBnIn0.MVrzfDg61z-6jQ2guGiijCVYs9Q?width=80&height=80')
+                    em.set_author(name="Definition For {}".format(search_terms),
+                                  icon_url='https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQjaR3MhX7A7YtV08NVATNK5XjGQIH95cHpVZGOfBeEgMqT5dyNjg', url=da_link)
+                    em.set_thumbnail(
+                        url="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTKnTyIjfRPfIe1JN9Sd3rfbg-Sw-hRag8EjGFVX_uLo2vKELGYzQ")
                     await self.bot.say(embed=em)
-                
+
             else:
                 await self.bot.say(":x: **Your** ***search terms gave no results.*** :no_good:")
         except IndexError:
-            await self.bot.say("There is no definition #{}".format(pos+1))
+            await self.bot.say("There is no definition #{}".format(pos + 1))
         except:
             await self.bot.say("Error.")
-
     @commands.command(pass_context=True, no_pm=True)
     async def poll(self, ctx, *text):
         """Starts/stops a poll
