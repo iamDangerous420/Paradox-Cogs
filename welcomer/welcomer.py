@@ -37,6 +37,9 @@ class Welcomer:
         Message Examples:
         {0.mention} Welcome to {2.name}, User joined with {1.url} referred by {1.inviter}
         Welcome to {2.name} {0}! I hope you enjoy your stay
+        {0.mention}.. What are you doing here? 🤔
+        ***{1.name}***  has a new member! ***{0.name}#{0.discriminator} - {0.id}***👍
+        Someone new joined! Who is it?! D: IS HE HERE TO HURT US?!
         """
         server = ctx.message.server
         db = fileIO(self.direct, "load")
@@ -146,7 +149,7 @@ class Welcomer:
         if db[server.id]["join"] == False:
             db[server.id]["join"] = True
             fileIO(self.direct, "save", db)
-            await self.bot.say(":punch:***Join messages enabled***:thumbsup:")
+            await self.bot.say(":punch:***Join messages enabled ( i will send dem were welcomer was set)***:thumbsup:")
         elif db[server.id]["join"] == True:
             db[server.id]["join"] = False
             fileIO(self.direct, "save", db)
