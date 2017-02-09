@@ -28,13 +28,17 @@ class Welcomer:
             return
         if ctx.invoked_subcommand is None:
             if server.id in db:
+                if db[server.id]["botrole"]:
+                    rolename =  [role.name for role in server.roles if role.id == db[server.id]["botrole"]][0]
+                else:
+                    rolename = "None set"
                 colour = discord.Color.purple()
                 t = discord.Embed()
                 t.colour = colour
                 t.description = "**Showing Welcomer Settings For** **{0}**\n**Do** *`{1.prefix}help {1.command.qualified_name}`* ***for more info***".format(server.name, ctx)
                 t.set_author(name = "Welcomer Settings", icon_url=self.bot.user.avatar_url)
-                t.add_field(name = "Welcomer Channel Id", value =  db[server.id]["Channel"])
-                t.add_field(name = "Botrole Id", value =  db[server.id]["botrole"])
+                t.add_field(name = "Welcomer Channel Id", value =  "<#{}>".format(db[server.id]["Channel"]))
+                t.add_field(name = "Botrole Id", value =  rolename)
                 t.add_field(name = "Botrole Toggled", value =  db[server.id]["botroletoggle"])
                 t.add_field(name = "Embed Enabled", value =  db[server.id]["Embed"])
                 t.add_field(name = "Join Message Toggled", value =  db[server.id]["join"])
@@ -49,6 +53,30 @@ class Welcomer:
                 msg = "```css\nShowing Welcomer Settings For {0.name}.\nDo {1.prefix}help {1.command.qualified_name} for more info\n".format(server, ctx)
                 msg += "Welcomer Channel Id : {0}\nBotrole Id : {1}\nBotrole Toggled : {2}\nEmbed Enabled: {3}\nJoin Message Toggled : {4}\nLeave Message Toggled : {5}\nJoin Message : {6}\nLeave Message: {7}\n```".format(db[server.id]["Channel"], db[server.id]["botrole"], db[server.id]["botroletoggle"], db[server.id]["Embed"], db[server.id]["join"], db[server.id]["leave"], db[server.id]["joinmessage"], db[server.id]["leavemessage"])
                 await self.bot.send_message(channel, msg)
+    @welcome.command(name='channelset', pass_context=True, no_pm=True, aliases=["cs","ch","channel"])
+    async def channel(self, ctx, *, channel : discord.Channel):
+        """
+        Use this if you donot like the currently set welcomer channel
+        """
+
+        server = ctx.message.server
+        db = fileIO(self.direct, "load")
+        if not ctx.message.server.me.permissions_in(channel).manage_channels:
+            await self.bot.say(":x: **I dont have the manage channels permission in** ***#{}***.:x:".format(channel))
+            return
+        if ctx.message.server.me.permissions_in(channel).send_messages:
+            if not server.id in db:
+                db[server.id] = inv_settings
+                invlist = await self.bot.invites_from(server)
+                channel = db[server.id]["Channel"]
+                db[server.id]["Channel"] = ctx.message.channel.id
+                for i in invlist:
+                    db[server.id]["Invites"][i.url] = i.uses
+                fileIO(self.direct, "save", db)
+            db[server.id]["Channel"] = channel.id
+            await self.bot.say(":thumbsup: **Ill be sending welcome messages to** : ***#{}***:punch:".format(channel))
+            fileIO(self.direct, "save", db)
+
     @welcome.command(name='joinmessage', pass_context=True, no_pm=True, aliases=["jm"])
     async def joinmessage(self, ctx, *, message: str):
         """
@@ -64,12 +92,15 @@ class Welcomer:
         Message Examples:
         {0.mention} Welcome to {2.name}, User joined with {1.url} referred by {1.inviter}
         Welcome to {2.name} {0}! I hope you enjoy your stay
-        {0.mention}.. What are you doing here? ðŸ¤”
-        ***{2.name}***  has a new member! ***{0.name}#{0.discriminator} - {0.id}***ðŸ‘
+        {0.mention}.. What are you doing here? Ã°Å¸Â¤ï¿½ï¿½ï¿½
+        ***{2.name}***  has a new member! ***{0.name}#{0.discriminator} - {0.id}***Ã°Å¸â€˜Â
         Someone new joined! Who is it?! D: IS HE HERE TO HURT US?!
         """
         server = ctx.message.server
         db = fileIO(self.direct, "load")
+        if not server.id in db:
+            await self.bot.say(":no_good: :x: **Server** ***not found***\n**Use** ***`{0.prefix}welcome channelset`***  **to set a channel.**".format(ctx))
+            return
         if server.id in db:
             db[server.id]['joinmessage'] = message
             fileIO(self.direct, "save", db)
@@ -77,19 +108,6 @@ class Welcomer:
             return
         if not ctx.message.server.me.permissions_in(ctx.message.channel).manage_channels:
             await self.bot.say(":x: **I dont have the manage channels permission.** :x:")
-            return
-        if ctx.message.server.me.permissions_in(ctx.message.channel).send_messages:
-            if not server.id in db:
-                db[server.id] = inv_settings
-                db[server.id]['joinmessage'] = message
-                invlist = await self.bot.invites_from(server)
-                channel = db[server.id]["Channel"]
-                db[server.id]["Channel"] = ctx.message.channel.id
-                for i in invlist:
-                    db[server.id]["Invites"][i.url] = i.uses
-                fileIO(self.direct, "save", db)
-                await self.bot.say("**I will now Welcome New users. (If toggled)***:thumbsup:")
-        else:
             return
 
     @welcome.command(name='leavemessage', pass_context=True, no_pm=True, aliases=["lm"])
@@ -228,7 +246,6 @@ class Welcomer:
         if db[server.id]['join'] == False:
             return
         channel = db[server.id]["Channel"]
-        inv_channel = None
         message = db[server.id]['joinmessage']
         json_list = db[server.id]["Invites"]
         inv_list = await self.bot.invites_from(server)
@@ -245,8 +262,10 @@ class Welcomer:
                         data.set_footer(text="ID: {}".format(member.id), icon_url=self.bot.user.avatar_url)
                         data.set_thumbnail(url=avatar)
                         await self.bot.send_message(server.get_channel(channel), embed=data)
+                        break
                     else:
                         await self.bot.send_message(server.get_channel(channel), message.format(member, a, server))
+                        break
             except KeyError:
                 if db[server.id]["Embed"] == True:
                     color = ''.join([choice('0123456789ABCDEF') for x in range(6)])
@@ -257,8 +276,10 @@ class Welcomer:
                     data.set_footer(text="ID: {}".format(member.id), icon_url=self.bot.user.avatar_url)
                     data.set_thumbnail(url=avatar)
                     await self.bot.send_message(server.get_channel(channel), embed=data)
+                    break
                 else:
                     await self.bot.send_message(server.get_channel(channel), message.format(member, a, server))
+                    break
                 break
             else:
                 pass
@@ -299,7 +320,6 @@ def check_file():
     if not fileIO(f, 'check'):
         print('Creating default settings.json...')
         fileIO(f, 'save', {})
-
 
 def setup(bot):
     check_folder()
