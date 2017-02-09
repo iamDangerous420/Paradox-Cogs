@@ -24,7 +24,7 @@ class Welcomer:
         channel = ctx.message.channel
         db = fileIO(self.direct, "load")
         if not server.id in db:
-            await self.bot.say(":no_good: :x: **Server** ***not found***\n**Use** ***`{0.prefix}welcome joinmessage`***  **to set a channel.**".format(ctx))
+            await self.bot.say(":no_good: :x: **Server** ***not found***\n**Use** ***`{0.prefix}welcome channel`***  **to set a channel.**".format(ctx))
             return
         if ctx.invoked_subcommand is None:
             if server.id in db:
@@ -37,8 +37,8 @@ class Welcomer:
                 t.colour = colour
                 t.description = "**Showing Welcomer Settings For** **{0}**\n**Do** *`{1.prefix}help {1.command.qualified_name}`* ***for more info***".format(server.name, ctx)
                 t.set_author(name = "Welcomer Settings", icon_url=self.bot.user.avatar_url)
-                t.add_field(name = "Welcomer Channel Id", value =  "<#{}>".format(db[server.id]["Channel"]))
-                t.add_field(name = "Botrole Id", value =  rolename)
+                t.add_field(name = "Welcomer Channel", value =  "<#{}>".format(db[server.id]["Channel"]))
+                t.add_field(name = "Botrole", value =  rolename)
                 t.add_field(name = "Botrole Toggled", value =  db[server.id]["botroletoggle"])
                 t.add_field(name = "Embed Enabled", value =  db[server.id]["Embed"])
                 t.add_field(name = "Join Message Toggled", value =  db[server.id]["join"])
@@ -68,8 +68,7 @@ class Welcomer:
             if not server.id in db:
                 db[server.id] = inv_settings
                 invlist = await self.bot.invites_from(server)
-                channel = db[server.id]["Channel"]
-                db[server.id]["Channel"] = ctx.message.channel.id
+                db[server.id]["Channel"] = channel.id
                 for i in invlist:
                     db[server.id]["Invites"][i.url] = i.uses
                 fileIO(self.direct, "save", db)
@@ -131,13 +130,6 @@ class Welcomer:
             fileIO(self.direct, "save", db)
             await self.bot.say("**Leave message** ***changed.***:thumbsup:")
             return
-        if ctx.message.server.me.permissions_in(ctx.message.channel).send_messages:
-            if not server.id in db:
-                db[server.id]['leavemessage'] = message
-                db[server.id]["Channel"] = ctx.message.channel.id
-                fileIO(self.direct, "save", db)
-                await self.bot.say("**I will now send leave notifications here.** ***(If toggled)***:thumbsup:")
-
     @welcome.command(name='botrole', pass_context=True, no_pm=True, aliases=["br"])
     async def botrole(self, ctx, *, role : discord.Role):
         """sets the botrole to auto assign roles to bots"""
