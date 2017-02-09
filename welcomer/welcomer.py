@@ -23,6 +23,9 @@ class Welcomer:
         server = ctx.message.server
         channel = ctx.message.channel
         db = fileIO(self.direct, "load")
+        if not server.id in db:
+            await self.bot.say(":no_good: :x: **Server** ***not found***\n**Use** ***`{0.prefix}welcome joinmessage`***  **to set a channel.**".format(ctx))
+            return
         if ctx.invoked_subcommand is None:
             if server.id in db:
                 colour = discord.Color.purple()
@@ -85,7 +88,7 @@ class Welcomer:
                 for i in invlist:
                     db[server.id]["Invites"][i.url] = i.uses
                 fileIO(self.direct, "save", db)
-                await self.bot.say("**I will now Welcome New users.***(If toggled)***:thumbsup:")
+                await self.bot.say("**I will now Welcome New users. (If toggled)***:thumbsup:")
         else:
             return
 
@@ -176,7 +179,7 @@ class Welcomer:
         if db[server.id]["join"] == False:
             db[server.id]["join"] = True
             fileIO(self.direct, "save", db)
-            await self.bot.say(":punch:***Join messages enabled:thumbsup: Ill be sending welcome messages to : ***#{}***".format(server.get_channel(channel).name))
+            await self.bot.say(":punch:***Join messages enabled***:thumbsup: **Ill be sending welcome messages to** : ***#{}***".format(server.get_channel(channel).name))
         elif db[server.id]["join"] == True:
             db[server.id]["join"] = False
             fileIO(self.direct, "save", db)
