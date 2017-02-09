@@ -603,24 +603,18 @@ class Mod:
                 await asyncio.sleep(1)
                 self._tmp_banned_cache.remove(user)
 
-    @commands.command(pass_context = True, hidden = True, no_pm=True)
+    @commands.command(pass_context=True, aliases=["ub"])
     @checks.admin_or_permissions(ban_members=True)
-    async def unban(self, ctx, user : discord.User):
-        """dun work"""
-        server = ctx.message.server
-        channel = ctx.message.channel
-        can_ban = channel.permissions_for(server.me).ban_members
-        author = ctx.message.author
-        
-        member = discord.utils.find(lambda mem: mem.id == str(user_id), message.channel.server.members)
+    async def unban(self, ctx, *, user_id: str):
+        """Unbans users by ID.
+		Credits to Yσυηg Sιηαтяα™#5484 OWNER OF Brooklyn"""
+
+        server = ctx.message.server.id
         try:
-            await self.bot.unban(server, user)
-        except discord.Forbidden:
-            await self.bot.say('I do not have permissions to unban members.')
-        except discord.HTTPException:
-            await self.bot.say('Unbanning failed.')
-        else:
-            await self.bot.say('{0} has been Unbanned from this server.'.format(member.name))
+            await self.bot.http.unban(user_id, server)
+            await self.bot.say(":punch: <@{}> ***Unbanned***:thumbsup:".format(user_id))
+        except:
+            await self.bot.say("Failed to unban. Either `Lacking Permissions` or `User cannot be found`.")
     @commands.command(no_pm=True, pass_context=True, aliases=["sb"])
     @checks.admin_or_permissions(ban_members=True)
     async def softban(self, ctx, user: discord.Member):
@@ -705,7 +699,7 @@ class Mod:
                 return
         counter = 0
         while counter < number:
-            await self.bot.send_message(user, "***You got spamed punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(counter, ctx.message.author))
+            await self.bot.send_message(user, "***You got spamed punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(ctx.message.author))
             counter = counter + 1
         await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
     @commands.command(pass_context=True)
