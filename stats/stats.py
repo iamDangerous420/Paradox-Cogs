@@ -99,6 +99,9 @@ class Statistics:
         servers = str(len(self.bot.servers))
         text_channels = 0
         voice_channels = 0
+        t1 = time.perf_counter()
+        await self.bot.type()
+        t2 = time.perf_counter()
 
         cpu_p = psutil.cpu_percent(interval=None, percpu=True)
         cpu_usage = sum(cpu_p) / len(cpu_p)
@@ -111,37 +114,36 @@ class Statistics:
             elif channel.type == discord.ChannelType.voice:
                 voice_channels += 1
         channels = text_channels + voice_channels
+        cl = "***Updates:***\n***Replaced:***  Old welcoemr with a brand new More optimizable one\n***Revamped:***  Stats cog\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
+        list = []
+        for e in self.bot.servers:
+            if e.me.voice_channel is not None:
+                list.append(e.name)
 
         em = discord.Embed(description='\a\n', color=discord.Color.purple())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
-        em.set_author(name='Statistics of {}'.format(name), icon_url=avatar)
+        em.set_author(name='{} \'s Statistical Data'.format(name), icon_url=avatar)
 
         em.add_field(
-            name='**Uptime**', value='{} D - {} H - {} M'.format(str(days), str(hours), str(minutes)))
+            name='**Uptime**', value='{} D - {} H - {} M⌚'.format(str(days), str(hours), str(minutes)))
+        em.add_field(name="Ping", value="{}ms⏱".format(round((t2-t1)*1000)))
 
-        em.add_field(name='**Users**', value=users)
-        em.add_field(name='**Servers**', value=servers)
+        em.add_field(name='**Connected To**💻', value="***`{}`*** **Servers Containing** ***`{}`***  **Unique Members**🎊\n***`{}`***  **Total Channels** **(** ***`{}`***  **Text &** ***`{}`*** **Voice)**".format(servers, users, str(channels), str(text_channels), str(voice_channels)))
 
-        em.add_field(name='**Channels**', value=str(channels))
-        em.add_field(name='**Text channels**', value=str(text_channels))
-        em.add_field(name='**Voice channels**', value=str(voice_channels))
+        em.add_field(name='**Message Stats**📨',
+                     value="**Aquring** ***`{}`*** **Messages\nRelayed** ***`{}`*** **Messages**".format(str(self.received_messages), str(self.sent_messages)))
 
-        em.add_field(name='**Messages received**',
-                     value=str(self.received_messages))
-        em.add_field(name='**Messages sent**', value=str(self.sent_messages))
-        em.add_field(name='\a', value='\a')
+        em.add_field(name='**Cog Stats**', value="***`{}`*** **Active Modules Containing** ***`{}`*** **Subcommands.**".format(str(len(self.bot.cogs)), str(len(self.bot.commands))))
+        em.add_field(name='Shards', value='None cuz 2 poor')
+        em.add_field(name='Connected Vcs🎧', value='{}'.format(len(list)))
 
-        em.add_field(name='**Active cogs**', value=str(len(self.bot.cogs)))
-        em.add_field(name='**Commands**', value=str(len(self.bot.commands)))
-        em.add_field(name='\a', value='\a')
-
-        em.add_field(name='\a', value='\a', inline=False)
-        em.add_field(name='**CPU usage**', value='{0:.1f}%'.format(cpu_usage))
+        em.add_field(name='**Processing usage**', value='{0:.1f}%'.format(cpu_usage))
         em.add_field(name='**Memory usage**',
                      value='{0:.1f}%'.format(mem_v.percent))
+        em.add_field(name='Changelog📝', value=cl)
 
-        em.add_field(name='\a', value='\a')
-        em.set_footer(text='API version {}'.format(discord.__version__))
+        em.set_footer(text='API version {}'.format(discord.__version__), icon_url='https://cdn.discordapp.com/attachments/133251234164375552/279456379981529088/232720527448342530.png')
+        em.set_thumbnail(url=avatar)
         return em
 
     async def incoming_messages(self, message):
