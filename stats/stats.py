@@ -114,7 +114,7 @@ class Statistics:
             elif channel.type == discord.ChannelType.voice:
                 voice_channels += 1
         channels = text_channels + voice_channels
-        cl = "***Updates:***\n***Replaced:***  Old welcoemr with a brand new More optimizable one\n***Revamped:***  Stats cog\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
+        cl = "***Updates:***\n***Replaced:***  Old welcomer with a brand new More optimizable one\n***Revamped:***  Stats cog\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
         list = []
         for e in self.bot.servers:
             if e.me.voice_channel is not None:
