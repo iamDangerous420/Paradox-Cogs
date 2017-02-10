@@ -166,9 +166,9 @@ class Statistics:
                 async for message in self.bot.logs_from(channel, limit=1):
                     messages = True
                     if message.author.name == self.bot.user.name:
-                        await self.bot.edit_message(message, embed=msg)
+                        await self.bot.edit_message(message, embed=em)
                 if not messages:
-                    await self.bot.send_message(channel, embed=msg)
+                    await self.bot.send_message(channel, embed=em)
             else:
                 pass
             await asyncio.sleep(self.refresh_rate)
