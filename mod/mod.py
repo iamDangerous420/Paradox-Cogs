@@ -1455,7 +1455,7 @@ class Mod:
         Where 1 = the lowest area aka the bottom next to @everyone because you can't do 0 cause fuck logic idk """
         server = ctx.message.server
         if role.name is "@everyone":
-            message = ":neutralFace: I can't move the servers default role :face_palm:"
+            message = "<:neutralFace:226038131655180288> I can't move the servers default role :face_palm:"
             return
         if position is "0":
             await self.bot.say("you can't do 0 cause fuck logic idk Probs cause 0 is under the server default role aka `@everyone`")
@@ -1467,7 +1467,7 @@ class Mod:
         except discord.Forbidden:
             await self.bot.say(":x: ***I have no permission to move members.***:neutralFace:")  
         except discord.HTTPException:
-            await self.bot.say(":neutralFace: **Moving the role failed, or you are of too low rank to move the role.** :neutralFace:")
+            await self.bot.say("<:neutralFace:226038131655180288> **Moving the role failed, or you are of too low rank to move the role.** <:neutralFace:226038131655180288>")
 
     @editrole.command(name="name", pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
