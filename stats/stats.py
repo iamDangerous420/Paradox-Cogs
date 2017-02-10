@@ -114,7 +114,7 @@ class Statistics:
             elif channel.type == discord.ChannelType.voice:
                 voice_channels += 1
         channels = text_channels + voice_channels
-        cl = "***Updates:***\n***Replaced:***  Old welcomer with a brand new More optimizable one\n***Revamped:***  Stats cog\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
+        cl = "***Updates:***\n***Replaced:***  Old welcomer with a brand new More optimizable one\n***Revamped:***  Stats cog, Urban\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
         list = []
         for e in self.bot.servers:
             if e.me.voice_channel is not None:
@@ -137,7 +137,7 @@ class Statistics:
         em.add_field(name='Shards', value='None cuz 2 poor')
         em.add_field(name='Connected Vcs🎧', value='{}'.format(len(list)))
 
-        em.add_field(name='**Processing usage**', value='{0:.1f}%'.format(cpu_usage))
+        em.add_field(name='**Processor usage**', value='{0:.1f}%'.format(cpu_usage))
         em.add_field(name='**Memory usage**',
                      value='{0:.1f}%'.format(mem_v.percent))
         em.add_field(name='Changelog📝', value=cl)
