@@ -114,11 +114,12 @@ class Statistics:
             elif channel.type == discord.ChannelType.voice:
                 voice_channels += 1
         channels = text_channels + voice_channels
-        cl = "***Updates:***\n***Replaced:***  Old welcomer with a brand new More optimizable one\n***Revamped:***  Stats cog, Urban\n**Fixed:** ~unban Fully functional Ty sinatra\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
+        cl = "***Updates:***\n***Replaced:***  **Old welcomer with a brand new More optimizable one**\n***Revamped:***  **Stats cog, Urban**\n***Fixed:*** **~unban Fully functional Ty sinatra**\n\n+***Created:***\n**RoleInfo, welcomer cs...**\n\n***`This is the end of Changelog As of 2/10/2017(1:22am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
         list = []
         for e in self.bot.servers:
             if e.me.voice_channel is not None:
                 list.append(e.name)
+        bi = "***Shards:***  **None Enabled**\n***Processor Usage: `{0:.1f}%`\nMemory Usage: `{1:.1f}`%***".format(cpu_usage, mem_v.percent)
 
         em = discord.Embed(description='\a\n', color=discord.Color.purple())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
@@ -128,18 +129,14 @@ class Statistics:
             name='**Uptime**', value='{} D - {} H - {} M⌚'.format(str(days), str(hours), str(minutes)))
         em.add_field(name="Ping", value="{}ms⏱".format(round((t2-t1)*1000)))
 
-        em.add_field(name='**Connected To**💻', value="***`{}`*** **Servers Containing** ***`{}`***  **Unique Members**🎊\n***`{}`***  **Total Channels** **(** ***`{}`***  **Text &** ***`{}`*** **Voice)**".format(servers, users, str(channels), str(text_channels), str(voice_channels)))
+        em.add_field(name='**Connected To**💻', value="***`{}`*** **Servers Containing** ***`{}`***  **Unique Members**🎊\n***`{}`***  **Total Channels** **(** ***`{}`***  **Text &** ***`{}`*** **Voice)**\n***Connected To `{}` Voice Channels***\n".format(servers, users, str(channels), str(text_channels), str(voice_channels), len(list)))
 
         em.add_field(name='**Message Stats**📨',
                      value="**Aquring** ***`{}`*** **Messages\nRelayed** ***`{}`*** **Messages**".format(str(self.received_messages), str(self.sent_messages)))
 
         em.add_field(name='**Cog Stats**', value="***`{}`*** **Active Modules Containing** ***`{}`*** **Subcommands.**".format(str(len(self.bot.cogs)), str(len(self.bot.commands))))
-        em.add_field(name='Shards', value='None cuz 2 poor')
-        em.add_field(name='Connected Vcs🎧', value='{}'.format(len(list)))
+        em.add_field(name='BotInfo', value=bi)
 
-        em.add_field(name='**Processor usage**', value='{0:.1f}%'.format(cpu_usage))
-        em.add_field(name='**Memory usage**',
-                     value='{0:.1f}%'.format(mem_v.percent))
         em.add_field(name='Changelog📝', value=cl)
 
         em.set_footer(text='API version {}'.format(discord.__version__), icon_url='https://cdn.discordapp.com/attachments/133251234164375552/279456379981529088/232720527448342530.png')
