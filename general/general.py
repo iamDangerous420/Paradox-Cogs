@@ -18,7 +18,7 @@ from .utils.dataIO import fileIO
 import logging
 
 
-settings = {"POLL_DURATION" : 60}
+settings = {"POLL_DURATION" : 180}
 
 JSON = 'data/away/away.json'
 
@@ -1000,9 +1000,9 @@ class General:
                 self.poll_sessions.append(p)
                 await p.start()
             else:
-                await self.bot.say("poll question;option1;option2 (...)")
+                await self.bot.say("**Question** ***;option1;option2*** Etc")
         else:
-            await self.bot.say("A poll is already ongoing.")
+            await self.bot.say(":raised_hand: :x: ***A poll Is currently active*** :x: :raised_hand: ")
 
     async def endpoll(self, message):
         if self.getPollByChannel(message):
@@ -1012,7 +1012,7 @@ class General:
             else:
                 await self.bot.say("**Only Admins & Dangerous** can stop the poll.")
         else:
-            await self.bot.say("No Ongoing poll.")
+            await self.bot.say(":raised_hand: :x: ***No Ongoing poll.*** :raised_hand: :x:")
 
     def getPollByChannel(self, message):
         for poll in self.poll_sessions:
@@ -1057,8 +1057,8 @@ class NewPoll():
     async def start(self):
         msg = ":mailbox_with_mail: **POLL STARTED!**:mailbox_with_mail: \n\n**{}**\n\n".format(self.question)
         for id, data in self.answers.items():
-            msg += "{}. *{}*\n".format(id, data["ANSWER"])
-        msg += "\nType the freaken #To answer !"
+            msg += "**{}. {}**\n".format(id, data["ANSWER"])
+        msg += "\n**Type the freaken # To answer !**"
         await self.client.send_message(self.channel, msg)
         await asyncio.sleep(settings["POLL_DURATION"])
         if self.valid:
@@ -1066,9 +1066,9 @@ class NewPoll():
 
     async def endPoll(self):
         self.valid = False
-        msg = "**POLL ENDED!**\n\n{}\n\n".format(self.question)
+        msg = ":postbox: **POLL ENDED!** :postbox: \n\n***{}***\n\n".format(self.question)
         for data in self.answers.values():
-            msg += "*{}* - {} votes\n".format(data["ANSWER"], str(data["VOTES"]))
+            msg += "***{} - {} votes***\n".format(data["ANSWER"], str(data["VOTES"]))
         await self.client.send_message(self.channel, msg)
         self.poll_sessions.remove(self)
 
