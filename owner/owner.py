@@ -126,9 +126,9 @@ class Owner:
             else:
                 await self.bot.say("Response timed out.")
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(pass_context=True, invoke_without_command=True)
     @checks.is_owner()
-    async def load(self, *, module: str):
+    async def load(self, ctx, *, module: str):
         """Loads a module
 
         Example: load mod"""
@@ -155,11 +155,11 @@ class Owner:
         else:
             set_cog(module, True)
             await self.disable_commands()
-            await self.bot.say(":thumbsup:   :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:   :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :thumbsup: ")
-
-    @commands.group(invoke_without_command=True)
+            em = discord.Embed(description=":thumbsup:   :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:   :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :thumbsup: ", color=discord.Color.green())
+            await self.bot.send_message(ctx.message.channel, embed=em)
+    @commands.group(pass_context=True, invoke_without_command=True)
     @checks.is_owner()
-    async def unload(self, *, module: str):
+    async def unload(self, ctx, *, module: str):
         """Unloads a module
 
         Example: unload mod"""
@@ -182,7 +182,8 @@ class Owner:
             traceback.print_exc()
             await self.bot.say('Unable to safely disable that module.')
         else:
-            await self.bot.say(":x:   :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:    :regional_indicator_u: :regional_indicator_n: :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :negative_squared_cross_mark:")
+            em = discord.Embed(description=":x:   :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:    :regional_indicator_u: :regional_indicator_n: :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :negative_squared_cross_mark:", color=discord.Color.red())
+            await self.bot.send_message(ctx.message.channel, embed=em)
 
     @unload.command(name="all")
     @checks.is_owner()
@@ -232,8 +233,8 @@ class Owner:
 
 
     @checks.is_owner()
-    @commands.command(name="reload")
-    async def _reload(self, module):
+    @commands.command(pass_context=True, name="reload")
+    async def _reload(self, ctx, module):
         """Reloads a module
 
         Example: reload audio"""
@@ -260,8 +261,8 @@ class Owner:
         else:
             set_cog(module, True)
             await self.disable_commands()
-            await self.bot.say(":arrows_counterclockwise:   :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:   :regional_indicator_r: :regional_indicator_e: :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :arrows_counterclockwise: ")
-
+            em = discord.Embed(description=":arrows_counterclockwise:    :regional_indicator_m: :regional_indicator_o: :regional_indicator_d: :regional_indicator_u: :regional_indicator_l: :regional_indicator_e:     :regional_indicator_r: :regional_indicator_e: :regional_indicator_l: :regional_indicator_o: :regional_indicator_a: :regional_indicator_d: :regional_indicator_e: :regional_indicator_d:   :arrows_counterclockwise: ", color=discord.Color.purple())
+            await self.bot.send_message(ctx.message.channel, embed=em)
     @commands.command(name="cogs")
     @checks.is_owner()
     async def _show_cogs(self):
@@ -501,15 +502,18 @@ class Owner:
             log.debug('stream cleared by owner')
         await self.bot.say("***Done.***")
 
-    @_set.command()
+    @_set.command(pass_context=True)
     @checks.is_owner()
-    async def avatar(self, url):
+    async def avatar(self, ctx, url):
         """SetsDMX's avatar"""
+        server = ctx.message.channel
         try:
             async with self.session.get(url) as r:
                 data = await r.read()
             await self.bot.edit_profile(self.bot.settings.password, avatar=data)
-            await self.bot.say("Am i sexy with my new avatar :D ?")
+            em = discord.Embed(title="Am i sexy with my new avatar :D ?", color=discord.Color.purple())
+            em.set_thumbnail(url=url)
+            await self.bot.send_message(server, embed=em)
             log.debug("changed avatar")
         except Exception as e:
             await self.bot.say("Error, check your console or logs for "
@@ -699,7 +703,7 @@ class Owner:
             em.add_field(name="Donate", value="[Click Here to support the Bot hosting server]({})".format(donate))
             em.add_field(name="Donate To Dangerous", value="[Click Here to support the cause]({})".format(donate2))
         await self.bot.send_message(ctx.message.channel, embed=em)
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["git","code"])
     async def github(self, ctx):
         """Support continued bot and cog development.
         """
@@ -720,7 +724,8 @@ class Owner:
         donate = "https://www.patreon.com/user?u=3635475"
         donate2 = "https://www.patreon.com/user?u=4092054"
         sinv = "https://discord.gg/Tgg4kaF"
-        inv ="https://discordapp.com/oauth2/authorize?client_id=217256996309565441&scope=bot&permissions=536214655"
+        inv ="https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=536214655".format(self.bot.user.id)
+        #I made it format id so if anyone just wants to edit the link fields its easier 
         msg = "***You must have manage server permissions in order to add me to a new server. If you do, just click the link below and select the server you wish for me to join.***"
         em = discord.Embed(description=msg, color=discord.Color.purple(), timestamp=__import__('datetime').datetime.utcnow())
         if self.bot.user.avatar_url:
@@ -731,33 +736,45 @@ class Owner:
             em.add_field(name="Donate", value="[Support the Bots hosting server]({})".format(donate))
         await self.bot.send_message(ctx.message.channel, embed=em)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["c"])
     async def contact(self, ctx, *, message : str):
         """Sends message to the owner"""
         if self.bot.settings.owner is None:
             await self.bot.say("I have no owner set.")
             return
+        current_server = ctx.message.server
         owner = discord.utils.get(self.bot.get_all_members(),
                                   id=self.bot.settings.owner)
+        d = "https://discord.io/dmxsupport"
         author = ctx.message.author
+        try:
+            invite = await self.bot.create_invite(current_server, max_age=3600*24)
+        except:
+            invite = ""
+
         if ctx.message.channel.is_private is False:
             server = ctx.message.server
-            source = ", server **{}** ({})".format(server.name, server.id)
+            source = "\n**Server** [**{}**]({}) ***`({})`***".format(server.name, invite, server.id)
         else:
-            source = ", direct message"
-        sender = "From **{}** ({}){}:\n\n".format(author, author.id, source)
-        message = sender + message
+            source = ", ***`direct message`***"
+        sender = "From **`{}`** `({})`{}:\n\n".format(author, author.id, source)
+        message = sender + "***```{}```***".format(message)
+        t = discord.Embed(description=message, timestamp=__import__('datetime').datetime.utcnow(), color=discord.Color.purple())
+        t.set_author(name="New Contact Dm !", url=self.bot.user.avatar_url)
+        t.set_thumbnail(url=self.bot.user.avatar_url)
+
         try:
-            await self.bot.send_message(owner, message)
+            await self.bot.send_message(owner, embed=t)
         except discord.errors.InvalidArgument:
-            await self.bot.say("I cannot send your message, I'm unable to find"
-                               " my owner... *sigh*")
+            em = discord.Embed(title="I cannot send your message, I'm unable to find"
+                               " my owner... sigh", color=discord.Color.purple())
         except discord.errors.HTTPException:
-            await self.bot.say("**Fam fam fam** ***FAMM*** :raised_hand: That message is ***WAAYY*** Too long.")
+            em = discord.Embed(description="**Fam fam fam** ***FAMM*** :raised_hand: That message is ***WAAYY*** Too long.", color=discord.Color.purple())
         except:
-            await self.bot.say("I'm unable to deliver your message. Sorry. Join teh support server boi https://discord.io/dmxsupport U ken tell hem det dere am es speaking slang k tenks bai")
+            em = discord.Embed(title="I'm unable to deliver your message. Sorry. Join teh support server boi https://discord.io/dmxsupport U ken tell hem det dere am es speaking slang k tenks bai", color=discord.Color.purple())
         else:
-            await self.bot.say("**Your message has been sent.** :ok_hand:\nJoin our support server https://discord.io/dmxsupport")
+            em = discord.Embed(description="**Your message has been sent.** :ok_hand:\n[Join our support server]({})".format(d), color=discord.Color.purple())
+        await self.bot.send_message(ctx.message.channel, embed=em)
 
     async def leave_confirmation(self, server, owner, ctx):
         if not ctx.message.channel.is_private:
@@ -766,7 +783,7 @@ class Owner:
             current_server = None
         answers = ("yes", "y")
         await self.bot.say("Are you sure you want me "
-                    "to leave ***{}?**** (yes/no)".format(server.name))
+                    "to leave ***{}?*** (yes/no)".format(server.name))
         msg = await self.bot.wait_for_message(author=owner, timeout=15)
         if msg is None:
             await self.bot.say("Aint Reply Yes so ¯\_(ツ)_/¯")
@@ -830,7 +847,7 @@ class Owner:
         except discord.HTTPException:
             await self.bot.say("I need the `Embed links` permission "
                                "to send this")
-    @commands.command()
+    @commands.command(aliases=["py","pyinfo"])
     async def python(self):
         """Shows info about python"""  
         author_repo = "http://www.learnpython.org/"
