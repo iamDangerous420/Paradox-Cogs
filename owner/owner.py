@@ -423,7 +423,7 @@ class Owner:
     @_set.command(pass_context=True)
     @checks.is_owner()
     async def game(self, ctx, *, game=None):
-        """Sets Red's playing status
+        """Sets Dmx's playing status
 
         Leaving this empty will clear it."""
 
@@ -505,7 +505,7 @@ class Owner:
     @_set.command(pass_context=True)
     @checks.is_owner()
     async def avatar(self, ctx, url):
-        """SetsDMX's avatar"""
+        """Sets DMX's avatar"""
         server = ctx.message.channel
         try:
             async with self.session.get(url) as r:
