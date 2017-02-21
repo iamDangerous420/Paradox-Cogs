@@ -151,6 +151,7 @@ class AntiLink:
 
     async def on_message(self, message):
         data = fileIO(self.link_data, "load")
+        if message.author == self.bot.user: return
         if message.channel.is_private:
             return
         else:
@@ -255,6 +256,7 @@ class AntiLink:
                     pass
     async def on_message_edit(self, before, after):
         data = fileIO(self.link_data, "load")
+        if message.author == self.bot.user: return
         if before.channel.is_private:
             return
         else:
