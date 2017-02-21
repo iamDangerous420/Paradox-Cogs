@@ -256,7 +256,6 @@ class AntiLink:
                     pass
     async def on_message_edit(self, before, after):
         data = fileIO(self.link_data, "load")
-        if message.author == self.bot.user: return
         if before.channel.is_private:
             return
         else:
@@ -271,6 +270,7 @@ class AntiLink:
             pass
         else:
             message = after
+            if message.author == self.bot.user: return
             idk = message.content
             if db["Toggle"] is True and db["No Invite"] is True:
                 check = None
