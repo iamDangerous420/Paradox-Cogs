@@ -44,13 +44,10 @@ class Desutils:
     @checks.is_owner()
     async def utilsmenu(self, ctx):
         menu = self.bot.get_cog("Menu")
-        cmds = ["Roles", "Send cog", "List cogs", "Perms"]
+        cmds = ["Send cog", "List cogs", "Perms"]
 
         result = await menu.number_menu(ctx, "Desutils selection menu", cmds, autodelete=True)
         cmd = cmds[result-1]
-
-        if cmd == "Roles" and self._perms(ctx, 'manage_roles'):
-            return await ctx.invoke(self.roles)
 
         if cmd == "Send cog" and self._perms(ctx, 'manage_roles'):
             return await ctx.invoke(self.sendcog)
