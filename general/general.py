@@ -1,8 +1,12 @@
 import discord
 from discord.ext import commands
-from .utils.chat_formatting import *
 import random
+from urllib.parse import quote_plus
+from enum import Enum
+from .utils.chat_formatting import *
+from .utils.chat_formatting import escape_mass_mentions, italics, pagify
 from random import randint
+from random import choice
 from random import choice as randchoice
 import datetime
 from __main__ import send_cmd_help
@@ -20,7 +24,28 @@ import logging
 
 settings = {"POLL_DURATION" : 180}
 
+
+class RPS(Enum):
+    rock     = "\N{MOYAI}"
+    paper    = "\N{PAGE FACING UP}"
+    scissors = "\N{BLACK SCISSORS}"
+
+
 JSON = 'data/away/away.json'
+
+
+class RPSParser:
+    def __init__(self, argument):
+        argument = argument.lower()
+        if argument == "rock":
+            self.choice = RPS.rock
+        elif argument == "paper":
+            self.choice = RPS.paper
+        elif argument == "scissors":
+            self.choice = RPS.scissors
+        else:
+            raise
+
 
 class General:
     """General commands."""
@@ -490,7 +515,7 @@ class General:
             name = name.translate(table)
             await self.bot.say(msg + "(╯°□°）╯︵ " + name[::-1])
         else:
-            await self.bot.say("*flips a coin and... " + randchoice(["HEADS!*", "TAILS!*"]))
+            await self.bot.say("*flips a coin and... " + choice(["HEADS!*", "TAILS!*"]))
 
     @commands.command(pass_context=True, name='wikipedia', aliases=['wiki'])
     async def _wikipedia(self, context, *, query: str):
@@ -702,36 +727,34 @@ class General:
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
-    async def rps(self, ctx, choice : str):
+    async def rps(self, ctx, your_choice : RPSParser):
         """Play rock paper scissors"""
         author = ctx.message.author
-        rpsbot = {"rock" : ":moyai:",
-           "paper": ":page_facing_up:",
-           "scissors":":scissors:"}
-        choice = choice.lower()
-        if choice in rpsbot.keys():
-            botchoice = randchoice(list(rpsbot.keys()))
-            msgs = {
-                "win": " You win {}!".format(author.mention),
-                "square": " We're square {}!".format(author.mention),
-                "lose": " You lose {}!".format(author.mention)
-            }
-            if choice == botchoice:
-                await self.bot.say(rpsbot[botchoice] + msgs["square"])
-            elif choice == "rock" and botchoice == "paper":
-                await self.bot.say(rpsbot[botchoice] + msgs["lose"])
-            elif choice == "rock" and botchoice == "scissors":
-                await self.bot.say(rpsbot[botchoice] + msgs["win"])
-            elif choice == "paper" and botchoice == "rock":
-                await self.bot.say(rpsbot[botchoice] + msgs["win"])
-            elif choice == "paper" and botchoice == "scissors":
-                await self.bot.say(rpsbot[botchoice] + msgs["lose"])
-            elif choice == "scissors" and botchoice == "rock":
-                await self.bot.say(rpsbot[botchoice] + msgs["lose"])
-            elif choice == "scissors" and botchoice == "paper":
-                await self.bot.say(rpsbot[botchoice] + msgs["win"])
+        player_choice = your_choice.choice
+        red_choice = choice((RPS.rock, RPS.paper, RPS.scissors))
+        cond = {
+                (RPS.rock,     RPS.paper)    : False,
+                (RPS.rock,     RPS.scissors) : True,
+                (RPS.paper,    RPS.rock)     : True,
+                (RPS.paper,    RPS.scissors) : False,
+                (RPS.scissors, RPS.rock)     : False,
+                (RPS.scissors, RPS.paper)    : True
+               }
+
+        if red_choice == player_choice:
+            outcome = None # Tie
         else:
-            await self.bot.say("Choose rock, paper or scissors.")
+            outcome = cond[(player_choice, red_choice)]
+
+        if outcome is True:
+            await self.bot.say("**I chose** {} ***You win {}!***👍"
+                               "".format(red_choice.value, author.mention))
+        elif outcome is False:
+            await self.bot.say("**I chose** {} **You** ***lose {}!***🙅 "
+                               "".format(red_choice.value, author.mention))
+        else:
+            await self.bot.say("**I chose**{} ***We're square {}!***👊"
+                               "".format(red_choice.value, author.mention))
 
     @commands.command(aliases=["sw"], pass_context=True)
     async def stopwatch(self, ctx):
@@ -750,8 +773,7 @@ class General:
     async def lmgtfy(self, *, search_terms : str):
         """Creates a lmgtfy link"""
         search_terms = escape_mass_mentions(search_terms.replace(" ", "+"))
-        await self.bot.say("http://lmgtfy.com/?q={}".format(search_terms))
-
+        await self.bot.say("https://lmgtfy.com/?q={}".format(search_terms))
 
     @commands.command(pass_context=True, no_pm=True, aliases=["uinfo"])
     async def userinfo(self, ctx, *, user: discord.Member=None):
