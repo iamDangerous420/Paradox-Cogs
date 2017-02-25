@@ -13,7 +13,7 @@ try:
 except:
     psutil = False
 
-
+#made by PaddoCogs(Paddo)
 class Statistics:
     """
     Statistics
@@ -40,6 +40,7 @@ class Statistics:
         Set the refresh rate by which the statistics are updated
         Example: [p]statsrefresh 42
         Default: 5
+        Made By Paddo
         """
 
         if not self.refresh_rate:  # If statement incase someone removes it or sets it to 0
@@ -124,7 +125,7 @@ class Statistics:
         em = discord.Embed(description='\a\n', color=discord.Color.purple())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
         em.set_author(name='{} \'s Statistical Data'.format(name), icon_url=avatar)
-
+#code by paddo
         em.add_field(
             name='**Uptime**', value='{} D - {} H - {} M⌚'.format(str(days), str(hours), str(minutes)))
         em.add_field(name="Ping", value="{}ms⏱".format(round((t2-t1)*1000)))
