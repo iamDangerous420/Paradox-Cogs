@@ -136,8 +136,7 @@ class Statistics:
 
         em.add_field(name='**Cog Stats**', value="***`{}`*** **Active Modules Containing** ***`{}`*** **Subcommands.**".format(str(len(self.bot.cogs)), str(len(self.bot.commands))))
         em.add_field(name='BotInfo', value=bi)
-
-        Cl2 = em.add_field(name='Changelog', value=cl)
+        #Cl2 = em.add_field(name='Changelog', value=cl)
 
         em.set_footer(text='API version {}'.format(discord.__version__), icon_url='https://cdn.discordapp.com/attachments/133251234164375552/279456379981529088/232720527448342530.png')
         em.set_thumbnail(url=avatar)
