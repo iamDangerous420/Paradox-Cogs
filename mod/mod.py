@@ -677,10 +677,22 @@ class Mod:
                 print(e)
             finally:
                 await asyncio.sleep(1)
+    @commands.command(no_pm=True, pass_context=True, aliases=["hb"])
+    @checks.admin_or_permissions(ban_members=True)
+    async def hackban(self, ctx, *, user_id: str):
+        """bans users by ID.
+        """
+        server = ctx.message.server.id
+        user = "<@{}>".format(user_id)
+        try:
+            await self.bot.http.ban(user_id, server)
+            await self.bot.say(":punch: I've **Succesfully Banned** <@{}> :hammer::white_check_mark:".format(user_id))
+        except:
+            await self.bot.say("***Failed to ban. Either `Lacking Permissions` or `User cannot be found`.***")
 
     @commands.command(pass_context=True, aliases=["ub"])
     @checks.admin_or_permissions(ban_members=True)
-    async def unban(self, ctx, *, user_id: str, reason: str=None):
+    async def unban(self, ctx, *, user_id: str):
         """Unbans users by ID.
 		Credits to Yσυηg Sιηαтяα™#5484 OWNER OF Brooklyn"""
 
