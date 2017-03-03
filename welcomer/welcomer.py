@@ -43,8 +43,8 @@ class Welcomer:
                 t.add_field(name = "Embed Enabled", value =  db[server.id]["Embed"])
                 t.add_field(name = "Join Message Toggled", value =  db[server.id]["join"])
                 t.add_field(name = "Leave Message Toggled", value =  db[server.id]["leave"])
-                t.add_field(name = "Join Message", value =  db[server.id]["joinmessage"])
-                t.add_field(name = "Leave Message", value =  db[server.id]["leavemessage"])
+                t.add_field(name = "Join Message", value =  db[server.id]["joinmessage"], inline=False)
+                t.add_field(name = "Leave Message", value =  db[server.id]["leavemessage"], inline=False)
                 t.set_footer(text = "Welcomer Settings", icon_url = server.icon_url)
                 t.timestamp = ctx.message.timestamp
             try:
