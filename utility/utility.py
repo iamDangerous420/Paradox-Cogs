@@ -89,9 +89,9 @@ class Utility:
             await self.bot.say(":x:***I cannot do that, I lack the "
                 "\"Change Nickname\" permission.***:no_good:")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,aliases=["ir","role","in"])
     async def inrole(self, ctx, *, rolename):
-        """Check members in the role totally didn't copy dex's eye emoji"""
+        """Check members in the role"""
         server = ctx.message.server
         message = ctx.message
         channel = ctx.message.channel
@@ -147,7 +147,7 @@ class Utility:
             return
 
         await self.bot.say(':regional_indicator_r: :regional_indicator_o: :regional_indicator_l: :regional_indicator_e:  :id:  of **{}** ==> ***__{}__***'.format(rolename, role.id))
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["emotes","serveremotes","emotelist"])
     async def elist(self, ctx):
         """ServerEmote List"""
         server = ctx.message.server
@@ -182,9 +182,9 @@ class Utility:
             perms_we_dont = ""
             for x in perms:
                 if "True" in str(x):
-                    perms_we_have += "☑ {0}\n".format(str(x).split('\'')[1])
+                    perms_we_have += "<:vpGreenTick:257437292820561920> {0}\n".format(str(x).split('\'')[1])
                 else:
-                    perms_we_dont += ("🇽 {0}\n".format(str(x).split('\'')[1]))
+                    perms_we_dont += ("<:vpRedTick:257437215615877129> {0}\n".format(str(x).split('\'')[1]))
             msg = discord.Embed(description=":raised_hand:***`Collecting Role Stats`*** :raised_hand:",
             colour=therole.color)
             if therole.color is None:
@@ -350,7 +350,7 @@ class Utility:
         colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
         list=discord.Embed(description="**Role list for {}.**".format(ctx.message.server.name), colour=discord.Colour(value=colour))
-        list.add_field(name="JAJAJAJJAJ", value=", ".join([x.name for x in ctx.message.server.role_hierarchy if x.name != "@everyone"]))
+        list.add_field(name="═══════════════  ஜ۩۞۩ஜ  ═══════════════", value="\n ".join([x.name for x in ctx.message.server.role_hierarchy if x.name != "@everyone"]))
         await self.bot.say(embed=list)
 
     @commands.command(pass_context=True)
