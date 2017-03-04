@@ -660,7 +660,7 @@ class Mod:
                 msg = await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
                 pass
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer::white_check_mark:".format(user.name, server.name).replace("`", ""))
+                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer::white_check_mark:".format(user.name).replace("`", ""))
                 logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
                     author.name, author.id, user.name, user.id))
                 if self.settings[server.id].get('ban_cases',
@@ -671,7 +671,7 @@ class Mod:
                                         user=user,
                                         reason=reason)
             except discord.errors.Forbidden:
-                await self.bot.say(":bangbang:Not Allowed to kick/Kick that specified user ¯\_(ツ)_/¯ :x: ")
+                await self.bot.say(":bangbang:Not Allowed to kick or Kick that specified user ¯\_(ツ)_/¯ :x: ")
                 await self.bot.delete_message(msg)
             except Exception as e:
                 print(e)
@@ -689,12 +689,11 @@ class Mod:
             await self.bot.say(":punch: I've **Succesfully Banned** <@{}> :hammer::white_check_mark:".format(user_id))
         except:
             await self.bot.say("***Failed to ban. Either `Lacking Permissions` or `User cannot be found`.***")
-
     @commands.command(pass_context=True, aliases=["ub"])
     @checks.admin_or_permissions(ban_members=True)
     async def unban(self, ctx, *, user_id: str):
         """Unbans users by ID.
-		Credits to Yσυηg Sιηαтяα™#5484 OWNER OF Brooklyn"""
+        Credits to Yσυηg Sιηαтяα™#5484 OWNER OF Brooklyn"""
 
         server = ctx.message.server.id
         user = "<@{}>".format(user_id)
@@ -776,58 +775,6 @@ class Mod:
         reply = await self.bot.say('***:thumbsup: :ok_hand: Ayeee  {} messages deleted :thumbsup: :ok_hand: ***'.format(len(deleted)))
         await asyncio.sleep(3)
         await self.bot.delete_message(reply)
-
-    @commands.command(pass_context=True)
-    @checks.mod_or_permissions(manage_messages=True)
-    @commands.cooldown(rate=1, per=5.0*60, type=commands.BucketType.server)
-    async def spam(self, ctx, user : discord.Member, number : int=30):
-        """Spam a bitch x amt of times Default is 30 doe. made by dangerous"""
-        if user.id == "187570149207834624" or user.id == "217256996309565441":
-            await self.bot.say("Oh **HELLL NAH** I aint spamming that dude **HIS NAME IS** ***DANGEROUS*** **WHAT DO YOU NOT UNDERSTAND FROM THAT**")
-            return
-        if number> 201:
-                await self.bot.reply("Cannot spam more than 200 msgs")
-                return
-        counter = 0
-        while counter < number:
-            await self.bot.send_message(user, "***You got spamed punk (╯°□°）╯︵ ┻━┻!*** By **{} ¯\_(ツ)_/¯!**.".format(ctx.message.author))
-            counter = counter + 1
-        await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
-    @commands.command(pass_context=True)
-    @checks.mod_or_permissions(manage_messages=True)
-    @commands.cooldown(rate=1, per=5.0*60, type=commands.BucketType.server)
-    async def tspam(self, ctx, user : discord.Member, spamtext, number : int=30):
-        """same as normal spam but with text default 30
-        If it doesn't work first try probs cause yo message to long so use ==> "" """
-        if number> 201:
-                await self.bot.reply("Cannot spam more than 200 msgs")
-                return
-        counter = 0
-        while counter < number:
-            await self.bot.send_message(user, "***You got spamed (╯°□°）╯︵ ┻━┻! ***MESSAGE IS:*** ***```\n{}\n```*** *** From ***{}*** ** ¯\_(ツ)_/¯!**.\n".format(spamtext, user.name))
-            counter = counter + 1
-        await self.bot.say("**Feeling foken sorry for {} they got spammed alright**".format(user.name))
-    @commands.command(pass_context=True)
-    @checks.mod_or_permissions()
-    @commands.cooldown(rate=1, per=2.0*60, type=commands.BucketType.server)
-    async def cspam(self, ctx, spamtext, number : int=10):
-        """Spams the channel, default =10."""
-        user = ctx.message.author
-        counter = 0
-        while counter < number:
-            await self.bot.say("{}, sent by **{}**.".format(spamtext, user.name))
-            counter = counter + 1
-    @commands.command(pass_context=True)
-    @checks.mod_or_permissions()
-    @commands.cooldown(rate=1, per=2.0*60, type=commands.BucketType.server)
-    async def gcspam(self, ctx, spamtext, number : int=10):
-        """Spams x times in the channel anonymously, default is 10."""
-
-        counter = 0
-        while counter < number:
-            await self.bot.delete_message(ctx.message)
-            counter = counter + 1
-        await self.bot.say("{} Sent By ***Anonymous***".format(spamtext))
 
     @commands.group(pass_context=True, no_pm=True, invoke_without_command=True)
     @checks.mod_or_permissions(administrator=True)
