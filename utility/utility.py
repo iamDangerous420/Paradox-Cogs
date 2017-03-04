@@ -11,6 +11,7 @@ import urllib
 import time
 import aiohttp
 import asyncio
+import operator
 from cogs.utils.dataIO import dataIO
 import io, os
 import logging
@@ -360,6 +361,113 @@ class Utility:
         list = "\n".join([x.name for x in ctx.message.server.role_hierarchy if x.name != "@everyone"])
         for page in pagify(list, ["\n"], shorten_by=7, page_length=2000):
             await self.bot.say(box(page))
+
+    @commands.command(pass_context=True, no_pm=True, aliases=["wp"])
+    async def whoplays(self, ctx, *, game):
+        """Shows a list of all the people playing a game.
+        Ty Stevy(91988142223036416)(Original Idea&Code By him)"""
+        if len(game) <= 2:
+            await self.bot.say(":x:***At least 3 characters are Required.***:no_good:")
+            return
+
+        colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        user = ctx.message.author
+        server = ctx.message.server
+        members = server.members
+
+        playing_game = ""
+        playing_game2 = []
+        for member in members:
+            if member != None and member.game != None and member.game.name != None and not member.bot:
+                if game.lower() in member.game.name.lower():
+                    playing_game += "• {} ({})\n".format(member.name, member.game.name)
+                    playing_game2.append(member.name)
+
+        if playing_game == "":
+            await self.bot.say(":confused: No one is playing that game.")
+        else:
+            msg = playing_game
+            em = discord.Embed(description=msg, colour=colour)
+            em.set_author(name="Current Users Playing {}: \n".format(game))
+            if playing_game2 is not [] and len(playing_game2) is not 1:
+                em.set_footer(text="{} users Playing {}".format(len(playing_game2), game))
+        try:
+            await self.bot.say(embed = em)
+        except discord.HTTPException:
+            if len(game) <= 2:
+                await self.bot.say(":x:***At least 3 characters are Required.***:no_good:")
+                return
+
+            d = "```diff\n"
+            playing_game = ""
+            playing_game2 = []
+            for member in members:
+                    if member != None and member.game != None and member.game.name != None and not member.bot:
+                        if game.lower() in member.game.name.lower():
+                            playing_game += "+ {} ({})\n".format(member.name, member.game.name)
+                            playing_game2.append(member.name)
+
+            if playing_game == "":
+                await self.bot.say(":confused: No one is playing that game.")
+            else:
+                msg = playing_game
+                await self.bot.say("{}-                  Current Users Playing {}  : \n\n{}\n-                  {} users Playing {} ```".format(d, game, msg, len(playing_game2), game))
+    @commands.command(pass_context=True, no_pm=True, aliases=["mpgames","games"])
+    async def cgames(self, ctx):
+        """Shows the currently most played games Stevy<3"""
+        user = ctx.message.author
+        server = ctx.message.server
+        members = server.members
+
+        freq_list = {}
+        for member in members:
+            if member != None and member.game != None and member.game.name != None and not member.bot:
+                if member.game.name not in freq_list:
+                    freq_list[member.game.name] = 0
+                freq_list[member.game.name]+=1
+#Code By Stevy(91988142223036416) 
+        sorted_list = sorted(freq_list.items(), key=operator.itemgetter(1), reverse = True)    
+
+        if not freq_list:
+            await self.bot.say(":bangbang:**What is this place?** ***This Ghostown Named `{}` has `0` people playing anything***".format(server.name))
+        else:            
+            # create display
+            msg = ""
+            max_games = min(len(sorted_list), 10)
+            for i in range(max_games):
+                game, freq = sorted_list[i]
+                msg+= "▸ **{}**:  ***__{}__***\n".format(game, freq_list[game])
+
+            em = discord.Embed(description=msg, colour=user.colour)
+            em.set_author(name="These are the server's most played games at the moment:")
+
+        try:
+            await self.bot.say(embed = em)
+
+        except discord.HTTPException:
+            freq_list = {}
+            for member in members:
+                if member != None and member.game != None and member.game.name != None and not member.bot:
+                    if member.game.name not in freq_list:
+                        freq_list[member.game.name] = 0
+                    freq_list[member.game.name]+=1
+
+            sorted_list = sorted(freq_list.items(), key=operator.itemgetter(1), reverse = True)    
+
+            if not freq_list:
+                await self.bot.say(":bangbang:**What is this place?** ***This Ghostown Named `{}` has `0` people playing anything***".format(server.name))
+            else:            
+                msg = ""
+                d = "```diff\n"
+                max_games = min(len(sorted_list), 10)
+                for i in range(max_games):
+                    game, freq = sorted_list[i]
+                    msg+= "+ {}:  {}\n".format(game, freq_list[game])
+                await self.bot.say("{}-                  These are the server's most played games at the moment:\n{}```".format(d, msg))
+def setup(bot):
+    n = WhoPlays(bot)
+    bot.add_cog(n)
 
 def setup(bot):
     n = Utility(bot)
