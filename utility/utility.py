@@ -375,7 +375,8 @@ class Utility:
         user = ctx.message.author
         server = ctx.message.server
         members = server.members
-
+        colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         playing_game = ""
         playing_game2 = []
         for member in members:
@@ -419,6 +420,8 @@ class Utility:
         user = ctx.message.author
         server = ctx.message.server
         members = server.members
+        colour = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
 
         freq_list = {}
         for member in members:
@@ -439,7 +442,7 @@ class Utility:
                 game, freq = sorted_list[i]
                 msg+= "▸ **{}**:  ***__{}__***\n".format(game, freq_list[game])
 
-            em = discord.Embed(description=msg, colour=user.colour)
+            em = discord.Embed(description=msg, colour=colour)
             em.set_author(name="These are the server's most played games at the moment:")
 
         try:
