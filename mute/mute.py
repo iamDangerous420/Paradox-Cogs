@@ -1,4 +1,4 @@
-  
+
 import time
 import discord
 from discord.ext import commands
@@ -68,7 +68,7 @@ def _generate_timespec(sec):
 
 
 class mute:
-    """Adds the ability to mute users."""
+    """Mute Users"""
 
     # --- Format
     # {
@@ -96,7 +96,7 @@ class mute:
         """Same as mute but cleans up after itself and the target"""
         server = ctx.message.server
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
-        colour = int(colour, 16) 
+        colour = int(colour, 16)
         role = await self.setup_role(server, quiet=True)
         if not role:
             return
@@ -106,14 +106,14 @@ class mute:
             self.json[server.id] = {}
 
         if user.id in self.json[server.id]:
-            msg = 'User was already Muted\nResetting Dat timer :timer: Boii...'
+            msg = '***User was already Muted\nResetting Dat timer :timer: Boii...***'
         elif role in user.roles:
-            msg = 'User was Muted but had no timer, Muting dat bitch now!...'
+            msg = '**User was Muted but had no timer,** ***Muting dat bitch now!...***:hammer:'
         else:
             msg = '***Bam Muted :speak_no_evil: :pencil2:️:no_entry_sign: BABA BIITCCCH Now stay muted  :wave: !!~***.'
 
         if not duration:
-            msg += ' \n`Using default duration of` ' + DEFAULT_TIMEOUT
+            msg += ' \n***`Using default duration of {}`*** '.format(DEFAULT_TIMEOUT)
             duration = _parse_time(DEFAULT_TIMEOUT)
             timestamp = time.time() + duration
         elif duration.lower() in ['forever', 'inf', 'infinite']:
@@ -143,7 +143,6 @@ class mute:
 
         try:
             await self.bot.purge_from(ctx.message.channel, limit=PURGE_MESSAGES + 1, check=is_user)
-            await self.bot.delete_message(ctx.message)
         except discord.errors.Forbidden:
             msg = '**Mute set**,But I require ***manage messages*** to clean up. **Please Assign Admin permissions To avoid errors such as these infuture** :thumbsup:'
         em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
@@ -158,7 +157,7 @@ class mute:
         server = ctx.message.server
         role = await self.setup_role(server)
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
-        colour = int(colour, 16) 
+        colour = int(colour, 16)
         if role is None:
             return
 
@@ -167,14 +166,14 @@ class mute:
             self.json[server.id] = {}
 
         if user.id in self.json[server.id]:
-            msg = 'User was already Muted\nResetting Dat timer :timer: Boii...'
+            msg = '***User was already Muted\nResetting Dat timer :timer: Boii...***'
         elif role in user.roles:
-            msg = 'User was Muted but had no timer, Muting dat bitch now!...'
+            msg = '**User was Muted but had no timer,** ***Muting dat bitch now!...***:hammer:'
         else:
             msg = '***Bam Muted :speak_no_evil: :pencil2:️:no_entry_sign: BABA BIITCCCH Now stay muted  :wave: !!~***.'
 
         if not duration:
-            msg += ' \n`Using default duration of` ' + DEFAULT_TIMEOUT
+            msg += ' \n***`Using default duration of {}`*** '.format(DEFAULT_TIMEOUT)
             duration = _parse_time(DEFAULT_TIMEOUT)
             timestamp = time.time() + duration
         elif duration.lower() in ['forever', 'inf', 'infinite']:
@@ -200,6 +199,7 @@ class mute:
         if duration:
             self.schedule_unmute(duration, user, reason)
         em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+        em.set_thumbnail(url="https://cdn.discordapp.com/attachments/273424151795204107/289528782698840065/dont-speak.png")
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -211,7 +211,7 @@ class mute:
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
 
-        if reason is None: 
+        if reason is None:
             msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: **Be sure to review the rules for {}** :thumbsup: .  ".format(user.mention, server.name)
         else:
             msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x:  **Specifically**, ***__{}__***. **Be sure to review the rules for {}** :thumbsup:.".format(user.mention, reason, server.name)
@@ -224,28 +224,35 @@ class mute:
 
     async def setup_role(self, server, quiet=False):
         role = discord.utils.get(server.roles, name=self.role_name)
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         if not role:
             if not (any(r.permissions.manage_roles for r in server.me.roles) and
                     any(r.permissions.manage_channels for r in server.me.roles)):
-                await self.bot.say("The Manage Roles and Manage Channels permissions are required to use this command.")
+                msgg = "***The `Manage Roles` and `Manage Channels` permissions are required to use this command.***"
+                em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
+                await self.bot.say(embed=em)
                 return None
             else:
-                msg = "The **%s** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n" % self.role_name
+                msg = "The **{}** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n".format(self.role_name)
+                em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
                 if not quiet:
-                    msgobj = await self.bot.reply(msg)
+                    msgobj = await self.bot.say(embed=em)
                 log.debug('Creating mute role :)')
                 perms = discord.Permissions.none()
                 role = await self.bot.create_role(server, name=self.role_name, permissions=perms)
                 if not quiet:
                     msgobj = await self.bot.edit_message(msgobj, msgobj.content + '**Configurating channels** :smile:... ')
+                    em = discord.Embed(description=msgobj, colour=discord.Colour(value=colour))
                 for c in server.channels:
                     await self.on_channel_create(c, role)
                 if not quiet:
-                    await self.bot.edit_message(msgobj, msgobj.content + '\nhttps://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
+                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '\nhttps://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
+                    em = discord.Embed(description=msgobj, colour=discord.Colour(value=colour))
         return role
 
 
-    @commands.command(pass_context=True, no_pm=True, name='lsmute')
+    @commands.command(pass_context=True, no_pm=True, name='listmuted', aliases=['lsmute','muted'])
     @checks.mod_or_permissions(manage_messages=True)
     async def list_muted(self, ctx):
         """Shows a table of muted users with time, mod and reason.
@@ -253,8 +260,11 @@ class mute:
         the reason for punishment, if any."""
         server = ctx.message.server
         server_id = server.id
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         if not (server_id in self.json and self.json[server_id]):
-            await self.bot.say("No users are currently Muted.Sadly.")
+            emm = discord.Embed(description="No users are currently Muted.Sadly.", colour=discord.Color.purple())
+            await self.bot.say(embed=emm)
             return
 
         def getmname(mid):
@@ -286,23 +296,30 @@ class mute:
             disp_table.append((name, remaining, mod, reason))
 
         msg = '```\n%s\n```' % tabulate(disp_table, headers)
-        await self.bot.say(msg)
+        em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
+        await self.bot.say(embed=em)
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
-    async def unmute(self, ctx, user: discord.Member):
+    async def unmute(self, ctx, user: discord.Member, reason=None):
         """Removes mute from a user. Same as removing the role directly"""
         role = discord.utils.get(user.server.roles, name=self.role_name)
         sid = user.server.id
+        channel = ctx.message.channel
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         if role and role in user.roles:
-            reason = 'Mute manually ended early by a pleb named => %s. ' % ctx.message.author
+            reason = '**Mute manually ended early by a pleb named =>** ***`{}`***. '.format(ctx.message.author.name)
             if self.json[sid][user.id]['reason']:
                 reason += self.json[sid][user.id]['reason']
             await self._unmute(user, reason)
-            await self.bot.say('***Donee*** Unmuterinooo :speaking_head: :D ')
+            msg1 = '***Donee*** Unmuterinooo :speaking_head: :D'
+            em = discord.Embed(description=msg1, colour=discord.Colour(value=colour))
+            await self.bot.send_message(channel, embed=em)
         else:
-            await self.bot.say("Hey Mate!This user wasn't Muted :thinking: .")
-
+            msg = "**Hey Mate!** ***{} wasn't Muted*** :thinking:.".format(user.mention)
+            em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
+            await self.bot.send_message(channel, embed=em)
     async def on_load(self):
         """Called when bot is ready and each time cog is (re)loaded"""
         await self.bot.wait_until_ready()
@@ -350,9 +367,9 @@ class mute:
             return self._unmute(member, reason)
         self.bot.loop.create_task(wrap(member, reason))
 
-    async def _unmute(self, member, reason):
+    async def _unmute(self, member, reason=None):
         """Remove mute role, delete record and task handle"""
-        server = ctx.message.server
+        server = member.server
         role = await self.setup_role(server)
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
@@ -361,10 +378,12 @@ class mute:
             # Has to be done first to prevent triggering on_member_update listener
             self._unmute_data(member)
             await self.bot.remove_roles(member, role)
-            msg = '__Your mute in %s has ended bitch__.' % member.server.name
+            msg = '***__Your mute in `{}` has ended bitch__.***'.format(member.server.name)
             if reason:
-                msg += "\nReason was: %s" % reason
-            await self.bot.send_message(member, msg)
+                msg += "\n**Reason was:** {}".format(reason)
+            em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
+            await self.bot.send_message(member, embed=em)
+            return
 
     def _unmute_data(self, member):
         """Removes mute data entry and cancels any present callback"""
@@ -397,15 +416,20 @@ class mute:
     async def on_member_update(self, before, after):
         """Remove scheduled unmute when manually removed"""
         sid = before.server.id
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         role = discord.utils.get(before.server.roles, name=self.role_name)
         if not (sid in self.json and before.id in self.json[sid]):
             return
         if role and role in before.roles and role not in after.roles:
-            msg = 'Your Mute in %s was ended early by a moderator/admin Lucky basturd.' % before.server.name
+            msg = '**Your Mute in** ***`%s`*** ***was ended early by a moderator/admin Lucky basturd.***' % before.server.name
             if self.json[sid][before.id]['reason']:
-                msg += '\nReason was: ' + self.json[sid][before.id]['reason']
-            await self.bot.send_message(after, msg)
+                msg += '\n**Reason was:** ' + self.json[sid][before.id]['reason']
+            em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
+            em.set_thumbnail(url='https://cdn.discordapp.com/attachments/273424151795204107/289528072527413248/talk-xxl.png')
+            await self.bot.send_message(after, embed=em)
             self._unmute_data(after)
+            return
 
     async def on_member_join(self, member):
         """Restore mute if muted user leaves/rejoins"""
