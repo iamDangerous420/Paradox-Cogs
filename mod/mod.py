@@ -10,6 +10,9 @@ from datetime import datetime
 from collections import deque, defaultdict
 from cogs.utils.chat_formatting import escape_mass_mentions, box
 import os
+import random
+from random import randint
+from random import choice as randchoice
 import re
 import urllib
 import logging
@@ -24,13 +27,15 @@ log = logging.getLogger("red.admin")
 ACTIONS_REPR = {
     "BAN"     : ("Ban", "\N{HAMMER}"),
     "KICK"    : ("Kick", "\N{WOMANS BOOTS}"),
-    "SOFTBAN" : ("Softban", "\N{DASH SYMBOL} \N{HAMMER}")
+    "SOFTBAN" : ("Softban", "\N{DASH SYMBOL} \N{HAMMER}"),
+    "UNBAN"   : ("Unban", "\N{SCALES}")
 }
 
 ACTIONS_CASES = {
     "BAN"     : True,
     "KICK"    : True,
-    "SOFTBAN" : True
+    "SOFTBAN" : True,
+    "UNBAN"   : True
 }
 
 default_settings = {
@@ -61,8 +66,32 @@ class NoModLogChannel(ModError):
     pass
 
 
+class TempCache:
+    """
+    This is how we avoid events such as ban and unban
+    from triggering twice in the mod-log.
+    Kinda hacky but functioning
+    """
+    def __init__(self, bot):
+        self.bot = bot
+        self._cache = []
+
+    def add(self, user, server, action, seconds=1):
+        tmp = (user.id, server.id, action)
+        self._cache.append(tmp)
+
+        async def delete_value():
+            await asyncio.sleep(seconds)
+            self._cache.remove(tmp)
+
+        self.bot.loop.create_task(delete_value())
+
+    def check(self, user, server, action):
+        return (user.id, server.id, action) in self._cache
+
+
 class Mod:
-    """Moderation tools.""" 
+    """Moderation tools."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -77,7 +106,7 @@ class Mod:
         self.cache = defaultdict(lambda: deque(maxlen=3))
         self.cases = dataIO.load_json("data/mod/modlog.json")
         self.last_case = defaultdict(dict)
-        self._tmp_banned_cache = []
+        self.temp_cache = TempCache(bot)
         perms_cache = dataIO.load_json("data/mod/perms_cache.json")
         self._perms_cache = defaultdict(dict, perms_cache)
         self.base_api_url = "https://discordapp.com/api/oauth2/authorize?"
@@ -85,6 +114,14 @@ class Mod:
         self.session = aiohttp.ClientSession()
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
+        self.ee = ["https://cdn.discordapp.com/attachments/158076636929982465/294277395362480128/HQGh7tL.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294289909458534427/banned.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294290049565065226/azCR8D1.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294292018442797056/giphy_7.gif"]
+
+
+
+        self.eee = ["https://cdn.discordapp.com/attachments/269293047962009602/294298407797915648/oIfsv6s.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294300122681049088/giphy_9.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294300638106615818/giphy_8.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294300898841329674/kicked.gif"]
+
+
+
 
     def __unload(self):
         self.session.close()
@@ -528,7 +565,7 @@ class Mod:
     @modset.command(pass_context=True, no_pm=True, name='cases')
     async def set_cases(self, ctx, action: str = None, enabled: bool = None):
         """Enables or disables case creation for each type of mod action
-        
+
         Enabled can be 'on' or 'off'"""
         server = ctx.message.server
 
@@ -578,7 +615,7 @@ class Mod:
         """
         Move two or more users at a time to a voice channel
         Case sensitime Which means it has to be in the exact format Or if you have developer mode you can Use id's
-        Examples: ~move AFK @dangerous @teddy / ~move channel id : 199292534671802369 user ids: 187570149207834624 203649661611802624 
+        Examples: ~move AFK @dangerous @teddy / ~move channel id : 199292534671802369 user ids: 187570149207834624 203649661611802624
         this also works if you do one id and one text like ~move 199292534671802369 @dangerous"""
 
         for user in users:
@@ -589,7 +626,7 @@ class Mod:
         await self.bot.say("***:white_check_mark: Im done moving everyone to `{}` *** :thumbsup: ".format(channel))
 
 
-    @commands.command(pass_context=True)
+    @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(move_members=True)
     async def massmove(self, ctx, from_channel: discord.Channel, to_channel: discord.Channel):
         """Massmove users to another voice channel
@@ -622,14 +659,22 @@ class Mod:
                 await self.bot.say('A error occured. Please try again')
             else:
                 await self.bot.say(" :thumbsup: I am done moving Everyone in **{} to {}** :D".format(from_channel.name, to_channel.name))
-    @commands.command(no_pm=True, pass_context=True, aliases=["k"])
+
+    @commands.command(no_pm=True, pass_context=True, aliases=["km","mk","rk","reasonk","reasonkick","messagek","messagekick"])
     @checks.admin_or_permissions(kick_members=True)
-    async def kick(self, ctx, user: discord.Member, *, reason: str=None):
-        """Kicks user."""
+    async def kickm(self, ctx, user: discord.Member, *, reason: str=None):
+        """Kicks user.(Wit message(sends a message formated as reason to te banned user in dms))
+        If words are typed after user it will format into the ban message and As the reason in logs."""
         author = ctx.message.author
         server = author.server
-        try:
-            msg = await self.bot.send_message(user, ":tools: :bangbang:️**You have been** ***KICKED*** **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
+        try:  # We don't want blocked DMs preventing us from banning
+            em = discord.Embed(title=":bellhop: You have been KICKED from {}.:hammer_pick:".format(server.name),
+            colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+            em.add_field(name="Reason ⚖", value="**{}**".format(reason))
+            em.set_thumbnail(url=randchoice(self.eee))
+            msg = await self.bot.send_message(user, embed=em)
             await self.bot.kick(user)
             logger.info("{}({}) kicked {}({})".format(
                 author.name, author.id, user.name, user.id))
@@ -640,29 +685,69 @@ class Mod:
                                     mod=author,
                                     user=user,
                                     reason=reason)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***Succesfully*** :thumbsup:***Message sent**:white_check_mark:* ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
-            await self.bot.say(" :no_entry: Not Allowed to kick/Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
+            await self.bot.say(" :no_entry: Not Allowed to kick or Kick that specified user Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
             await self.bot.delete_message(msg)
+            return
+        except discord.errors.HTTPException:
+                await self.bot.kick(user)
+                logger.info("{}({}) kicked {}({})".format(
+                    author.name, author.id, user.name, user.id))
+                logger.info("{}({}) banned {}({})wit message {}".format(
+                    author.name, author.id, user.name, user.id, reason))
+                if self.settings[server.id].get('kick_cases',
+                                                default_settings['kick_cases']):
+                    await self.new_case(server,
+                                        action="KICK",
+                                        mod=ctx.message.author,
+                                        user=user,
+                                        reason=reason)
+                await self.bot.say("**I could not have sent a dm to `{}` So instead i just Kicked the faggot no worries.**".format(user.name))
         except Exception as e:
             print(e)
 
-    @commands.command(no_pm=True, pass_context=True, aliases=["b"])
+    @commands.command(no_pm=True, pass_context=True, aliases=["bm","mb","rb","reasonb","reasonban","messageb","messageban"])
     @checks.admin_or_permissions(ban_members=True)
-    async def ban(self, ctx, user: discord.Member, *, reason: str=None):
-        """Bans users does not log broken """
+    async def banm(self, ctx, user: discord.Member, *, reason: str=None):
+        """Bans user.(Wit message(sends a message formated as reason to te banned user in dms))
+        If words are typed after user it will format into the ban message As the reason."""
         author = ctx.message.author
         server = author.server
         channel = ctx.message.channel
         can_ban = channel.permissions_for(server.me).ban_members
+        colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
+        colour = int(colour, 16)
         if can_ban:
             try:  # We don't want blocked DMs preventing us from banning
-                msg = await self.bot.send_message(user, ":bellhop: :hammer_pick: ️**You have been** ***BANNED***  **from** ***{}.***\n :scales: *Reason:*  **{}**".format(server.name, reason))
+                self.temp_cache.add(user, server, "BAN")
+                em = discord.Embed(title=":bellhop: You have been BANNED from {}.:hammer_pick:".format(server.name),
+                colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
+                em.add_field(name="Reason ⚖", value="**{}**".format(reason))
+                em.set_thumbnail(url=randchoice(self.ee))
+                msg = await self.bot.send_message(user, embed=em)
                 pass
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer::white_check_mark:".format(user.name).replace("`", ""))
-                logger.info("{}({}) banned {}({}), deleting {} days worth of messages".format(
-                    author.name, author.id, user.name, user.id))
+                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer:***Message sent***:white_check_mark:".format(user.name).replace("`", ""))
+                logger.info("{}({}) banned {}({})wit message {}".format(
+                    author.name, author.id, user.name, user.id, reason))
+                if self.settings[server.id].get('ban_cases',
+                                                default_settings['ban_cases']):
+                    await self.new_case(server,
+                                        action="BAN",
+                                        mod=author,
+                                        user=user,
+                                        reason=reason)
+            except discord.errors.Forbidden:
+                await self.bot.say(":bangbang:Not Allowed to Ban or ban that specified user ¯\_(ツ)_/¯ :x: ")
+                await self.bot.delete_message(msg)
+
+                return
+            except discord.errors.HTTPException:
+                await self.bot.ban(user)
+                self.temp_cache.add(user, server, "BAN")
+                logger.info("{}({}) banned {}({})wit message {}".format(
+                    author.name, author.id, user.name, user.id, reason))
                 if self.settings[server.id].get('ban_cases',
                                                 default_settings['ban_cases']):
                     await self.new_case(server,
@@ -670,9 +755,61 @@ class Mod:
                                         mod=ctx.message.author,
                                         user=user,
                                         reason=reason)
+                await self.bot.say("**I could not have sent a dm to `{}` So instead i just banned the faggot no worries.**".format(user.name))
+            except Exception as e:
+                print(e)
+            finally:
+                await asyncio.sleep(1)
+
+    @commands.command(no_pm=True, pass_context=True, aliases=["k","ks","silentk","silentkick"])
+    @checks.admin_or_permissions(kick_members=True)
+    async def kick(self, ctx, user: discord.Member, *, reason: str=None):
+        """Kicks user.(Silently(Baisically it doesnt add a message like banm/kickm))
+        If words are typed after user it will format into the Kick log As the reason."""
+        author = ctx.message.author
+        server = author.server
+        try:
+            await self.bot.kick(user)
+            logger.info("{}({}) kicked {}({})".format(
+                author.name, author.id, user.name, user.id))
+            if self.settings[server.id].get('kick_cases',
+                                            default_settings['kick_cases']):
+                await self.new_case(server,
+                                    action="KICK",
+                                    mod=author,
+                                    user=user,
+                                    reason=reason)
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've Silently kicked** ***`{}`*** ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
+        except discord.errors.Forbidden:
+            await self.bot.say(" :no_entry: Not Allowed to kick or Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
+        except Exception as e:
+            print(e)
+
+    @commands.command(no_pm=True, pass_context=True, aliases=["b","bs","silentb","silentban"])
+    @checks.admin_or_permissions(ban_members=True)
+    async def ban(self, ctx, user: discord.Member, *, reason: str=None):
+        """Bans user.(Silently(Baisically it doesnt add a message like banm/kickm))
+        If words are typed after user it will format into the ban log As the reason."""
+        author = ctx.message.author
+        server = author.server
+        channel = ctx.message.channel
+        can_ban = channel.permissions_for(server.me).ban_members
+        if can_ban:
+            try:  # We don't want blocked DMs preventing us from banning
+                self.temp_cache.add(user, server, "BAN")
+                await self.bot.ban(user)
+                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** **🤐Silently🙊** :hammer::white_check_mark:".format(user.name).replace("`", ""))
+                logger.info("{}({}) banned {}({})".format(
+                    author.name, author.id, user.name, user.id))
+                if self.settings[server.id].get('ban_cases',
+                                                default_settings['ban_cases']):
+                    await self.new_case(server,
+                                        action="BAN",
+                                        mod=author,
+                                        user=user,
+                                        reason=reason)
             except discord.errors.Forbidden:
-                await self.bot.say(":bangbang:Not Allowed to kick or Kick that specified user ¯\_(ツ)_/¯ :x: ")
-                await self.bot.delete_message(msg)
+                    await self.bot.say(":bangbang:Not Allowed to Ban or Ban that specified user ¯\_(ツ)_/¯ :x: ")
             except Exception as e:
                 print(e)
             finally:
@@ -687,21 +824,22 @@ class Mod:
         try:
             await self.bot.http.ban(user_id, server)
             await self.bot.say(":punch: I've **Succesfully Banned** <@{}> :hammer::white_check_mark:".format(user_id))
-        except:
+        except discord.errors.Forbidden:
             await self.bot.say("***Failed to ban. Either `Lacking Permissions` or `User cannot be found`.***")
-    @commands.command(pass_context=True, aliases=["ub"])
+    @commands.command(no_pm=True, pass_context=True, aliases=["ub"])
     @checks.admin_or_permissions(ban_members=True)
     async def unban(self, ctx, *, user_id: str):
-        """Unbans users by ID.
-        Credits to Yσυηg Sιηαтяα™#5484 OWNER OF Brooklyn"""
-
-        server = ctx.message.server.id
-        user = "<@{}>".format(user_id)
+        """Unbans users by ID."""
+        author = ctx.message.author
+        server = ctx.message.server
+        userr = "<@{}>".format(user_id)
         try:
-            await self.bot.http.unban(user_id, server)
+            await self.bot.http.unban(user_id, server.id)
             await self.bot.say(":punch: <@{}> ***Unbanned***:thumbsup:".format(user_id))
-        except:
-            await self.bot.say("Failed to unban. Either `Lacking Permissions` or `User cannot be found`.")
+        except discord.errors.Forbidden:
+            await self.bot.say("**Failed to unban.\n**I am** ***`Lacking Permissions`***")
+        except discord.HTTPException:
+            await self.bot.say("**Failed to unban.** ***`User cannot be found.`***")
     @commands.command(no_pm=True, pass_context=True, aliases=["sb"])
     @checks.admin_or_permissions(ban_members=True)
     async def softban(self, ctx, user: discord.Member, *, reason: str = None):
@@ -722,7 +860,7 @@ class Mod:
                               "You can now join the server again.\n{} ".format(invite))
                 except:
                     pass
-                self._tmp_banned_cache.append(user)
+                self.temp_cache.add(user, server, "BAN")
                 await self.bot.ban(user, 1)
                 logger.info("{}({}) softbanned {}({}), deleting 1 day worth "
                     "of messages".format(author.name, author.id, user.name,
@@ -734,6 +872,7 @@ class Mod:
                                         mod=author,
                                         user=user,
                                         reason=reason)
+                self.temp_cache.add(user, server, "UNBAN")
                 await self.bot.unban(server, user)
                 await self.bot.say("**My work here is Done. :thumbsup:**\nUser **{}** Has been **Soft** ***BANNED*** \N{DASH SYMBOL} \N{HAMMER}".format(user.name))
             except discord.errors.Forbidden:
@@ -989,7 +1128,7 @@ class Mod:
         and copy its id.
 
         This command only works on bots running as bot accounts.
-        alias is cleana 
+        alias is cleana
         """
 
         channel = ctx.message.channel
@@ -1503,7 +1642,7 @@ class Mod:
             message = ":bangbang: I've **Succesfully** moved the role `{}` :thumbsup:".format(role.name)
             await self.bot.say(message)
         except discord.Forbidden:
-            await self.bot.say(":x: ***I have no permission to move members.***:neutralFace:")  
+            await self.bot.say(":x: ***I have no permission to move members.***:neutralFace:")
         except discord.HTTPException:
             await self.bot.say("<:neutralFace:226038131655180288> **Moving the role failed, or you are of too low rank to move the role.** <:neutralFace:226038131655180288>")
 
@@ -1793,7 +1932,7 @@ class Mod:
             mentions = set(message.mentions)
             if len(mentions) >= max_mentions:
                 try:
-                    self._tmp_banned_cache.append(author)
+                    self.temp_cache.add(author, server, "BAN")
                     await self.bot.ban(author, 1)
                 except:
                     logger.info("Failed to ban member for mention spam in "
@@ -1805,9 +1944,6 @@ class Mod:
                                         user=author,
                                         reason="Mention spam (Autoban)")
                     return True
-                finally:
-                    await asyncio.sleep(1)
-                    self._tmp_banned_cache.remove(author)
         return False
 
     async def on_command(self, command, ctx):
@@ -1852,11 +1988,17 @@ class Mod:
             deleted = await self.check_mention_spam(message)
 
     async def on_member_ban(self, member):
-        if member not in self._tmp_banned_cache:
-            server = member.server
+        server = member.server
+        if not self.temp_cache.check(member, server, "BAN"):
             await self.new_case(server,
                                 user=member,
                                 action="BAN")
+
+    async def on_member_unban(self, server, user):
+        if not self.temp_cache.check(user, server, "UNBAN"):
+            await self.new_case(server,
+                                user=user,
+                                action="UNBAN")
 
     async def check_names(self, before, after):
         if before.name != after.name:
