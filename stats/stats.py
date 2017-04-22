@@ -115,12 +115,15 @@ class Statistics:
             elif channel.type == discord.ChannelType.voice:
                 voice_channels += 1
         channels = text_channels + voice_channels
-        cl = "***Updates:***\n***Revamped:***  **Audio (Np,song and queue cmds)**\n***Fixed:*** **No Errors Occurred.**\n\n***`This is the end of Changelog As of 2/21/2017(12:25am)Eastern Caribbean`***\n═══════════════  ஜ۩۞۩ஜ  ═══════════════"
         list = []
         for e in self.bot.servers:
             if e.me.voice_channel is not None:
                 list.append(e.name)
-        bi = "***Shards:***  **None Enabled**\n***Processor Usage: `{0:.1f}%`\nMemory Usage: `{1:.1f}`%***".format(cpu_usage, mem_v.percent)
+        if self.bot.shard_count is not None:
+            shards ="`{}` Shards enabled".format(self.bot.shard_count)
+        else:
+            shards = "`No shards currently Enabled`"
+        bi = "**Shards:**  ***{0}***\n**Processor Usage:** ***`{1:.1f}%`***\n**Memory Usage:** ***`{2:.1f}`%***".format(shards, cpu_usage, mem_v.percent)
 
         em = discord.Embed(description='\a\n', color=discord.Color.purple())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
@@ -137,7 +140,6 @@ class Statistics:
 
         em.add_field(name='**Cog Stats**', value="***`{}`*** **Active Modules Containing** ***`{}`*** **Subcommands.**".format(str(len(self.bot.cogs)), str(len(self.bot.commands))))
         em.add_field(name='BotInfo', value=bi)
-        #Cl2 = em.add_field(name='Changelog', value=cl)
 
         em.set_footer(text='API version {}'.format(discord.__version__), icon_url='https://cdn.discordapp.com/attachments/133251234164375552/279456379981529088/232720527448342530.png')
         em.set_thumbnail(url=avatar)
