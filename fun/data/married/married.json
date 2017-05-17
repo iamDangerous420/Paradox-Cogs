@@ -1,0 +1,178 @@
+{
+    "158076636929982465" : {
+        "user" : {
+            "!Night" : {
+                "married_to" : {
+                    "Jaake" : {}
+                }
+            },
+            ".Zaid" : {
+                "married_to" : {
+                    "Kai" : {}
+                }
+            },
+            "Acmic" : {
+                "married_to" : {
+                    "Ivannnx" : {}
+                }
+            },
+            "Aphrodite" : {
+                "married_to" : {
+                    "\\o/" : {}
+                }
+            },
+            "Cat\u2661Vask" : {
+                "married_to" : {
+                    "Vask\u2661Cat" : {},
+                    "kitty" : {}
+                }
+            },
+            "Dandy" : {
+                "married_to" : {}
+            },
+            "Dangerous \u2620" : {
+                "married_to" : {
+                    "Stella" : {}
+                }
+            },
+            "Dave" : {
+                "married_to" : {
+                    "Matthew" : {}
+                }
+            },
+            "IloveChokersBitch" : {
+                "married_to" : {}
+            },
+            "Ivannnx" : {
+                "married_to" : {
+                    "Acmic" : {}
+                }
+            },
+            "Jaake" : {
+                "married_to" : {
+                    "!Night" : {},
+                    "\\o/" : {}
+                }
+            },
+            "Kai" : {
+                "married_to" : {
+                    ".Zaid" : {},
+                    "ultra" : {}
+                }
+            },
+            "Matthew" : {
+                "married_to" : {
+                    "Dave" : {}
+                }
+            },
+            "Not an alt" : {
+                "married_to" : {}
+            },
+            "SapphireLk" : {
+                "married_to" : {
+                    "Waffles" : {}
+                }
+            },
+            "Stella" : {
+                "married_to" : {
+                    "Dangerous \u2620" : {}
+                }
+            },
+            "Teddy" : {
+                "married_to" : {}
+            },
+            "Tenzin" : {
+                "married_to" : {}
+            },
+            "Vask\u2661Cat" : {
+                "married_to" : {
+                    "Cat\u2661Vask" : {}
+                }
+            },
+            "Waffles" : {
+                "married_to" : {
+                    "SapphireLk" : {},
+                    "asdfghjkl" : {}
+                }
+            },
+            "\\o/" : {
+                "married_to" : {
+                    "Aphrodite" : {},
+                    "Jaake" : {}
+                }
+            },
+            "asdfghjkl" : {
+                "married_to" : {
+                    "Waffles" : {}
+                }
+            },
+            "kitty" : {
+                "married_to" : {
+                    "Cat\u2661Vask" : {}
+                }
+            },
+            "skilleryz" : {
+                "married_to" : {}
+            },
+            "ultra" : {
+                "married_to" : {
+                    "Kai" : {}
+                }
+            }
+        }
+    },
+    "209814152288403457" : {
+        "user" : {
+            "Dangerous \u2620" : {
+                "married_to" : {}
+            }
+        }
+    },
+    "250662984483995649" : {
+        "user" : {
+            "Dangerous \u2620" : {
+                "married_to" : {}
+            },
+            "FwiedWice" : {
+                "married_to" : {
+                    "\u223d\ud835\udd72\ud835\udd86\ud835\udd92\ud835\udd8a\ud835\udd8d\ud835\udd8a\ud835\udd91\ud835\udd89\u223d" : {}
+                }
+            },
+            "\u223d\ud835\udd72\ud835\udd86\ud835\udd92\ud835\udd8a\ud835\udd8d\ud835\udd8a\ud835\udd91\ud835\udd89\u223d" : {
+                "married_to" : {
+                    "FwiedWice" : {}
+                }
+            }
+        }
+    },
+    "306933949190635521" : {
+        "user" : {
+            "CelestialDove" : {
+                "married_to" : {
+                    "xXHasteXx" : {},
+                    "\u223d\ud835\udd72\ud835\udd86\ud835\udd92\ud835\udd8a\ud835\udd8d\ud835\udd8a\ud835\udd91\ud835\udd89\u223d" : {}
+                }
+            },
+            "Dyno" : {
+                "married_to" : {
+                    "emogarbage" : {}
+                }
+            },
+            "emogarbage" : {
+                "married_to" : {
+                    "Dyno" : {}
+                }
+            },
+            "xXHasteXx" : {
+                "married_to" : {
+                    "CelestialDove" : {}
+                }
+            },
+            "\u223d\ud835\udd72\ud835\udd86\ud835\udd92\ud835\udd8a\ud835\udd8d\ud835\udd8a\ud835\udd91\ud835\udd89\u223d" : {
+                "married_to" : {
+                    "CelestialDove" : {}
+                }
+            }
+        }
+    }
+}
