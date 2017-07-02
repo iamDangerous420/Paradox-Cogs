@@ -101,6 +101,10 @@ class mute:
         if not role:
             return
 
+        if 'Mod' in self.bot.cogs:
+            cog_mod = self.bot.get_cog('Mod')
+            cog_mod_enabled = True
+
         self.json = dataIO.load_json(self.location)
         if server.id not in self.json:
             self.json[server.id] = {}
@@ -147,6 +151,19 @@ class mute:
             msg = '**Mute set**,But I require ***manage messages*** to clean up. **Please Assign Admin permissions To avoid errors such as these infuture** :thumbsup:'
         em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         await self.bot.say(embed=em)
+        if cog_mod_enabled is True:
+            if duration is None:
+                await cog_mod.new_case(server, action="Cmuted forever 🙊♻", mod=ctx.message.author, user=user, reason=reason)
+            if duration < 60:
+                await cog_mod.new_case(server, action="Cmuted for {}s 🙊♻".format(duration), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 60:
+                if duration < 3600:
+                    await cog_mod.new_case(server, action="Cmuted for {}M 🙊♻".format(duration/60).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 3600:
+                if duration < 86400:
+                    await cog_mod.new_case(server, action="Cmuted for {}H 🙊♻".format(duration/3600).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 86400:
+                await cog_mod.new_case(server, action="Cmuted for {} Day(s) 🙊♻".format(duration/86400).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def mute(self, ctx, user: discord.Member, duration: str=None, *, reason: str=None):
@@ -158,6 +175,11 @@ class mute:
         role = await self.setup_role(server)
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
+
+        if 'Mod' in self.bot.cogs:
+            cog_mod = self.bot.get_cog('Mod')
+            cog_mod_enabled = True
+
         if role is None:
             return
 
@@ -182,7 +204,6 @@ class mute:
         else:
             duration = _parse_time(duration)
             timestamp = time.time() + duration
-
         if server.id not in self.json:
             self.json[server.id] = {}
 
@@ -201,6 +222,21 @@ class mute:
         em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         em.set_thumbnail(url="https://cdn.discordapp.com/attachments/273424151795204107/289528782698840065/dont-speak.png")
         await self.bot.say(embed=em)
+        if duration is None:
+            duration = 'forever'
+        if cog_mod_enabled is True:
+            if duration is None:
+                await cog_mod.new_case(server, action="Muted forever 🙊", mod=ctx.message.author, user=user, reason=reason)
+            if duration < 60:
+                await cog_mod.new_case(server, action="Muted for {}s 🙊".format(duration), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 60:
+                if duration < 3600:
+                    await cog_mod.new_case(server, action="Muted for {}M 🙊".format(duration/60).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 3600:
+                if duration < 86400:
+                    await cog_mod.new_case(server, action="Muted for {}H 🙊".format(duration/3600).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
+            if duration >= 86400:
+                await cog_mod.new_case(server, action="Muted for {} Day(s) 🙊".format(duration/86400).replace(".0", ""), mod=ctx.message.author, user=user, reason=reason)
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
@@ -211,10 +247,18 @@ class mute:
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
 
+        if 'Mod' in self.bot.cogs:
+            cog_mod = self.bot.get_cog('Mod')
+            cog_mod_enabled = True
+
         if reason is None:
             msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x: **Be sure to review the rules for {}** :thumbsup: .  ".format(user.mention, server.name)
+            if cog_mod_enabled is True:
+                await cog_mod.new_case(server, action="Warning ⚠", mod=ctx.message.author, user=user)
         else:
             msg = ":bangbang:  **Hey!!** {},**You're doing something that might get you** ***MUTED*** :zipper_mouth: *if you persist* :x:  **Specifically**, ***__{}__***. **Be sure to review the rules for {}** :thumbsup:.".format(user.mention, reason, server.name)
+            if cog_mod_enabled is True:
+                await cog_mod.new_case(server, action="Warning ⚠", mod=ctx.message.author, user=user, reason=reason)
         em = discord.Embed(description=msg, colour=discord.Colour(value=colour), timestamp=__import__('datetime').datetime.utcnow())
         avatar = self.bot.user.avatar_url if self.bot.user.avatar else self.bot.user.default_avatar_url
         em.set_author(name='Warning from {}'.format(author.name), icon_url=avatar)
@@ -234,7 +278,7 @@ class mute:
                 await self.bot.say(embed=em)
                 return None
             else:
-                msg = "The **{}** **role Is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n".format(self.role_name)
+                msg = "**The {} role is inexistent**\n:raised_hand:***Creating it now wait up boi...***:raised_hand:\n".format(self.role_name)
                 em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
                 if not quiet:
                     msgobj = await self.bot.say(embed=em)
@@ -242,13 +286,15 @@ class mute:
                 perms = discord.Permissions.none()
                 role = await self.bot.create_role(server, name=self.role_name, permissions=perms)
                 if not quiet:
-                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '**Configurating channels** :smile:... ')
-                    em = discord.Embed(description=msgobj, colour=discord.Colour(value=colour))
+                    eb = msg + '**Configurating channels** :smile:... '
+                    msgobj = await self.bot.edit_message(msgobj, embed = discord.Embed(description=eb))
                 for c in server.channels:
                     await self.on_channel_create(c, role)
                 if not quiet:
-                    msgobj = await self.bot.edit_message(msgobj, msgobj.content + '\nhttps://goo.gl/yLyMgq **Andddd We** ***DONE DABBB***.')
-                    em = discord.Embed(description=msgobj, colour=discord.Colour(value=colour))
+                    e = eb + '\n**Andddd We** ***DONE DABBB***.'
+                    e = discord.Embed(description= e)
+                    e.set_thumbnail(url='https://goo.gl/yLyMgq')
+                    msgobj = await self.bot.edit_message(msgobj, embed = e)
         return role
 
 
@@ -305,9 +351,23 @@ class mute:
         """Removes mute from a user. Same as removing the role directly"""
         role = discord.utils.get(user.server.roles, name=self.role_name)
         sid = user.server.id
+        server = ctx.message.server
         channel = ctx.message.channel
         colour = ''.join([randchoice('0123456789ABCDEF') for x in range(6)])
         colour = int(colour, 16)
+
+        if 'Mod' in self.bot.cogs:
+            cog_mod = self.bot.get_cog('Mod')
+            cog_mod_enabled = True
+        if role and role in user.roles and reason is not None:
+            reason = reason
+            if self.json[sid][user.id]['reason']:
+                reason += self.json[sid][user.id]['reason']
+            await self._unmute(user, reason)
+            msg1 = '***Donee*** Unmuterinooo :speaking_head: :D'
+            em = discord.Embed(description=msg1, colour=discord.Colour(value=colour))
+            await self.bot.send_message(channel, embed=em)
+
         if role and role in user.roles:
             reason = '**Mute manually ended early by a pleb named =>** ***`{}`***. '.format(ctx.message.author.name)
             if self.json[sid][user.id]['reason']:
@@ -320,6 +380,9 @@ class mute:
             msg = "**Hey Mate!** ***{} wasn't Muted*** :thinking:.".format(user.mention)
             em = discord.Embed(description=msg, colour=discord.Colour(value=colour))
             await self.bot.send_message(channel, embed=em)
+
+        if cog_mod_enabled is True:
+            await cog_mod.new_case(server, action="Unmute 🗣", mod=ctx.message.author, user=user, reason=reason)
     async def on_load(self):
         """Called when bot is ready and each time cog is (re)loaded"""
         await self.bot.wait_until_ready()
