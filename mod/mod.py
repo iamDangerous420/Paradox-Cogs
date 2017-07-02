@@ -114,7 +114,7 @@ class Mod:
         self.session = aiohttp.ClientSession()
         self._settings = dataIO.load_json('data/admin/settings.json')
         self._settable_roles = self._settings.get("ROLES", {})
-        self.ee = ["https://cdn.discordapp.com/attachments/158076636929982465/294277395362480128/HQGh7tL.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294289909458534427/banned.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294290049565065226/azCR8D1.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294292018442797056/giphy_7.gif"]
+        self.ee = ["https://cdn.discordapp.com/attachments/158076636929982465/294277395362480128/HQGh7tL.gif", "https://cdn.discordapp.com/attachments/133251234164375552/321128248065130506/banned3.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294289909458534427/banned.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294290049565065226/azCR8D1.gif", "https://cdn.discordapp.com/attachments/269293047962009602/294292018442797056/giphy_7.gif"]
 
 
 
@@ -241,12 +241,15 @@ class Mod:
         author = ctx.message.author
         server = ctx.message.server
         channel = ctx.message.channel
+        if user is None:
+            await self.bot.send_cmd_help(ctx)
+            return
         if not channel.permissions_for(server.me).manage_roles:
-            await self.bot.say(' :bangbang: **Do you read ? I don\'t have manage_roles and it\'s a necessity for** ***ALL***  **role related operations.** :neutralFace: ')
+            await self.bot.say(' :bangbang: **Do you read ? I don\'t have manage_roles and it\'s a necessity for** ***ALL***  **role related operations.** 😐')
             return
         try:
             await self.bot.replace_roles(user)
-            await self.bot.say(":bangbang: **I've** ***Succesfully***  **Removed** ***All roles from***  `{}` :thumbsup: :stuck_out_tongue_closed_eyes: ".format(user.name).replace("`", ""))
+            await self.bot.say(":bangbang: **I've** ***successfully***  **Removed** ***All roles from***  `{}` :thumbsup: :stuck_out_tongue_closed_eyes: ".format(user.name).replace("`", ""))
             return
             # This will always return ^ cuz of @everyone role
         except discord.HTTPException:
@@ -277,7 +280,7 @@ class Mod:
             return
 
         await self.bot.add_roles(user, role)
-        await self.bot.say(":bangbang:  **Succesfully** Added role ***{}***  to ***{}*** :thumbsup:".format(role.name, user.name).replace("`", ""))
+        await self.bot.say(":bangbang:  **Successfully** Added role ***{}***  to ***{}*** :thumbsup:".format(role.name, user.name).replace("`", ""))
 
     @commands.command(pass_context=True, no_pm=True, aliases=["cr"])
     @checks.admin_or_permissions(manage_roles=True)
@@ -289,7 +292,7 @@ class Mod:
         server = ctx.message.server
         name = ''.join(rolename)
         await self.bot.create_role(server, name= '{}'.format(name))
-        message = ":bangbang: I've **Succesfully** created the role `{}` :thumbsup:".format(name)
+        message = ":bangbang: **I've** ***successfully***  **created the role** ***`{}`*** :thumbsup:".format(name)
         await self.bot.say(message)
 
     @commands.command(pass_context=True, aliases=["dr"])
@@ -306,7 +309,7 @@ class Mod:
             return
 
         await self.bot.delete_role(server,role)
-        message = " :call_me: I've **Succesfully** deleted the role `{}` :thumbsup:".format(rolename)
+        message = " :call_me: **I've** ***successfully*** **deleted the role** ***`{}`*** :thumbsup:".format(rolename)
         await self.bot.say(message)
 
     @commands.group(pass_context=True, no_pm=True)
@@ -402,7 +405,7 @@ class Mod:
         else:
             log.debug("Role {} added to {} on {}".format(rolename, author.name,
                                                          server.id))
-            await self.bot.reply(":punch: I've **Succesfully Added the role** `{}` To you :smile:".format(rolename))
+            await self.bot.reply(":punch: I've **successfully Added the role** `{}` To you :smile:".format(rolename))
 
     @selfrole.command(no_pm=True, pass_context=True, name="remove")
     async def selfrole_remove(self, ctx, *, rolename):
@@ -434,7 +437,7 @@ class Mod:
             log.debug("Role {} removed from {} on {}".format(rolename,
                                                              author.name,
                                                              server.id))
-            await self.bot.reply(":punch: I've **Succesfully Removed the role** `{}` from you :thumbsup:".format(rolename))
+            await self.bot.reply(":punch: I've **successfully Removed the role** `{}` from you :thumbsup:".format(rolename))
 
     @commands.group(pass_context=True, no_pm=True)
     @checks.serverowner_or_permissions(administrator=True)
@@ -609,23 +612,29 @@ class Mod:
                    )
             await self.bot.say(msg)
 
-    @commands.command(pass_context=True)
+    @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(move_members=True)
-    async def move(self, ctx, channel: discord.Channel, *users: discord.Member):
+    async def move(self, ctx, voicechannel: discord.Channel, *user: discord.Member):
         """
         Move two or more users at a time to a voice channel
         Case sensitime Which means it has to be in the exact format Or if you have developer mode you can Use id's
         Examples: ~move AFK @dangerous @teddy / ~move channel id : 199292534671802369 user ids: 187570149207834624 203649661611802624
         this also works if you do one id and one text like ~move 199292534671802369 @dangerous"""
-
-        for user in users:
-            await self.bot.move_member(user, channel)
-            lul = await self.bot.say("Moved **`{0}`** to ***__`{1}`__*** :heavy_check_mark: ".format(user.name, channel))
-            await asyncio.sleep(0.5)
-            await self.bot.delete_message(lul)
-        await self.bot.say("***:white_check_mark: Im done moving everyone to `{}` *** :thumbsup: ".format(channel))
-
-
+        author = ctx.message.author
+        server = ctx.message.server
+        try:
+            for user in ctx.message.mentions:
+                await self.bot.move_member(user, voicechannel)
+        except discord.Forbidden:
+            await self.bot.say("***`Move members`*** **is a required permission for me to move members to voice channels** <:bruh:321371077941133322>__***PLEASE ASSIGN IT TO ME***__<:bruh:321371077941133322>")
+        except discord.InvalidArgument:
+            await self.bot.say(":x: **Channel must be a Voice Channel and not a Text Channel**")
+        except discord.HTTPException:
+            memberlist = " , ".join(m.display_name for m in ctx.message.mentions)
+            await self.bot.say("<:xmark:314349398824058880> **An Error Occured.** **I was unable to move** ***``{}``***` **to** ***``{}``***🙅".format(memberlist, voicechannel))
+        else:
+            memberlist = " , ".join(m.display_name for m in ctx.message.mentions)
+            await self.bot.say(':white_check_mark: **Done** <:check:314349398811475968> **Moved** ***``{0}``*** **to** ***`{1}`*** :thumbsup:'.format(memberlist, voicechannel))
     @commands.command(no_pm=True, pass_context=True)
     @checks.admin_or_permissions(move_members=True)
     async def massmove(self, ctx, from_channel: discord.Channel, to_channel: discord.Channel):
@@ -685,7 +694,7 @@ class Mod:
                                     mod=author,
                                     user=user,
                                     reason=reason)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***Succesfully*** :thumbsup:***Message sent**:white_check_mark:* ".format(user.name).replace("`", ""))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've kicked** ***`{}`*** ***successfully*** :thumbsup:***Message sent**:white_check_mark:* ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick or Kick that specified user Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
             await self.bot.delete_message(msg)
@@ -728,7 +737,7 @@ class Mod:
                 msg = await self.bot.send_message(user, embed=em)
                 pass
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** :hammer:***Message sent***:white_check_mark:".format(user.name).replace("`", ""))
+                await self.bot.say(" :punch: **I've** **successfully Banned** ***`{}`*** <:banzy:322839986300780554>***Message sent***:white_check_mark:".format(user.name).replace("`", ""))
                 logger.info("{}({}) banned {}({})wit message {}".format(
                     author.name, author.id, user.name, user.id, reason))
                 if self.settings[server.id].get('ban_cases',
@@ -761,6 +770,22 @@ class Mod:
             finally:
                 await asyncio.sleep(1)
 
+#    @commands.command(pass_context=True)
+#    async def banlist(self, ctx):
+        """Displays the server's banlist"""
+        try:
+            banlist = await self.bot.get_bans(ctx.message.server)
+        except discord.errors.Forbidden:
+            await self.bot.say("I do not have the `Ban Members` permission")
+            return
+        bancount = len(banlist)
+        if bancount == 0:
+            banlist = "No users are banned from this server"
+        else:
+            banlist = ", ".join(map(str, banlist))
+        await self.bot.say("Total bans: `{}`\n```{}```".format(bancount, banlist))
+
+
     @commands.command(no_pm=True, pass_context=True, aliases=["k","ks","silentk","silentkick"])
     @checks.admin_or_permissions(kick_members=True)
     async def kick(self, ctx, user: discord.Member, *, reason: str=None):
@@ -779,7 +804,7 @@ class Mod:
                                     mod=author,
                                     user=user,
                                     reason=reason)
-            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've Silently kicked** ***`{}`*** ***Succesfully*** :thumbsup: ".format(user.name).replace("`", ""))
+            await self.bot.say(" :ballot_box_with_check:️ Alrighty! :white_check_mark: **I've Silently kicked** ***`{}`*** ***successfully*** :thumbsup: ".format(user.name).replace("`", ""))
         except discord.errors.Forbidden:
             await self.bot.say(" :no_entry: Not Allowed to kick or Kick that specified user  Bruv ¯\_(ツ)_/¯ :no_entry: sorry")
         except Exception as e:
@@ -798,7 +823,7 @@ class Mod:
             try:  # We don't want blocked DMs preventing us from banning
                 self.temp_cache.add(user, server, "BAN")
                 await self.bot.ban(user)
-                await self.bot.say(" :punch: I've **Succesfully Banned** ***`{}`*** **🤐Silently🙊** :hammer::white_check_mark:".format(user.name).replace("`", ""))
+                await self.bot.say(" :punch: I've **successfully Banned** ***`{}`*** **🤐Silently🙊** <:ban:322839828544749568>:white_check_mark:".format(user.name).replace("`", ""))
                 logger.info("{}({}) banned {}({})".format(
                     author.name, author.id, user.name, user.id))
                 if self.settings[server.id].get('ban_cases',
@@ -823,7 +848,7 @@ class Mod:
         user = "<@{}>".format(user_id)
         try:
             await self.bot.http.ban(user_id, server)
-            await self.bot.say(":punch: I've **Succesfully Banned** <@{}> :hammer::white_check_mark:".format(user_id))
+            await self.bot.say(":punch: I've **successfully Banned** <@{}> :hammer::white_check_mark:".format(user_id))
         except discord.errors.Forbidden:
             await self.bot.say("***Failed to ban. Either `Lacking Permissions` or `User cannot be found`.***")
     @commands.command(no_pm=True, pass_context=True, aliases=["ub"])
@@ -906,12 +931,20 @@ class Mod:
     @checks.mod_or_permissions(manage_messages=True)
     async def botclean(self, ctx, limit : int = None):
         """Cleans all of the bot messages in the channel"""
+        channel = ctx.message.channel
+        server = channel.server
+        has_permissions = channel.permissions_for(server.me).manage_messages
         if limit is None:
             limit = 100
         elif limit > 100:
             limit = 100
+        if not has_permissions:
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
+            return
+
+        await self.bot.delete_message(ctx.message)
         deleted = await self.bot.purge_from(ctx.message.channel, limit=limit, before=ctx.message, check= lambda e: e.author.bot)
-        reply = await self.bot.say('***:thumbsup: :ok_hand: Ayeee  {} messages deleted :thumbsup: :ok_hand: ***'.format(len(deleted)))
+        reply = await self.bot.say('***Successfully pruned `{}` messages. :ok_hand:<:check:314349398811475968>***'.format(len(deleted)))
         await asyncio.sleep(3)
         await self.bot.delete_message(reply)
 
@@ -1041,7 +1074,7 @@ class Mod:
         to_delete = [ctx.message]
 
         if not has_permissions:
-            await self.bot.say("I'm not allowed to delete messages.")
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
             return
 
         tries_left = 5
@@ -1063,7 +1096,7 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
-        reply = await self.bot.say("I've **Succesfully** pruned **{}** Messages containing `{}`".format(number, text))
+        reply = await self.bot.say("♻ **I've successfully pruned** ***`{}`*** **messages containing** ***`{}`*** ♻".format(len(to_delete), text))
         await asyncio.sleep(2)
         await self.bot.delete_message(reply)
 
@@ -1074,7 +1107,7 @@ class Mod:
         Examples:
         cleanup user @\u200bfag 2
         cleanup user gayboy 6
-        cleanu @dangermx 100"""
+        cleanu @Paradox 100"""
 
         channel = ctx.message.channel
         author = ctx.message.author
@@ -1093,7 +1126,7 @@ class Mod:
         to_delete = [ctx.message]
 
         if not has_permissions:
-            await self.bot.say("I'm not allowed to delete messages.")
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
             return
 
         tries_left = 5
@@ -1116,7 +1149,7 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
-        reply = await self.bot.say("I've **Succesfully** pruned **{}** of `{}` Messages".format(number, user.name).replace("`", ""))
+        reply = await self.bot.say("**I've successfully pruned** ***`{}`*** **of** ***`{} 's`*** **messages** <:check:314349398811475968>".format(number, user.name))
         await asyncio.sleep(3)
         await self.bot.delete_message(reply)
     @cleanup.command(pass_context=True, no_pm=True)
@@ -1147,7 +1180,7 @@ class Mod:
         after = await self.bot.get_message(channel, message_id)
 
         if not has_permissions:
-            await self.bot.say("I'm not allowed to delete messages.")
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
             return
         elif not after:
             await self.bot.say("Message not found.")
@@ -1180,7 +1213,7 @@ class Mod:
         to_delete = []
 
         if not has_permissions:
-            await self.bot.say("I'm not allowed to delete messages.")
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
             return
 
         async for message in self.bot.logs_from(channel, limit=number+1):
@@ -1194,7 +1227,7 @@ class Mod:
             await self.mass_purge(to_delete)
         else:
             await self.slow_deletion(to_delete)
-        reply = await self.bot.say('***:thumbsup: :ok_hand: Ayeee  {} messages deleted :thumbsup: :ok_hand: ***'.format(number))
+        reply = await self.bot.say('***Successfully pruned `{}` messages. :ok_hand:<:check:314349398811475968>***'.format(number))
         await asyncio.sleep(2)
         await self.bot.delete_message(reply)
 
@@ -1235,7 +1268,7 @@ class Mod:
         to_delete = [ctx.message]
 
         if not has_permissions:
-            await self.bot.say("I'm not allowed to delete messages.")
+            await self.bot.say("**Congratulations,**\n***You played yourself.***:tada:\n**I do not have** ***`manage_messages`*** **permissions.**")
             return
 
         tries_left = 5
@@ -1632,19 +1665,19 @@ class Mod:
         Where 1 = the lowest area aka the bottom next to @everyone because you can't do 0 cause fuck logic idk """
         server = ctx.message.server
         if role.name is "@everyone":
-            message = "<:neutralFace:226038131655180288> I can't move the servers default role :face_palm:"
+            message = "😐 I can't move the servers default role :face_palm:"
             return
         if position is "0":
             await self.bot.say("you can't do 0 cause fuck logic idk Probs cause 0 is under the server default role aka `@everyone`")
             return
         try:
             await self.bot.move_role(server, role, position)
-            message = ":bangbang: I've **Succesfully** moved the role `{}` :thumbsup:".format(role.name)
+            message = ":bangbang: I've **successfully** moved the role `{}` :thumbsup:".format(role.name)
             await self.bot.say(message)
         except discord.Forbidden:
-            await self.bot.say(":x: ***I have no permission to move members.***:neutralFace:")
+            await self.bot.say(":x: ***I have no permission to move members.***😐")
         except discord.HTTPException:
-            await self.bot.say("<:neutralFace:226038131655180288> **Moving the role failed, or you are of too low rank to move the role.** <:neutralFace:226038131655180288>")
+            await self.bot.say("😐 **Moving the role failed, or you are of too low rank to move the role.** 😐")
 
     @editrole.command(name="name", pass_context=True)
     @checks.admin_or_permissions(manage_roles=True)
